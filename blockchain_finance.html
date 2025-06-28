@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>区块链金融应用 - Python金融编程课程</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: left;
+        }
+        
+        /* 顶部导航样式 */
+        .top-navigation {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            margin: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 1px solid #dee2e6;
+            color: #495057;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        }
+        
+        .nav-btn i {
+            margin-right: 8px;
+        }
+        
+        .main-content {
+            min-height: 100vh;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-btn {
+                padding: 8px 12px;
+                margin: 3px;
+                font-size: 0.8em;
+            }
+            
+            .top-navigation {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-btn {
+                padding: 6px 10px;
+                margin: 2px;
+                font-size: 0.75em;
+                display: block;
+                width: 100%;
+                margin-bottom: 8px;
+            }
+            
+            .top-navigation {
+                padding: 10px;
+            }
+            
+            .hero-section {
+                padding: 30px 10px;
+            }
+            
+            .hero-section h1 {
+                font-size: 1.8rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .hero-section p {
+                font-size: 1rem;
+            }
+            
+            section {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+        }
+        
+        /* 超小屏设备优化 */
+        @media (max-width: 360px) {
+            .sidebar {
+                width: calc(100vw - 20px);
+                left: -100vw;
+            }
+            
+            .sidebar.active {
+                left: 10px;
+            }
+            
+            .nav-link {
+                padding: 15px;
+                font-size: 1rem;
+                text-align: center;
+            }
+            
+            .sidebar-header {
+                text-align: center;
+                padding: 20px 15px;
+            }
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .hero-section p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            text-align: left;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--primary-color);
+            text-align: left;
+        }
+        
+        h2 {
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* 概念解释样式 */
+        .concept-explanation {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+        
+        .concept-explanation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1);
+        }
+        
+        .concept-explanation h4 {
+            margin: 0 0 15px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+        
+        .concept-explanation p {
+            margin: 10px 0;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        
+        .concept-explanation strong {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        /* 公式解释样式 */
+        .formula-explanation {
+            background-color: #f8f9ff;
+            color: #4a5568;
+            padding: 8px 12px;
+            border-left: 3px solid #667eea;
+            margin: 5px 0 15px 20px;
+            font-style: italic;
+            font-size: 0.9em;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .math-formula {
+            background-color: var(--light-color);
+            padding: 20px;
+            border-left: 4px solid var(--info-color);
+            margin: 20px 0;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: left;
+            position: relative;
+        }
+        
+        .math-formula::before {
+            content: '📐';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.2em;
+            opacity: 0.6;
+        }
+        
+        .code-example {
+            background-color: var(--light-color);
+            border: 1px solid #e9ecef;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+        
+        .code-example pre {
+            text-align: left;
+            margin: 0;
+        }
+        
+        .code-example code {
+            text-align: left;
+        }
+        
+        pre {
+            text-align: left !important;
+        }
+        
+        code {
+            text-align: left !important;
+        }
+        
+        .complexity-badge {
+            font-size: 0.8em;
+            margin-left: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .blockchain-card {
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            text-align: left;
+        }
+        
+        .blockchain-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .crypto-metrics {
+            background-color: #e7f3ff;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            border-left: 4px solid var(--info-color);
+            text-align: left;
+        }
+        
+        .blockchain-viz {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .block {
+            display: inline-block;
+            width: 80px;
+            height: 60px;
+            border: 2px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            background: linear-gradient(45deg, var(--secondary-color), #2980b9);
+            color: white;
+            line-height: 60px;
+            margin: 5px;
+            font-size: 10px;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .block:hover {
+            transform: scale(1.05);
+        }
+        
+        .chain-arrow {
+            display: inline-block;
+            width: 30px;
+            height: 2px;
+            background: #6c757d;
+            margin: 0 5px;
+            position: relative;
+            top: -30px;
+        }
+        
+        .smart-contract {
+            background: linear-gradient(135deg, var(--success-color), #20c997);
+            border: 2px solid var(--success-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            color: white;
+            margin: 15px 0;
+            box-shadow: var(--box-shadow);
+            text-align: left;
+        }
+        
+        .defi-protocol {
+            background: linear-gradient(135deg, var(--warning-color), #fd7e14);
+            border: 2px solid var(--warning-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            color: #212529;
+            margin: 15px 0;
+            box-shadow: var(--box-shadow);
+            text-align: left;
+        }
+        
+        .crypto-analysis {
+            background: linear-gradient(135deg, #6f42c1, #e83e8c);
+            border: 2px solid #6f42c1;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            color: white;
+            margin: 15px 0;
+            box-shadow: var(--box-shadow);
+            text-align: left;
+        }
+        
+        .network-node {
+            fill: var(--secondary-color);
+            stroke: #2980b9;
+            stroke-width: 2;
+        }
+        
+        .network-link {
+            stroke: #6c757d;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+        
+        /* 关键指标样式优化 */
+        .crypto-metrics ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .crypto-metrics li {
+            background: white;
+            margin: 8px 0;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: var(--dark-color);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .crypto-metrics li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .crypto-metrics li:nth-child(1) { border-left-color: #28a745; }
+        .crypto-metrics li:nth-child(2) { border-left-color: #ffc107; }
+        .crypto-metrics li:nth-child(3) { border-left-color: #17a2b8; }
+        .crypto-metrics li:nth-child(4) { border-left-color: #6f42c1; }
+        
+        .crypto-metrics li i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .crypto-metrics li:nth-child(1) i { color: #28a745; }
+        .crypto-metrics li:nth-child(2) i { color: #ffc107; }
+        .crypto-metrics li:nth-child(3) i { color: #17a2b8; }
+        .crypto-metrics li:nth-child(4) i { color: #6f42c1; }
+        
+        .network-node {
+            stroke: #0056b3;
+            stroke-width: 2;
+        }
+        .network-link {
+            stroke: #6c757d;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+        .math-formula {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .code-example {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .complexity-badge {
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .blockchain-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .crypto-metrics {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .blockchain-viz {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .block {
+            display: inline-block;
+            width: 80px;
+            height: 60px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            line-height: 60px;
+            margin: 5px;
+            font-size: 10px;
+            position: relative;
+        }
+        .chain-arrow {
+            display: inline-block;
+            width: 30px;
+            height: 2px;
+            background: #6c757d;
+            margin: 0 5px;
+            position: relative;
+            top: -30px;
+        }
+        .smart-contract {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            margin: 10px 0;
+        }
+        .defi-protocol {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            color: #212529;
+            margin: 10px 0;
+        }
+        .crypto-analysis {
+            background: linear-gradient(135deg, #6f42c1, #e83e8c);
+            border: 2px solid #6f42c1;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            margin: 10px 0;
+        }
+        .network-node {
+            fill: #007bff;
+            stroke: #0056b3;
+            stroke-width: 2;
+        }
+        .network-link {
+            stroke: #6c757d;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+        
+        /* 返回顶部按钮样式 */
+        #backToTop {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        #backToTop:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    
+    
+    <!-- 主内容区域 -->
+    <div class="main-content" id="mainContent">
+        <div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+    
+
+    
+    <div class="container">
+        <!-- 英雄区域 -->
+        <div class="hero-section">
+            <h1><i class="fas fa-link"></i> 区块链金融应用</h1>
+            <p>探索区块链技术在金融领域的革命性应用，从基础概念到实际实现，掌握去中心化金融的核心技术</p>
+        </div>
+        <!-- 顶部导航 -->
+    <div class="top-navigation">
+        <button class="nav-btn active" data-section="overview">
+            <i class="fas fa-info-circle"></i> 概述
+        </button>
+        <button class="nav-btn" data-section="basics">
+            <i class="fas fa-graduation-cap"></i> 基础概念
+        </button>
+        <button class="nav-btn" data-section="simple-blockchain">
+            <i class="fas fa-cube"></i> 简单区块链
+        </button>
+        <button class="nav-btn" data-section="transactions">
+            <i class="fas fa-exchange-alt"></i> 交易系统
+        </button>
+        <button class="nav-btn" data-section="mining">
+            <i class="fas fa-pickaxe"></i> 挖矿机制
+        </button>
+        <button class="nav-btn" data-section="smart-contracts">
+            <i class="fas fa-file-contract"></i> 智能合约
+        </button>
+        <button class="nav-btn" data-section="defi">
+            <i class="fas fa-coins"></i> DeFi应用
+        </button>
+        <button class="nav-btn" data-section="crypto-analysis">
+            <i class="fas fa-chart-line"></i> 加密货币分析
+        </button>
+        <button class="nav-btn" data-section="practical-applications">
+            <i class="fas fa-briefcase"></i> 实际应用
+        </button>
+    </div>
+        <section id="overview" class="content-section active">
+            <h2><i class="fas fa-info-circle"></i> 区块链金融概述</h2>
+            <p>区块链技术作为一种分布式账本技术，正在重塑传统金融行业。它通过去中心化、不可篡改和透明的特性，为金融服务提供了全新的解决方案。</p>
+            
+            <div class="concept-box">
+                <h4>🎯 学习路径</h4>
+                <p>我们将按照以下顺序深入学习区块链金融：</p>
+                <ol>
+                    <li><strong>基础概念</strong> - 理解区块链的核心原理</li>
+                    <li><strong>简单实现</strong> - 构建最基础的区块链</li>
+                    <li><strong>交易系统</strong> - 添加交易验证机制</li>
+                    <li><strong>挖矿机制</strong> - 实现工作量证明</li>
+                    <li><strong>智能合约</strong> - 可编程的金融逻辑</li>
+                    <li><strong>DeFi应用</strong> - 去中心化金融实践</li>
+                </ol>
+            </div>
+        </section>
+        
+        <!-- 第一部分：基础概念 -->
+        <section id="basics" class="content-section">
+            <h2><i class="fas fa-graduation-cap"></i> 第一步：理解区块链基础概念</h2>
+            
+            <div class="concept-box">
+                <h4>🔗 什么是区块链？</h4>
+                <p>区块链是一种<strong>分布式数据库</strong>，它维护着一个不断增长的记录列表（称为区块），这些区块通过密码学方式链接和保护。</p>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h5>🧱 区块的组成</h5>
+                        <ul>
+                            <li><strong>区块头</strong>：包含元数据</li>
+                            <li><strong>交易数据</strong>：实际的交易记录</li>
+                            <li><strong>哈希值</strong>：区块的唯一标识</li>
+                            <li><strong>前一区块哈希</strong>：链接到前一个区块</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>🔐 核心特性</h5>
+                        <ul>
+                            <li><strong>去中心化</strong>：无需中央权威</li>
+                            <li><strong>不可篡改</strong>：历史记录无法修改</li>
+                            <li><strong>透明性</strong>：所有交易公开可查</li>
+                            <li><strong>共识机制</strong>：网络达成一致</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="concept-explanation">
+                <h4>💡 为什么区块链需要这些数学公式？</h4>
+                <p>区块链的核心是建立一个不可篡改的数字账本。想象一下传统的纸质账本，如果有人偷偷修改了某一页的记录，很难被发现。而区块链通过数学方法解决了这个问题。</p>
+                <p><strong>生活化理解：</strong>哈希函数就像给每个区块盖上一个独特的"数字指纹"，任何微小的修改都会导致指纹完全改变，从而被立即发现。</p>
+                <p><strong>金融应用：</strong>在数字货币中，这确保了交易记录的真实性和不可篡改性，是建立信任的数学基础。</p>
+            </div>
+            <div class="math-formula">
+                <h5>📐 区块链的数学基础</h5>
+                <p><strong>哈希函数特性：</strong></p>
+                \[ H: \{0,1\}^* \rightarrow \{0,1\}^{256} \]
+                <p class="formula-explanation">将任意长度的输入映射为固定长度(256位)的输出，确保数据完整性</p>
+                <p>其中哈希函数H具有以下性质：</p>
+                <ul>
+                    <li><strong>确定性</strong>：相同输入总是产生相同输出</li>
+                    <li><strong>快速计算</strong>：计算效率高</li>
+                    <li><strong>雪崩效应</strong>：输入微小变化导致输出巨大变化</li>
+                    <li><strong>单向性</strong>：从输出推导输入在计算上不可行</li>
+                </ul>
+                
+                <p><strong>区块链接关系：</strong></p>
+                \[ \text{Block}_{i}.\text{prevHash} = H(\text{Block}_{i-1}) \]
+                <p class="formula-explanation">每个区块都包含前一个区块的哈希值，形成不可断裂的链式结构</p>
+            </div>
+        </section>
+        
+        <!-- 第二部分：最简单的区块链实现 -->
+        <section id="simple-blockchain" class="content-section">
+            <h2><i class="fas fa-code"></i> 第二步：构建最简单的区块链</h2>
+            
+            <div class="code-example">
+                <h6>🚀 第一个区块链实现（仅包含基本结构）</h6>
+                <pre><code class="python">
+import hashlib
+import time
+import json
+from typing import List, Dict
+
+class SimpleBlock:
+    """
+    最简单的区块实现
+    只包含基本的数据和哈希计算
+    """
+    def __init__(self, data: str, previous_hash: str):
+        self.timestamp = time.time()  # 时间戳
+        self.data = data              # 数据（可以是任何信息）
+        self.previous_hash = previous_hash  # 前一个区块的哈希
+        self.hash = self.calculate_hash()   # 当前区块的哈希
+    
+    def calculate_hash(self) -> str:
+        """
+        计算区块的哈希值
+        将所有区块数据组合后进行SHA-256哈希
+        """
+        # 将区块的所有数据组合成字符串
+        block_string = f"{self.timestamp}{self.data}{self.previous_hash}"
+        # 计算SHA-256哈希
+        return hashlib.sha256(block_string.encode()).hexdigest()
+    
+    def __str__(self):
+        return f"Block(hash={self.hash[:10]}..., data='{self.data}')"
+
+class SimpleBlockchain:
+    """
+    最简单的区块链实现
+    只包含基本的区块添加和验证功能
+    """
+    def __init__(self):
+        self.chain: List[SimpleBlock] = []
+        self.create_genesis_block()  # 创建创世区块
+    
+    def create_genesis_block(self):
+        """
+        创建创世区块（第一个区块）
+        创世区块没有前一个区块，所以previous_hash设为"0"
+        """
+        genesis_block = SimpleBlock("创世区块 - 区块链的起点", "0")
+        self.chain.append(genesis_block)
+        print(f"✅ 创世区块已创建: {genesis_block}")
+    
+    def add_block(self, data: str):
+        """
+        向区块链添加新区块
+        新区块的previous_hash是链上最后一个区块的hash
+        """
+        # 获取最后一个区块
+        previous_block = self.chain[-1]
+        # 创建新区块
+        new_block = SimpleBlock(data, previous_block.hash)
+        # 添加到链中
+        self.chain.append(new_block)
+        print(f"✅ 新区块已添加: {new_block}")
+    
+    def is_valid(self) -> bool:
+        """
+        验证整个区块链的完整性
+        检查每个区块的哈希和链接关系
+        """
+        for i in range(1, len(self.chain)):
+            current_block = self.chain[i]
+            previous_block = self.chain[i-1]
+            
+            # 检查当前区块的哈希是否正确
+            if current_block.hash != current_block.calculate_hash():
+                print(f"❌ 区块 {i} 的哈希值不正确")
+                return False
+            
+            # 检查区块链接是否正确
+            if current_block.previous_hash != previous_block.hash:
+                print(f"❌ 区块 {i} 与前一区块的链接断裂")
+                return False
+        
+        print("✅ 区块链验证通过")
+        return True
+    
+    def display_chain(self):
+        """显示整个区块链"""
+        print("\n🔗 区块链内容：")
+        for i, block in enumerate(self.chain):
+            print(f"区块 {i}: {block}")
+            print(f"   时间: {time.ctime(block.timestamp)}")
+            print(f"   数据: {block.data}")
+            print(f"   哈希: {block.hash}")
+            print(f"   前哈希: {block.previous_hash}")
+            print()
+
+# 🎯 使用示例：创建你的第一个区块链
+if __name__ == "__main__":
+    print("🚀 开始创建区块链...")
+    
+    # 创建区块链实例
+    my_blockchain = SimpleBlockchain()
+    
+    # 添加一些区块
+    my_blockchain.add_block("Alice向Bob转账100元")
+    my_blockchain.add_block("Bob向Charlie转账50元")
+    my_blockchain.add_block("Charlie向Alice转账25元")
+    
+    # 显示区块链
+    my_blockchain.display_chain()
+    
+    # 验证区块链
+    print("\n🔍 验证区块链完整性...")
+    is_valid = my_blockchain.is_valid()
+    print(f"区块链是否有效: {is_valid}")
+                </code></pre>
+            </div>
+            
+            <div class="concept-box">
+                <h4>💡 关键概念解释</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>🔑 哈希函数的作用</h5>
+                        <ul>
+                            <li><strong>数据完整性</strong>：任何数据修改都会改变哈希</li>
+                            <li><strong>唯一标识</strong>：每个区块都有唯一的哈希值</li>
+                            <li><strong>链接机制</strong>：通过哈希将区块连接起来</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>🔗 区块链接原理</h5>
+                        <ul>
+                            <li><strong>前向链接</strong>：每个区块指向前一个区块</li>
+                            <li><strong>不可篡改</strong>：修改任何区块会破坏链接</li>
+                            <li><strong>验证机制</strong>：可以验证整个链的完整性</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 第三部分：添加交易系统 -->
+        <section id="transactions" class="content-section">
+            <h2><i class="fas fa-exchange-alt"></i> 第三步：添加交易系统</h2>
+            
+            <div class="concept-box">
+                <h4>💰 为什么需要交易系统？</h4>
+                <p>简单的区块链只能存储文本数据，但金融应用需要：</p>
+                <ul>
+                    <li><strong>结构化交易</strong>：发送方、接收方、金额</li>
+                    <li><strong>数字签名</strong>：证明交易的真实性</li>
+                    <li><strong>余额管理</strong>：跟踪每个账户的余额</li>
+                    <li><strong>交易验证</strong>：防止双重支付和无效交易</li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <h6>💳 交易类的实现</h6>
+                <pre><code class="python">
+import hashlib
+import time
+import json
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+from decimal import Decimal
+
+@dataclass
+class Transaction:
+    """
+    交易类 - 表示一笔转账交易
+    包含发送方、接收方、金额和时间戳
+    """
+    sender: str          # 发送方地址
+    recipient: str       # 接收方地址
+    amount: Decimal      # 转账金额
+    timestamp: float     # 交易时间戳
+    signature: str = ""  # 数字签名（简化版）
+    
+    def __post_init__(self):
+        """初始化后自动生成交易哈希"""
+        if not self.timestamp:
+            self.timestamp = time.time()
+        self.transaction_id = self.calculate_hash()
+    
+    def calculate_hash(self) -> str:
+        """
+        计算交易的哈希值
+        用于唯一标识这笔交易
+        """
+        transaction_string = f"{self.sender}{self.recipient}{self.amount}{self.timestamp}"
+        return hashlib.sha256(transaction_string.encode()).hexdigest()
+    
+    def sign_transaction(self, private_key: str):
+        """
+        签名交易（简化版）
+        在真实应用中，这里会使用椭圆曲线数字签名算法(ECDSA)
+        """
+        # 简化的签名：使用私钥和交易哈希生成签名
+        signature_string = f"{private_key}{self.transaction_id}"
+        self.signature = hashlib.sha256(signature_string.encode()).hexdigest()
+    
+    def is_valid(self, public_key: str) -> bool:
+        """
+        验证交易签名（简化版）
+        检查签名是否与公钥匹配
+        """
+        if not self.signature:
+            return False
+        
+        # 简化的验证：重新计算签名并比较
+        expected_signature = hashlib.sha256(f"{public_key}{self.transaction_id}".encode()).hexdigest()
+        return self.signature == expected_signature
+    
+    def to_dict(self) -> dict:
+        """转换为字典格式"""
+        return {
+            'sender': self.sender,
+            'recipient': self.recipient,
+            'amount': str(self.amount),
+            'timestamp': self.timestamp,
+            'transaction_id': self.transaction_id,
+            'signature': self.signature
+        }
+    
+    def __str__(self):
+        return f"Transaction({self.sender} -> {self.recipient}: {self.amount})"
+
+class TransactionBlock:
+    """
+    包含交易的区块
+    相比简单区块，这个区块可以包含多笔交易
+    """
+    def __init__(self, transactions: List[Transaction], previous_hash: str):
+        self.timestamp = time.time()
+        self.transactions = transactions
+        self.previous_hash = previous_hash
+        self.merkle_root = self.calculate_merkle_root()
+        self.hash = self.calculate_hash()
+    
+    def calculate_merkle_root(self) -> str:
+        """
+        计算默克尔树根
+        将所有交易哈希组合成一个根哈希
+        """
+        if not self.transactions:
+            return "0"
+        
+        # 获取所有交易的哈希
+        transaction_hashes = [tx.transaction_id for tx in self.transactions]
+        
+        # 简化的默克尔树：直接将所有哈希连接
+        combined_hash = "".join(transaction_hashes)
+        return hashlib.sha256(combined_hash.encode()).hexdigest()
+    
+    def calculate_hash(self) -> str:
+        """
+        计算区块哈希
+        包含时间戳、默克尔根和前一区块哈希
+        """
+        block_string = f"{self.timestamp}{self.merkle_root}{self.previous_hash}"
+        return hashlib.sha256(block_string.encode()).hexdigest()
+    
+    def __str__(self):
+        return f"Block(hash={self.hash[:10]}..., transactions={len(self.transactions)})"
+                </code></pre>
+            </div>
+            
+            <div class="math-formula">
+                <h5>🔐 数字签名的数学原理</h5>
+                <p><strong>椭圆曲线数字签名算法 (ECDSA)：</strong></p>
+                \[ \text{签名} = (r, s) \text{ 其中 } r = (k \cdot G)_x \bmod n \]
+                \[ s = k^{-1}(H(m) + r \cdot d) \bmod n \]
+                <p>其中：</p>
+                <ul>
+                    <li><strong>G</strong>：椭圆曲线的基点</li>
+                    <li><strong>k</strong>：随机数</li>
+                    <li><strong>d</strong>：私钥</li>
+                    <li><strong>H(m)</strong>：消息哈希</li>
+                    <li><strong>n</strong>：椭圆曲线的阶</li>
+                </ul>
+                
+                <p><strong>验证过程：</strong></p>
+                \[ u_1 = H(m) \cdot s^{-1} \bmod n \]
+                \[ u_2 = r \cdot s^{-1} \bmod n \]
+                \[ (x, y) = u_1 \cdot G + u_2 \cdot Q \]
+                <p>如果 \( x \equiv r \pmod{n} \)，则签名有效</p>
+            </div>
+            
+            <div class="code-example">
+                <h6>🏦 带交易系统的区块链</h6>
+                <pre><code class="python">
+class TransactionBlockchain:
+    """
+    支持交易的区块链
+    包含余额管理、交易验证等功能
+    """
+    def __init__(self):
+        self.chain: List[TransactionBlock] = []
+        self.pending_transactions: List[Transaction] = []  # 待处理交易
+        self.balances: Dict[str, Decimal] = {}  # 账户余额
+        self.mining_reward = Decimal('10')  # 挖矿奖励
+        
+        # 创建创世区块
+        self.create_genesis_block()
+    
+    def create_genesis_block(self):
+        """
+        创建创世区块
+        给系统创建者分配初始资金
+        """
+        # 创建初始交易（系统向创建者转账）
+        genesis_transaction = Transaction(
+            sender="SYSTEM",
+            recipient="GENESIS_ACCOUNT",
+            amount=Decimal('1000'),
+            timestamp=time.time()
+        )
+        
+        genesis_block = TransactionBlock([genesis_transaction], "0")
+        self.chain.append(genesis_block)
+        
+        # 更新余额
+        self.balances["GENESIS_ACCOUNT"] = Decimal('1000')
+        print(f"✅ 创世区块已创建，初始账户余额: {self.balances}")
+    
+    def get_balance(self, address: str) -> Decimal:
+        """
+        获取账户余额
+        通过遍历所有交易计算余额
+        """
+        balance = Decimal('0')
+        
+        # 遍历所有区块的所有交易
+        for block in self.chain:
+            for transaction in block.transactions:
+                if transaction.recipient == address:
+                    balance += transaction.amount
+                if transaction.sender == address:
+                    balance -= transaction.amount
+        
+        return balance
+    
+    def add_transaction(self, transaction: Transaction) -> bool:
+        """
+        添加交易到待处理队列
+        验证交易的有效性
+        """
+        # 验证交易
+        if not self.validate_transaction(transaction):
+            print(f"❌ 交易验证失败: {transaction}")
+            return False
+        
+        # 添加到待处理队列
+        self.pending_transactions.append(transaction)
+        print(f"✅ 交易已添加到待处理队列: {transaction}")
+        return True
+    
+    def validate_transaction(self, transaction: Transaction) -> bool:
+        """
+        验证交易的有效性
+        检查余额、签名等
+        """
+        # 检查金额是否为正数
+        if transaction.amount <= 0:
+            print(f"❌ 交易金额必须为正数: {transaction.amount}")
+            return False
+        
+        # 检查发送方余额（系统交易除外）
+        if transaction.sender != "SYSTEM":
+            sender_balance = self.get_balance(transaction.sender)
+            if sender_balance < transaction.amount:
+                print(f"❌ 余额不足: {transaction.sender} 余额 {sender_balance}, 需要 {transaction.amount}")
+                return False
+        
+        # 检查签名（简化版）
+        if transaction.sender != "SYSTEM" and not transaction.signature:
+            print(f"❌ 交易缺少签名: {transaction}")
+            return False
+        
+        return True
+    
+    def mine_pending_transactions(self, mining_reward_address: str):
+        """
+        挖矿：处理所有待处理交易
+        给矿工发放奖励
+        """
+        # 添加挖矿奖励交易
+        reward_transaction = Transaction(
+            sender="SYSTEM",
+            recipient=mining_reward_address,
+            amount=self.mining_reward,
+            timestamp=time.time()
+        )
+        
+        # 将奖励交易添加到待处理交易中
+        transactions_to_mine = self.pending_transactions + [reward_transaction]
+        
+        # 创建新区块
+        previous_block = self.chain[-1]
+        new_block = TransactionBlock(transactions_to_mine, previous_block.hash)
+        
+        # 添加到链中
+        self.chain.append(new_block)
+        
+        # 清空待处理交易
+        self.pending_transactions = []
+        
+        # 更新余额缓存
+        self.update_balances()
+        
+        print(f"✅ 挖矿完成！新区块已添加: {new_block}")
+        print(f"💰 矿工 {mining_reward_address} 获得奖励: {self.mining_reward}")
+    
+    def update_balances(self):
+        """
+        更新所有账户的余额缓存
+        """
+        self.balances.clear()
+        
+        # 重新计算所有余额
+        for block in self.chain:
+            for transaction in block.transactions:
+                # 增加接收方余额
+                if transaction.recipient not in self.balances:
+                    self.balances[transaction.recipient] = Decimal('0')
+                self.balances[transaction.recipient] += transaction.amount
+                
+                # 减少发送方余额（系统交易除外）
+                if transaction.sender != "SYSTEM":
+                    if transaction.sender not in self.balances:
+                        self.balances[transaction.sender] = Decimal('0')
+                    self.balances[transaction.sender] -= transaction.amount
+    
+    def display_balances(self):
+        """显示所有账户余额"""
+        print("\n💰 账户余额：")
+        for address, balance in self.balances.items():
+            print(f"  {address}: {balance}")
+    
+    def display_chain(self):
+        """显示整个区块链"""
+        print("\n🔗 区块链内容：")
+        for i, block in enumerate(self.chain):
+            print(f"\n区块 {i}: {block}")
+            print(f"  时间: {time.ctime(block.timestamp)}")
+            print(f"  前哈希: {block.previous_hash}")
+            print(f"  默克尔根: {block.merkle_root}")
+            print(f"  交易数量: {len(block.transactions)}")
+            
+            for j, tx in enumerate(block.transactions):
+                print(f"    交易 {j+1}: {tx}")
+                print(f"      ID: {tx.transaction_id[:16]}...")
+                print(f"      签名: {tx.signature[:16] if tx.signature else 'None'}...")
+                </code></pre>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🎯 使用示例：创建交易区块链</h4>
+                <pre><code class="python">
+# 🚀 创建支持交易的区块链
+if __name__ == "__main__":
+    print("🚀 创建交易区块链...")
+    
+    # 创建区块链
+    blockchain = TransactionBlockchain()
+    
+    # 创建一些交易
+    tx1 = Transaction(
+        sender="GENESIS_ACCOUNT",
+        recipient="Alice",
+        amount=Decimal('100'),
+        timestamp=time.time()
+    )
+    tx1.sign_transaction("genesis_private_key")  # 简化签名
+    
+    tx2 = Transaction(
+        sender="GENESIS_ACCOUNT",
+        recipient="Bob",
+        amount=Decimal('50'),
+        timestamp=time.time()
+    )
+    tx2.sign_transaction("genesis_private_key")
+    
+    # 添加交易
+    blockchain.add_transaction(tx1)
+    blockchain.add_transaction(tx2)
+    
+    # 挖矿处理交易
+    blockchain.mine_pending_transactions("Miner1")
+    
+    # 显示结果
+    blockchain.display_balances()
+    blockchain.display_chain()
+    
+    # Alice向Bob转账
+    tx3 = Transaction(
+        sender="Alice",
+        recipient="Bob",
+        amount=Decimal('30'),
+        timestamp=time.time()
+    )
+    tx3.sign_transaction("alice_private_key")
+    
+    blockchain.add_transaction(tx3)
+    blockchain.mine_pending_transactions("Miner2")
+    
+    print("\n📊 最终余额：")
+    blockchain.display_balances()
+                </code></pre>
+            </div>
+            
+            </section>
+        
+        <!-- 第四部分：工作量证明挖矿机制 -->
+        <section id="mining" class="content-section">
+            <h2><i class="fas fa-hammer"></i> 第四步：实现工作量证明挖矿</h2>
+            
+            <div class="concept-box">
+                <h4>⛏️ 什么是工作量证明（Proof of Work）？</h4>
+                <p>工作量证明是一种共识机制，要求矿工解决计算难题来创建新区块：</p>
+                <ul>
+                    <li><strong>计算难题</strong>：找到满足特定条件的哈希值</li>
+                    <li><strong>难度调节</strong>：根据网络算力动态调整难度</li>
+                    <li><strong>竞争机制</strong>：最先解决难题的矿工获得奖励</li>
+                    <li><strong>安全保障</strong>：攻击网络需要巨大的计算资源</li>
+                </ul>
+            </div>
+            
+            <div class="math-formula">
+                <h5>🧮 工作量证明的数学原理</h5>
+                <p><strong>目标条件：</strong></p>
+                \[ H(\text{block\_header} + \text{nonce}) < \text{target} \]
+                <p>其中：</p>
+                <ul>
+                    <li><strong>H</strong>：SHA-256哈希函数</li>
+                    <li><strong>nonce</strong>：随机数（Number used Once）</li>
+                    <li><strong>target</strong>：目标值，决定挖矿难度</li>
+                </ul>
+                
+                <p><strong>难度计算：</strong></p>
+                \[ \text{difficulty} = \frac{\text{max\_target}}{\text{current\_target}} \]
+                
+                <p><strong>预期挖矿时间：</strong></p>
+                \[ \text{expected\_time} = \frac{\text{difficulty} \times 2^{32}}{\text{hash\_rate}} \]
+            </div>
+            
+            <div class="code-example">
+                <h6>⛏️ 带挖矿功能的区块实现</h6>
+                <pre><code class="python">
+import hashlib
+import time
+from typing import List
+from decimal import Decimal
+
+class MineableBlock:
+    """
+    可挖矿的区块
+    包含工作量证明机制
+    """
+    def __init__(self, transactions: List[Transaction], previous_hash: str, difficulty: int = 4):
+        self.timestamp = time.time()
+        self.transactions = transactions
+        self.previous_hash = previous_hash
+        self.merkle_root = self.calculate_merkle_root()
+        self.difficulty = difficulty  # 挖矿难度
+        self.nonce = 0  # 随机数
+        self.hash = ""  # 区块哈希（挖矿后生成）
+        
+        # 开始挖矿
+        self.mine_block()
+    
+    def calculate_merkle_root(self) -> str:
+        """计算默克尔树根"""
+        if not self.transactions:
+            return "0"
+        
+        transaction_hashes = [tx.transaction_id for tx in self.transactions]
+        combined_hash = "".join(transaction_hashes)
+        return hashlib.sha256(combined_hash.encode()).hexdigest()
+    
+    def calculate_hash(self) -> str:
+        """
+        计算区块哈希
+        包含所有区块数据和当前nonce值
+        """
+        block_string = f"{self.timestamp}{self.merkle_root}{self.previous_hash}{self.nonce}"
+        return hashlib.sha256(block_string.encode()).hexdigest()
+    
+    def mine_block(self):
+        """
+        挖矿过程：寻找满足难度要求的哈希
+        目标：哈希值前面有指定数量的零
+        """
+        target = "0" * self.difficulty  # 目标前缀（例如："0000"）
+        
+        print(f"⛏️  开始挖矿... 难度: {self.difficulty} (目标前缀: {target})")
+        start_time = time.time()
+        
+        while True:
+            # 计算当前哈希
+            self.hash = self.calculate_hash()
+            
+            # 检查是否满足难度要求
+            if self.hash.startswith(target):
+                end_time = time.time()
+                mining_time = end_time - start_time
+                print(f"✅ 挖矿成功！")
+                print(f"   Nonce: {self.nonce}")
+                print(f"   哈希: {self.hash}")
+                print(f"   用时: {mining_time:.2f}秒")
+                print(f"   尝试次数: {self.nonce + 1}")
+                break
+            
+            # 增加nonce继续尝试
+            self.nonce += 1
+            
+            # 每10000次尝试显示一次进度
+            if self.nonce % 10000 == 0:
+                print(f"   尝试中... Nonce: {self.nonce}, 当前哈希: {self.hash[:20]}...")
+    
+    def is_valid_proof(self) -> bool:
+        """
+        验证工作量证明是否有效
+        """
+        target = "0" * self.difficulty
+        calculated_hash = self.calculate_hash()
+        return calculated_hash.startswith(target) and calculated_hash == self.hash
+    
+    def __str__(self):
+        return f"MineableBlock(hash={self.hash[:10]}..., nonce={self.nonce}, difficulty={self.difficulty})"
+
+class ProofOfWorkBlockchain:
+    """
+    带工作量证明的区块链
+    包含动态难度调整
+    """
+    def __init__(self, initial_difficulty: int = 2):
+        self.chain: List[MineableBlock] = []
+        self.pending_transactions: List[Transaction] = []
+        self.balances: Dict[str, Decimal] = {}
+        self.mining_reward = Decimal('50')  # 挖矿奖励
+        self.difficulty = initial_difficulty  # 当前难度
+        self.target_time = 10  # 目标出块时间（秒）
+        self.difficulty_adjustment_interval = 5  # 每5个区块调整一次难度
+        
+        # 创建创世区块
+        self.create_genesis_block()
+    
+    def create_genesis_block(self):
+        """创建创世区块（无需挖矿）"""
+        genesis_transaction = Transaction(
+            sender="SYSTEM",
+            recipient="GENESIS_ACCOUNT",
+            amount=Decimal('1000'),
+            timestamp=time.time()
+        )
+        
+        # 创世区块使用难度0（无需挖矿）
+        genesis_block = MineableBlock([genesis_transaction], "0", difficulty=0)
+        genesis_block.hash = genesis_block.calculate_hash()  # 直接计算哈希
+        
+        self.chain.append(genesis_block)
+        self.balances["GENESIS_ACCOUNT"] = Decimal('1000')
+        print(f"✅ 创世区块已创建: {genesis_block}")
+    
+    def adjust_difficulty(self):
+        """
+        动态调整挖矿难度
+        根据最近几个区块的出块时间调整
+        """
+        if len(self.chain) < self.difficulty_adjustment_interval:
+            return
+        
+        # 计算最近几个区块的平均出块时间
+        recent_blocks = self.chain[-self.difficulty_adjustment_interval:]
+        time_taken = recent_blocks[-1].timestamp - recent_blocks[0].timestamp
+        average_time = time_taken / (self.difficulty_adjustment_interval - 1)
+        
+        print(f"📊 难度调整分析:")
+        print(f"   最近{self.difficulty_adjustment_interval}个区块平均出块时间: {average_time:.2f}秒")
+        print(f"   目标出块时间: {self.target_time}秒")
+        
+        # 调整难度
+        if average_time < self.target_time * 0.5:  # 太快，增加难度
+            self.difficulty += 1
+            print(f"⬆️  难度增加到: {self.difficulty}")
+        elif average_time > self.target_time * 2:  # 太慢，降低难度
+            if self.difficulty > 1:
+                self.difficulty -= 1
+                print(f"⬇️  难度降低到: {self.difficulty}")
+        else:
+            print(f"✅ 难度保持不变: {self.difficulty}")
+    
+    def mine_pending_transactions(self, mining_reward_address: str):
+        """
+        挖矿：处理待处理交易并创建新区块
+        """
+        print(f"\n🚀 开始挖矿新区块...")
+        
+        # 调整难度
+        if len(self.chain) % self.difficulty_adjustment_interval == 0:
+            self.adjust_difficulty()
+        
+        # 添加挖矿奖励交易
+        reward_transaction = Transaction(
+            sender="SYSTEM",
+            recipient=mining_reward_address,
+            amount=self.mining_reward,
+            timestamp=time.time()
+        )
+        
+        # 准备要挖矿的交易
+        transactions_to_mine = self.pending_transactions + [reward_transaction]
+        
+        # 创建新区块并开始挖矿
+        previous_block = self.chain[-1]
+        new_block = MineableBlock(transactions_to_mine, previous_block.hash, self.difficulty)
+        
+        # 验证工作量证明
+        if new_block.is_valid_proof():
+            self.chain.append(new_block)
+            self.pending_transactions = []  # 清空待处理交易
+            self.update_balances()
+            
+            print(f"🎉 新区块已添加到区块链！")
+            print(f"💰 矿工 {mining_reward_address} 获得奖励: {self.mining_reward}")
+            return new_block
+        else:
+            print(f"❌ 工作量证明验证失败！")
+            return None
+    
+    def get_mining_stats(self) -> dict:
+        """
+        获取挖矿统计信息
+        """
+        if len(self.chain) <= 1:
+            return {}
+        
+        total_blocks = len(self.chain) - 1  # 排除创世区块
+        total_time = self.chain[-1].timestamp - self.chain[1].timestamp
+        average_block_time = total_time / total_blocks if total_blocks > 0 else 0
+        
+        total_nonce = sum(block.nonce for block in self.chain[1:])  # 排除创世区块
+        total_hash_attempts = total_nonce
+        
+        return {
+            'total_blocks': total_blocks,
+            'average_block_time': average_block_time,
+            'current_difficulty': self.difficulty,
+            'total_hash_attempts': total_hash_attempts,
+            'network_hash_rate': total_hash_attempts / total_time if total_time > 0 else 0
+        }
+    
+    def display_mining_stats(self):
+        """显示挖矿统计信息"""
+        stats = self.get_mining_stats()
+        if not stats:
+            print("📊 暂无挖矿统计信息")
+            return
+        
+        print("\n📊 挖矿统计信息：")
+        print(f"   总区块数: {stats['total_blocks']}")
+        print(f"   平均出块时间: {stats['average_block_time']:.2f}秒")
+        print(f"   当前难度: {stats['current_difficulty']}")
+        print(f"   总哈希尝试次数: {stats['total_hash_attempts']:,}")
+        print(f"   网络算力: {stats['network_hash_rate']:.2f} 哈希/秒")
+    
+    def update_balances(self):
+        """更新账户余额"""
+        self.balances.clear()
+        for block in self.chain:
+            for transaction in block.transactions:
+                if transaction.recipient not in self.balances:
+                    self.balances[transaction.recipient] = Decimal('0')
+                self.balances[transaction.recipient] += transaction.amount
+                
+                if transaction.sender != "SYSTEM":
+                    if transaction.sender not in self.balances:
+                        self.balances[transaction.sender] = Decimal('0')
+                    self.balances[transaction.sender] -= transaction.amount
+    
+    def add_transaction(self, transaction: Transaction) -> bool:
+        """添加交易到待处理队列"""
+        if self.validate_transaction(transaction):
+            self.pending_transactions.append(transaction)
+            print(f"✅ 交易已添加: {transaction}")
+            return True
+        return False
+    
+    def validate_transaction(self, transaction: Transaction) -> bool:
+        """验证交易有效性"""
+        if transaction.amount <= 0:
+            return False
+        
+        if transaction.sender != "SYSTEM":
+            sender_balance = self.get_balance(transaction.sender)
+            if sender_balance < transaction.amount:
+                return False
+        
+        return True
+    
+    def get_balance(self, address: str) -> Decimal:
+        """获取账户余额"""
+        return self.balances.get(address, Decimal('0'))
+                </code></pre>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🎯 工作量证明挖矿示例</h4>
+                <pre><code class="python">
+# 🚀 工作量证明区块链示例
+if __name__ == "__main__":
+    print("🚀 创建工作量证明区块链...")
+    
+    # 创建区块链（初始难度为2）
+    blockchain = ProofOfWorkBlockchain(initial_difficulty=2)
+    
+    # 创建一些交易
+    tx1 = Transaction(
+        sender="GENESIS_ACCOUNT",
+        recipient="Alice",
+        amount=Decimal('100'),
+        timestamp=time.time()
+    )
+    tx1.sign_transaction("genesis_private_key")
+    
+    tx2 = Transaction(
+        sender="GENESIS_ACCOUNT",
+        recipient="Bob",
+        amount=Decimal('50'),
+        timestamp=time.time()
+    )
+    tx2.sign_transaction("genesis_private_key")
+    
+    # 添加交易
+    blockchain.add_transaction(tx1)
+    blockchain.add_transaction(tx2)
+    
+    # 第一次挖矿
+    print("\n=== 第一次挖矿 ===")
+    blockchain.mine_pending_transactions("Miner1")
+    
+    # 显示当前状态
+    print(f"\n💰 当前余额:")
+    for address, balance in blockchain.balances.items():
+        print(f"   {address}: {balance}")
+    
+    # 继续添加交易并挖矿
+    for i in range(3):
+        print(f"\n=== 第{i+2}次挖矿 ===")
+        
+        # 添加一些随机交易
+        tx = Transaction(
+            sender="Alice",
+            recipient="Bob",
+            amount=Decimal('10'),
+            timestamp=time.time()
+        )
+        tx.sign_transaction("alice_private_key")
+        blockchain.add_transaction(tx)
+        
+        # 挖矿
+        blockchain.mine_pending_transactions(f"Miner{i+2}")
+    
+    # 显示最终统计
+    blockchain.display_mining_stats()
+    
+    # 验证整个区块链
+    print("\n🔍 验证区块链...")
+    is_valid = all(block.is_valid_proof() for block in blockchain.chain[1:])  # 跳过创世区块
+    print(f"区块链工作量证明验证: {'✅ 通过' if is_valid else '❌ 失败'}")
+                </code></pre>
+            </div>
+            
+            <div class="concept-box">
+                <h4>💡 工作量证明的优缺点</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>✅ 优点</h5>
+                        <ul>
+                            <li><strong>安全性高</strong>：攻击成本极高</li>
+                            <li><strong>去中心化</strong>：任何人都可以参与挖矿</li>
+                            <li><strong>经过验证</strong>：比特币等成功应用</li>
+                            <li><strong>抗审查</strong>：难以被单一实体控制</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>❌ 缺点</h5>
+                        <ul>
+                            <li><strong>能耗巨大</strong>：需要大量电力</li>
+                            <li><strong>处理速度慢</strong>：确认时间长</li>
+                            <li><strong>扩展性差</strong>：吞吐量有限</li>
+                            <li><strong>环境影响</strong>：碳排放问题</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 第五部分：智能合约 -->
+        <section id="smart-contracts" class="content-section">
+            <h2><i class="fas fa-file-contract"></i> 第五步：智能合约系统</h2>
+            
+            <div class="concept-box">
+                <h4>📜 什么是智能合约？</h4>
+                <p>智能合约是存储在区块链上的自执行合约，合约条款直接写入代码：</p>
+                <ul>
+                    <li><strong>自动执行</strong>：满足条件时自动执行</li>
+                    <li><strong>不可篡改</strong>：部署后无法修改</li>
+                    <li><strong>透明公开</strong>：所有人都可以查看代码</li>
+                    <li><strong>无需中介</strong>：减少第三方依赖</li>
+                </ul>
+            </div>
+            
+            <div class="code-example">
+                <h6>📜 智能合约基础实现</h6>
+                <pre><code class="python">
+import json
+import time
+from typing import Dict, Any, List, Optional
+from decimal import Decimal
+from dataclasses import dataclass
+from enum import Enum
+
+class ContractState(Enum):
+    """合约状态枚举"""
+    ACTIVE = "active"
+    PAUSED = "paused"
+    TERMINATED = "terminated"
+
+@dataclass
+class SmartContract:
+    """
+    智能合约类
+    包含合约代码、状态和执行逻辑
+    """
+    address: str                    # 合约地址
+    code: str                      # 合约代码（简化版）
+    storage: Dict[str, Any]        # 合约存储
+    balance: Decimal               # 合约余额
+    owner: str                     # 合约所有者
+    state: ContractState           # 合约状态
+    
+    def __post_init__(self):
+        if not self.storage:
+            self.storage = {}
+        if not self.balance:
+            self.balance = Decimal('0')
+        if not self.state:
+            self.state = ContractState.ACTIVE
+    
+    def execute(self, function_name: str, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """
+        执行合约函数
+        这是一个简化的虚拟机实现
+        """
+        if self.state != ContractState.ACTIVE:
+            return {"success": False, "error": "合约未激活"}
+        
+        try:
+            # 简化的函数调用逻辑
+            if function_name == "transfer":
+                return self._transfer(params, caller)
+            elif function_name == "deposit":
+                return self._deposit(params, caller)
+            elif function_name == "withdraw":
+                return self._withdraw(params, caller)
+            elif function_name == "get_balance":
+                return self._get_balance(params, caller)
+            else:
+                return {"success": False, "error": f"未知函数: {function_name}"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def _transfer(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """转账函数"""
+        to_address = params.get("to")
+        amount = Decimal(str(params.get("amount", 0)))
+        
+        if amount <= 0:
+            return {"success": False, "error": "转账金额必须大于0"}
+        
+        # 检查调用者余额
+        caller_balance = self.storage.get(f"balance_{caller}", Decimal('0'))
+        if caller_balance < amount:
+            return {"success": False, "error": "余额不足"}
+        
+        # 执行转账
+        self.storage[f"balance_{caller}"] = caller_balance - amount
+        to_balance = self.storage.get(f"balance_{to_address}", Decimal('0'))
+        self.storage[f"balance_{to_address}"] = to_balance + amount
+        
+        return {
+            "success": True,
+            "data": {
+                "from": caller,
+                "to": to_address,
+                "amount": str(amount)
+            }
+        }
+    
+    def _deposit(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """存款函数"""
+        amount = Decimal(str(params.get("amount", 0)))
+        
+        if amount <= 0:
+            return {"success": False, "error": "存款金额必须大于0"}
+        
+        # 增加调用者在合约中的余额
+        caller_balance = self.storage.get(f"balance_{caller}", Decimal('0'))
+        self.storage[f"balance_{caller}"] = caller_balance + amount
+        self.balance += amount
+        
+        return {
+            "success": True,
+            "data": {
+                "depositor": caller,
+                "amount": str(amount),
+                "new_balance": str(self.storage[f"balance_{caller}"])
+            }
+        }
+    
+    def _withdraw(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """提款函数"""
+        amount = Decimal(str(params.get("amount", 0)))
+        
+        if amount <= 0:
+            return {"success": False, "error": "提款金额必须大于0"}
+        
+        caller_balance = self.storage.get(f"balance_{caller}", Decimal('0'))
+        if caller_balance < amount:
+            return {"success": False, "error": "合约余额不足"}
+        
+        # 执行提款
+        self.storage[f"balance_{caller}"] = caller_balance - amount
+        self.balance -= amount
+        
+        return {
+            "success": True,
+            "data": {
+                "withdrawer": caller,
+                "amount": str(amount),
+                "remaining_balance": str(self.storage[f"balance_{caller}"])
+            }
+        }
+    
+    def _get_balance(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """查询余额函数"""
+        address = params.get("address", caller)
+        balance = self.storage.get(f"balance_{address}", Decimal('0'))
+        
+        return {
+            "success": True,
+            "data": {
+                "address": address,
+                "balance": str(balance)
+            }
+        }
+    
+    def to_dict(self) -> dict:
+        """转换为字典格式"""
+        return {
+            "address": self.address,
+            "code": self.code,
+            "storage": {k: str(v) for k, v in self.storage.items()},
+            "balance": str(self.balance),
+            "owner": self.owner,
+            "state": self.state.value
+        }
+
+class DeFiLendingContract(SmartContract):
+    """
+    DeFi借贷合约
+    实现简单的借贷功能
+    """
+    def __init__(self, address: str, owner: str):
+        super().__init__(
+            address=address,
+            code="DeFi Lending Contract v1.0",
+            storage={},
+            balance=Decimal('0'),
+            owner=owner,
+            state=ContractState.ACTIVE
+        )
+        
+        # 借贷相关参数
+        self.storage["interest_rate"] = Decimal('0.05')  # 5%年利率
+        self.storage["collateral_ratio"] = Decimal('1.5')  # 150%抵押率
+        self.storage["total_deposits"] = Decimal('0')
+        self.storage["total_loans"] = Decimal('0')
+    
+    def execute(self, function_name: str, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """执行DeFi合约函数"""
+        if self.state != ContractState.ACTIVE:
+            return {"success": False, "error": "合约未激活"}
+        
+        try:
+            if function_name == "lend":
+                return self._lend(params, caller)
+            elif function_name == "borrow":
+                return self._borrow(params, caller)
+            elif function_name == "repay":
+                return self._repay(params, caller)
+            elif function_name == "liquidate":
+                return self._liquidate(params, caller)
+            elif function_name == "get_loan_info":
+                return self._get_loan_info(params, caller)
+            else:
+                # 调用父类的基础函数
+                return super().execute(function_name, params, caller)
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def _lend(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """出借资金"""
+        amount = Decimal(str(params.get("amount", 0)))
+        
+        if amount <= 0:
+            return {"success": False, "error": "出借金额必须大于0"}
+        
+        # 记录出借
+        lender_deposits = self.storage.get(f"deposits_{caller}", Decimal('0'))
+        self.storage[f"deposits_{caller}"] = lender_deposits + amount
+        self.storage["total_deposits"] = self.storage["total_deposits"] + amount
+        self.balance += amount
+        
+        return {
+            "success": True,
+            "data": {
+                "lender": caller,
+                "amount": str(amount),
+                "total_deposits": str(self.storage[f"deposits_{caller}"]),
+                "interest_rate": str(self.storage["interest_rate"])
+            }
+        }
+    
+    def _borrow(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """借款"""
+        amount = Decimal(str(params.get("amount", 0)))
+        collateral = Decimal(str(params.get("collateral", 0)))
+        
+        if amount <= 0:
+            return {"success": False, "error": "借款金额必须大于0"}
+        
+        # 检查抵押品是否足够
+        required_collateral = amount * self.storage["collateral_ratio"]
+        if collateral < required_collateral:
+            return {
+                "success": False,
+                "error": f"抵押品不足，需要 {required_collateral}，提供了 {collateral}"
+            }
+        
+        # 检查合约是否有足够资金
+        if self.balance < amount:
+            return {"success": False, "error": "合约资金不足"}
+        
+        # 记录借款
+        loan_id = f"loan_{caller}_{int(time.time())}"
+        self.storage[loan_id] = {
+            "borrower": caller,
+            "amount": str(amount),
+            "collateral": str(collateral),
+            "timestamp": time.time(),
+            "interest_rate": str(self.storage["interest_rate"]),
+            "status": "active"
+        }
+        
+        self.storage["total_loans"] = self.storage["total_loans"] + amount
+        self.balance -= amount
+        
+        return {
+            "success": True,
+            "data": {
+                "loan_id": loan_id,
+                "borrower": caller,
+                "amount": str(amount),
+                "collateral": str(collateral),
+                "interest_rate": str(self.storage["interest_rate"])
+            }
+        }
+    
+    def _repay(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """还款"""
+        loan_id = params.get("loan_id")
+        amount = Decimal(str(params.get("amount", 0)))
+        
+        if loan_id not in self.storage:
+            return {"success": False, "error": "贷款不存在"}
+        
+        loan_info = self.storage[loan_id]
+        if loan_info["borrower"] != caller:
+            return {"success": False, "error": "只有借款人可以还款"}
+        
+        if loan_info["status"] != "active":
+            return {"success": False, "error": "贷款已结清或被清算"}
+        
+        # 计算利息
+        principal = Decimal(loan_info["amount"])
+        time_elapsed = time.time() - loan_info["timestamp"]
+        interest = principal * self.storage["interest_rate"] * Decimal(time_elapsed / (365 * 24 * 3600))
+        total_due = principal + interest
+        
+        if amount < total_due:
+            return {
+                "success": False,
+                "error": f"还款金额不足，应还 {total_due}，实际 {amount}"
+            }
+        
+        # 执行还款
+        loan_info["status"] = "repaid"
+        self.storage[loan_id] = loan_info
+        self.storage["total_loans"] = self.storage["total_loans"] - principal
+        self.balance += amount
+        
+        return {
+            "success": True,
+            "data": {
+                "loan_id": loan_id,
+                "principal": str(principal),
+                "interest": str(interest),
+                "total_paid": str(amount),
+                "collateral_returned": loan_info["collateral"]
+            }
+        }
+    
+    def _get_loan_info(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """获取贷款信息"""
+        loan_id = params.get("loan_id")
+        
+        if loan_id not in self.storage:
+            return {"success": False, "error": "贷款不存在"}
+        
+        loan_info = self.storage[loan_id]
+        
+        # 计算当前应还金额
+        principal = Decimal(loan_info["amount"])
+        time_elapsed = time.time() - loan_info["timestamp"]
+        interest = principal * self.storage["interest_rate"] * Decimal(time_elapsed / (365 * 24 * 3600))
+        total_due = principal + interest
+        
+        return {
+            "success": True,
+            "data": {
+                "loan_id": loan_id,
+                "borrower": loan_info["borrower"],
+                "principal": loan_info["amount"],
+                "collateral": loan_info["collateral"],
+                "current_interest": str(interest),
+                "total_due": str(total_due),
+                "status": loan_info["status"],
+                "days_elapsed": int(time_elapsed / (24 * 3600))
+            }
+        }
+                </code></pre>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🎯 智能合约使用示例</h4>
+                <pre><code class="python">
+# 🚀 智能合约示例
+if __name__ == "__main__":
+    print("🚀 创建DeFi借贷合约...")
+    
+    # 创建借贷合约
+    lending_contract = DeFiLendingContract(
+        address="0x1234567890abcdef",
+        owner="ContractDeployer"
+    )
+    
+    print(f"✅ 合约已部署: {lending_contract.address}")
+    
+    # Alice出借资金
+    print("\n=== Alice出借1000元 ===")
+    result = lending_contract.execute(
+        "lend",
+        {"amount": "1000"},
+        "Alice"
+    )
+    print(f"出借结果: {result}")
+    
+    # Bob存入抵押品并借款
+    print("\n=== Bob借款500元（抵押750元） ===")
+    result = lending_contract.execute(
+        "borrow",
+        {"amount": "500", "collateral": "750"},
+        "Bob"
+    )
+    print(f"借款结果: {result}")
+    
+    if result["success"]:
+        loan_id = result["data"]["loan_id"]
+        
+        # 查询贷款信息
+        print("\n=== 查询贷款信息 ===")
+        loan_info = lending_contract.execute(
+            "get_loan_info",
+            {"loan_id": loan_id},
+            "Bob"
+        )
+        print(f"贷款信息: {loan_info}")
+        
+        # 模拟时间流逝（30天后）
+        import time
+        time.sleep(1)  # 实际应用中这里是30天
+        
+        # Bob还款
+        print("\n=== Bob还款 ===")
+        repay_result = lending_contract.execute(
+            "repay",
+            {"loan_id": loan_id, "amount": "520"},  # 本金+利息
+            "Bob"
+        )
+        print(f"还款结果: {repay_result}")
+    
+    # 显示合约最终状态
+    print("\n📊 合约最终状态:")
+    print(f"合约余额: {lending_contract.balance}")
+    print(f"总存款: {lending_contract.storage['total_deposits']}")
+    print(f"总贷款: {lending_contract.storage['total_loans']}")
+                </code></pre>
+            </div>
+        </section>
+        
+        <!-- 第六部分：DeFi应用实战 -->
+        <section id="defi" class="content-section">
+            <h2><i class="fas fa-coins"></i> 第六步：DeFi应用实战</h2>
+            
+            <div class="concept-box">
+                <h4>🏦 去中心化金融（DeFi）生态</h4>
+                <p>DeFi是建立在区块链上的金融服务生态系统，包括：</p>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h5>🔄 核心应用</h5>
+                        <ul>
+                            <li><strong>去中心化交易所</strong>：无需中介的交易</li>
+                            <li><strong>借贷协议</strong>：点对点借贷</li>
+                            <li><strong>流动性挖矿</strong>：提供流动性获得奖励</li>
+                            <li><strong>稳定币</strong>：价格稳定的数字货币</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>💡 技术特点</h5>
+                        <ul>
+                            <li><strong>可组合性</strong>：协议间可以组合</li>
+                            <li><strong>透明性</strong>：所有交易公开可查</li>
+                            <li><strong>无许可</strong>：任何人都可以参与</li>
+                            <li><strong>全球化</strong>：24/7全天候服务</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="code-example">
+                <h6>🔄 去中心化交易所（DEX）实现</h6>
+                <pre><code class="python">
+class AutomatedMarketMaker(SmartContract):
+    """
+    自动化做市商（AMM）
+    实现简单的恒定乘积做市商模型 (x * y = k)
+    """
+    def __init__(self, address: str, owner: str, token_a: str, token_b: str):
+        super().__init__(
+            address=address,
+            code="AMM DEX v1.0",
+            storage={},
+            balance=Decimal('0'),
+            owner=owner,
+            state=ContractState.ACTIVE
+        )
+        
+        # 交易对设置
+        self.storage["token_a"] = token_a
+        self.storage["token_b"] = token_b
+        self.storage["reserve_a"] = Decimal('0')
+        self.storage["reserve_b"] = Decimal('0')
+        self.storage["total_liquidity"] = Decimal('0')
+        self.storage["fee_rate"] = Decimal('0.003')  # 0.3%手续费
+    
+    def execute(self, function_name: str, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """执行DEX函数"""
+        if self.state != ContractState.ACTIVE:
+            return {"success": False, "error": "合约未激活"}
+        
+        try:
+            if function_name == "add_liquidity":
+                return self._add_liquidity(params, caller)
+            elif function_name == "remove_liquidity":
+                return self._remove_liquidity(params, caller)
+            elif function_name == "swap":
+                return self._swap(params, caller)
+            elif function_name == "get_price":
+                return self._get_price(params, caller)
+            elif function_name == "get_pool_info":
+                return self._get_pool_info(params, caller)
+            else:
+                return super().execute(function_name, params, caller)
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def _add_liquidity(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """添加流动性"""
+        amount_a = Decimal(str(params.get("amount_a", 0)))
+        amount_b = Decimal(str(params.get("amount_b", 0)))
+        
+        if amount_a <= 0 or amount_b <= 0:
+            return {"success": False, "error": "流动性金额必须大于0"}
+        
+        reserve_a = self.storage["reserve_a"]
+        reserve_b = self.storage["reserve_b"]
+        total_liquidity = self.storage["total_liquidity"]
+        
+        if total_liquidity == 0:
+            # 首次添加流动性
+            liquidity_tokens = (amount_a * amount_b) ** Decimal('0.5')  # 几何平均
+        else:
+            # 按比例添加流动性
+            liquidity_a = amount_a * total_liquidity / reserve_a
+            liquidity_b = amount_b * total_liquidity / reserve_b
+            liquidity_tokens = min(liquidity_a, liquidity_b)
+            
+            # 调整输入金额以保持比例
+            if liquidity_a < liquidity_b:
+                amount_b = amount_a * reserve_b / reserve_a
+            else:
+                amount_a = amount_b * reserve_a / reserve_b
+        
+        # 更新储备和流动性
+        self.storage["reserve_a"] += amount_a
+        self.storage["reserve_b"] += amount_b
+        self.storage["total_liquidity"] += liquidity_tokens
+        
+        # 记录用户的流动性代币
+        user_liquidity = self.storage.get(f"liquidity_{caller}", Decimal('0'))
+        self.storage[f"liquidity_{caller}"] = user_liquidity + liquidity_tokens
+        
+        return {
+            "success": True,
+            "data": {
+                "provider": caller,
+                "amount_a": str(amount_a),
+                "amount_b": str(amount_b),
+                "liquidity_tokens": str(liquidity_tokens),
+                "new_reserve_a": str(self.storage["reserve_a"]),
+                "new_reserve_b": str(self.storage["reserve_b"])
+            }
+        }
+    
+    def _swap(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """代币交换"""
+        token_in = params.get("token_in")
+        amount_in = Decimal(str(params.get("amount_in", 0)))
+        min_amount_out = Decimal(str(params.get("min_amount_out", 0)))
+        
+        if amount_in <= 0:
+            return {"success": False, "error": "交换金额必须大于0"}
+        
+        if token_in not in [self.storage["token_a"], self.storage["token_b"]]:
+            return {"success": False, "error": "不支持的代币"}
+        
+        # 确定输入输出储备
+        if token_in == self.storage["token_a"]:
+            reserve_in = self.storage["reserve_a"]
+            reserve_out = self.storage["reserve_b"]
+            token_out = self.storage["token_b"]
+        else:
+            reserve_in = self.storage["reserve_b"]
+            reserve_out = self.storage["reserve_a"]
+            token_out = self.storage["token_a"]
+        
+        # 计算输出金额（恒定乘积公式，扣除手续费）
+        amount_in_with_fee = amount_in * (Decimal('1') - self.storage["fee_rate"])
+        amount_out = (amount_in_with_fee * reserve_out) / (reserve_in + amount_in_with_fee)
+        
+        if amount_out < min_amount_out:
+            return {
+                "success": False,
+                "error": f"滑点过大，期望最少 {min_amount_out}，实际 {amount_out}"
+            }
+        
+        if amount_out >= reserve_out:
+            return {"success": False, "error": "流动性不足"}
+        
+        # 更新储备
+        if token_in == self.storage["token_a"]:
+            self.storage["reserve_a"] += amount_in
+            self.storage["reserve_b"] -= amount_out
+        else:
+            self.storage["reserve_b"] += amount_in
+            self.storage["reserve_a"] -= amount_out
+        
+        # 计算价格影响
+        price_before = reserve_out / reserve_in
+        price_after = self.storage["reserve_b"] / self.storage["reserve_a"] if token_in == self.storage["token_a"] else self.storage["reserve_a"] / self.storage["reserve_b"]
+        price_impact = abs(price_after - price_before) / price_before * 100
+        
+        return {
+            "success": True,
+            "data": {
+                "trader": caller,
+                "token_in": token_in,
+                "token_out": token_out,
+                "amount_in": str(amount_in),
+                "amount_out": str(amount_out),
+                "price_impact": f"{price_impact:.4f}%",
+                "fee_paid": str(amount_in * self.storage["fee_rate"])
+            }
+        }
+    
+    def _get_price(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """获取当前价格"""
+        token = params.get("token")
+        
+        if self.storage["reserve_a"] == 0 or self.storage["reserve_b"] == 0:
+            return {"success": False, "error": "流动性池为空"}
+        
+        if token == self.storage["token_a"]:
+            price = self.storage["reserve_b"] / self.storage["reserve_a"]
+        elif token == self.storage["token_b"]:
+            price = self.storage["reserve_a"] / self.storage["reserve_b"]
+        else:
+            return {"success": False, "error": "不支持的代币"}
+        
+        return {
+            "success": True,
+            "data": {
+                "token": token,
+                "price": str(price),
+                "reserve_a": str(self.storage["reserve_a"]),
+                "reserve_b": str(self.storage["reserve_b"])
+            }
+        }
+    
+    def _get_pool_info(self, params: Dict[str, Any], caller: str) -> Dict[str, Any]:
+        """获取流动性池信息"""
+        return {
+            "success": True,
+            "data": {
+                "token_a": self.storage["token_a"],
+                "token_b": self.storage["token_b"],
+                "reserve_a": str(self.storage["reserve_a"]),
+                "reserve_b": str(self.storage["reserve_b"]),
+                "total_liquidity": str(self.storage["total_liquidity"]),
+                "fee_rate": str(self.storage["fee_rate"]),
+                "k_value": str(self.storage["reserve_a"] * self.storage["reserve_b"])
+            }
+        }
+                </code></pre>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🎯 完整的DeFi生态示例</h4>
+                <pre><code class="python">
+# 🚀 完整DeFi生态示例
+if __name__ == "__main__":
+    print("🚀 构建DeFi生态系统...")
+    
+    # 创建DEX交易所
+    dex = AutomatedMarketMaker(
+        address="0xDEX123",
+        owner="DEXDeployer",
+        token_a="ETH",
+        token_b="USDC"
+    )
+    
+    print(f"✅ DEX已部署: {dex.address}")
+    
+    # Alice添加初始流动性
+    print("\n=== Alice添加流动性 ===")
+    result = dex.execute(
+        "add_liquidity",
+        {"amount_a": "10", "amount_b": "20000"},  # 10 ETH + 20000 USDC
+        "Alice"
+    )
+    print(f"添加流动性结果: {result}")
+    
+    # 查看当前价格
+    print("\n=== 查看ETH价格 ===")
+    price_result = dex.execute(
+        "get_price",
+        {"token": "ETH"},
+        "Anyone"
+    )
+    print(f"ETH价格: {price_result}")
+    
+    # Bob进行交换
+    print("\n=== Bob用1000 USDC买ETH ===")
+    swap_result = dex.execute(
+        "swap",
+        {
+            "token_in": "USDC",
+            "amount_in": "1000",
+            "min_amount_out": "0.4"  # 最少期望0.4 ETH
+        },
+        "Bob"
+    )
+    print(f"交换结果: {swap_result}")
+    
+    # 查看交换后的价格
+    print("\n=== 交换后ETH价格 ===")
+    price_after = dex.execute(
+        "get_price",
+        {"token": "ETH"},
+        "Anyone"
+    )
+    print(f"交换后ETH价格: {price_after}")
+    
+    # 查看流动性池状态
+    print("\n=== 流动性池状态 ===")
+    pool_info = dex.execute(
+        "get_pool_info",
+        {},
+        "Anyone"
+    )
+    print(f"流动性池信息: {pool_info}")
+    
+    print("\n🎉 DeFi生态系统演示完成！")
+    print("\n📚 学习总结:")
+    print("1. ✅ 理解了区块链基础概念")
+    print("2. ✅ 实现了简单区块链")
+    print("3. ✅ 添加了交易系统")
+    print("4. ✅ 实现了工作量证明挖矿")
+    print("5. ✅ 开发了智能合约")
+    print("6. ✅ 构建了DeFi应用")
+                </code></pre>
+            </div>
+            
+            <div class="blockchain-card">
+                <h4>区块结构与链式存储 <span class="badge bg-info complexity-badge">时间复杂度: O(n)</span></h4>
+                <div class="math-formula">
+                    <h5>区块结构数学模型</h5>
+                    <p><strong>区块定义：</strong></p>
+                    \[ \text{Block}_i = \{\text{Header}_i, \text{Transactions}_i\} \]
+                    <p><strong>区块头：</strong></p>
+                    \[ \text{Header}_i = \{\text{PrevHash}_{i-1}, \text{MerkleRoot}_i, \text{Timestamp}_i, \text{Nonce}_i\} \]
+                    <p><strong>链式关系：</strong></p>
+                    \[ \text{PrevHash}_i = H(\text{Header}_{i-1}) \]
+                    <p><strong>交易验证：</strong></p>
+                    \[ \sum_{\text{inputs}} \text{value} \geq \sum_{\text{outputs}} \text{value} + \text{fee} \]
+                    <p><strong>数字签名：</strong></p>
+                    \[ \text{Sign}(m, sk) = \sigma \]
+                    \[ \text{Verify}(m, \sigma, pk) \in \{0, 1\} \]
+                    <p><strong>默克尔树根：</strong></p>
+                    \[ \text{MerkleRoot} = H(H(T_1 || T_2) || H(T_3 || T_4)) \]
+                    <p><strong>工作量证明：</strong></p>
+                    \[ H(\text{block\_header} || \text{nonce}) < \text{target} \]
+                </div>
+                
+                <div class="blockchain-viz" id="blockchain-visualization">
+                    <h5>区块链结构可视化</h5>
+                    <!-- 这里将通过JavaScript动态生成区块链图 -->
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-check-circle"></i> 区块链在金融中的优势</h5>
+                        <ul>
+                            <li><i class="fas fa-network-wired"></i> 去中心化：消除单点故障</li>
+                            <li><i class="fas fa-eye"></i> 透明性：所有交易公开可验证</li>
+                            <li><i class="fas fa-lock"></i> 不可篡改：历史记录无法修改</li>
+                            <li><i class="fas fa-code"></i> 可编程性：智能合约自动执行</li>
+                            <li><i class="fas fa-globe"></i> 全球化：24/7无边界交易</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-chart-line"></i> 主要应用领域</h5>
+                        <ul>
+                            <li><i class="fas fa-coins"></i> 数字货币与支付</li>
+                            <li><i class="fas fa-university"></i> 去中心化金融(DeFi)</li>
+                            <li><i class="fas fa-truck"></i> 供应链金融</li>
+                            <li><i class="fas fa-id-card"></i> 身份验证与KYC</li>
+                            <li><i class="fas fa-shield-alt"></i> 保险与理赔</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 代码示例区域 -->
+        <section id="crypto-analysis" class="content-section">
+            <h2><i class="fas fa-chart-line"></i> 加密货币分析</h2>
+            <div class="code-example">
+                <h6>简化区块链实现</h6>
+                <pre><code class="python">
+import hashlib
+import json
+import time
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+
+@dataclass
+class Transaction:
+    """
+    交易数据结构
+    时间复杂度: O(1) - 创建和验证单个交易
+    空间复杂度: O(1) - 固定大小的交易数据
+    """
+    sender: str
+    receiver: str
+    amount: float
+    timestamp: float
+    signature: Optional[str] = None
+    
+    def to_dict(self) -> Dict:
+        """转换为字典格式"""
+        return {
+            'sender': self.sender,
+            'receiver': self.receiver,
+            'amount': self.amount,
+            'timestamp': self.timestamp,
+            'signature': self.signature
+        }
+    
+    def calculate_hash(self) -> str:
+        """计算交易哈希"""
+        tx_string = json.dumps(self.to_dict(), sort_keys=True)
+        return hashlib.sha256(tx_string.encode()).hexdigest()
+
+@dataclass
+class Block:
+    """
+    区块数据结构
+    时间复杂度: O(n) - n为交易数量
+    空间复杂度: O(n) - 存储n个交易
+    """
+    index: int
+    timestamp: float
+    transactions: List[Transaction]
+    previous_hash: str
+    nonce: int = 0
+    hash: Optional[str] = None
+    
+    def calculate_merkle_root(self) -> str:
+        """计算默克尔树根"""
+        if not self.transactions:
+            return hashlib.sha256(b'').hexdigest()
+        
+        # 简化的默克尔树实现
+        tx_hashes = [tx.calculate_hash() for tx in self.transactions]
+        while len(tx_hashes) > 1:
+            if len(tx_hashes) % 2 == 1:
+                tx_hashes.append(tx_hashes[-1])  # 复制最后一个哈希
+            
+            new_hashes = []
+            for i in range(0, len(tx_hashes), 2):
+                combined = tx_hashes[i] + tx_hashes[i + 1]
+                new_hash = hashlib.sha256(combined.encode()).hexdigest()
+                new_hashes.append(new_hash)
+            tx_hashes = new_hashes
+        
+        return tx_hashes[0]
+    
+    def calculate_hash(self) -> str:
+        """计算区块哈希"""
+        merkle_root = self.calculate_merkle_root()
+        block_string = f"{self.index}{self.timestamp}{merkle_root}{self.previous_hash}{self.nonce}"
+        return hashlib.sha256(block_string.encode()).hexdigest()
+    
+    def mine_block(self, difficulty: int) -> None:
+        """
+        挖矿过程（工作量证明）
+        时间复杂度: O(2^difficulty) - 平均情况
+        空间复杂度: O(1)
+        """
+        target = "0" * difficulty
+        while True:
+            self.hash = self.calculate_hash()
+            if self.hash.startswith(target):
+                print(f"区块挖矿成功! Nonce: {self.nonce}, Hash: {self.hash}")
+                break
+            self.nonce += 1
+
+class Blockchain:
+    """简化的区块链实现"""
+    
+    def __init__(self):
+        self.chain = []
+        self.difficulty = 2
+        self.pending_transactions = []
+        self.mining_reward = 10
+        self.balances = {}
+        
+        # 创建创世区块
+        self.create_genesis_block()
+    
+    def create_genesis_block(self) -> None:
+        """创建创世区块"""
+        genesis_block = Block(
+            index=0,
+            timestamp=time.time(),
+            transactions=[],
+            previous_hash="0"
+        )
+        genesis_block.mine_block(self.difficulty)
+        self.chain.append(genesis_block)
+    
+    def get_latest_block(self) -> Block:
+        """获取最新区块"""
+        return self.chain[-1]
+    
+    def add_transaction(self, transaction: Transaction) -> bool:
+        """添加交易到待处理列表"""
+        if self.validate_transaction(transaction):
+            self.pending_transactions.append(transaction)
+            return True
+        return False
+    
+    def validate_transaction(self, transaction: Transaction) -> bool:
+        """验证交易"""
+        # 检查余额
+        sender_balance = self.get_balance(transaction.sender)
+        if sender_balance < transaction.amount:
+            return False
+        return True
+    
+    def mine_pending_transactions(self, mining_reward_address: str) -> None:
+        """挖矿处理待处理交易"""
+        # 添加挖矿奖励交易
+        reward_transaction = Transaction(
+            sender="",
+            receiver=mining_reward_address,
+            amount=self.mining_reward,
+            timestamp=time.time()
+        )
+        self.pending_transactions.append(reward_transaction)
+        
+        # 创建新区块
+        block = Block(
+            index=len(self.chain),
+            timestamp=time.time(),
+            transactions=self.pending_transactions,
+            previous_hash=self.get_latest_block().hash
+        )
+        
+        # 挖矿
+        block.mine_block(self.difficulty)
+        
+        # 添加到链中
+        self.chain.append(block)
+        
+        # 更新余额
+        self.update_balances()
+        
+        # 清空待处理交易
+        self.pending_transactions = []
+    
+    def update_balances(self) -> None:
+        """更新所有地址的余额"""
+        self.balances = {}
+        
+        for block in self.chain:
+            for transaction in block.transactions:
+                if transaction.sender:
+                    self.balances[transaction.sender] = self.balances.get(transaction.sender, 0) - transaction.amount
+                self.balances[transaction.receiver] = self.balances.get(transaction.receiver, 0) + transaction.amount
+    
+    def get_balance(self, address: str) -> float:
+        """获取地址余额"""
+        return self.balances.get(address, 0)
+    
+    def is_chain_valid(self) -> bool:
+        """验证整个区块链"""
+        for i in range(1, len(self.chain)):
+            current_block = self.chain[i]
+            previous_block = self.chain[i - 1]
+            
+            # 验证当前区块哈希
+            if current_block.hash != current_block.calculate_hash():
+                return False
+            
+            # 验证链式关系
+            if current_block.previous_hash != previous_block.hash:
+                return False
+        
+        return True
+    
+    def get_blockchain_info(self) -> Dict:
+        """获取区块链信息"""
+        return {
+            'chain_length': len(self.chain),
+            'difficulty': self.difficulty,
+            'pending_transactions': len(self.pending_transactions),
+            'is_valid': self.is_chain_valid()
+        }
+
+# 使用示例
+if __name__ == "__main__":
+    # 创建区块链
+    blockchain = Blockchain()
+    
+    # 创建交易
+    tx1 = Transaction("Alice", "Bob", 50, time.time())
+    tx2 = Transaction("Bob", "Charlie", 25, time.time())
+    
+    # 添加交易
+    blockchain.add_transaction(tx1)
+    blockchain.add_transaction(tx2)
+    
+    # 挖矿
+    blockchain.mine_pending_transactions("Miner1")
+    
+    # 查看区块链信息
+    print(blockchain.get_blockchain_info())
+                </code></pre>
+            </div>
+        </section>
+        
+        <!-- 智能合约示例 -->
+        <section id="applications" class="content-section">
+            <h2><i class="fas fa-rocket"></i> 实际应用案例</h2>
+            <div class="smart-contract">
+                <h4><i class="fas fa-robot"></i> 去中心化金融(DeFi)协议</h4>
+                <p>智能合约在DeFi中扮演着核心角色，实现自动化的金融服务。</p>
+                <ul>
+                    <li><i class="fas fa-exchange-alt"></i> 自动做市商(AMM)</li>
+                    <li><i class="fas fa-piggy-bank"></i> 流动性挖矿</li>
+                    <li><i class="fas fa-coins"></i> 借贷协议</li>
+                    <li><i class="fas fa-chart-pie"></i> 收益聚合器</li>
+                </ul>
+            </div>
+            
+            <div class="defi-protocol">
+                <h4><i class="fas fa-university"></i> DeFi协议特点</h4>
+                <p>去中心化金融协议通过智能合约实现传统金融服务的去中心化版本。</p>
+                <ul>
+                    <li><i class="fas fa-key"></i> 无需许可：任何人都可以参与</li>
+                    <li><i class="fas fa-code"></i> 可编程性：灵活的金融产品</li>
+                    <li><i class="fas fa-link"></i> 可组合性：协议间互操作</li>
+                    <li><i class="fas fa-globe"></i> 全球访问：24/7可用</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- 加密货币分析 -->
+        <section>
+            <h2><i class="fas fa-chart-line"></i> 加密货币市场分析</h2>
+            <div class="crypto-analysis">
+                <h4><i class="fas fa-analytics"></i> 市场指标与分析</h4>
+                <p>区块链技术为加密货币市场提供了透明、实时的数据分析能力。</p>
+                <div class="crypto-metrics">
+                    <h5><i class="fas fa-coins"></i> 关键指标</h5>
+                    <ul>
+                        <li><i class="fas fa-dollar-sign"></i> 市值与交易量</li>
+                        <li><i class="fas fa-chart-area"></i> 价格波动性</li>
+                        <li><i class="fas fa-network-wired"></i> 网络活跃度</li>
+                        <li><i class="fas fa-users"></i> 持币地址分布</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 总结 -->
+        <section>
+            <h2><i class="fas fa-lightbulb"></i> 总结与展望</h2>
+            <div class="blockchain-card">
+                <h4><i class="fas fa-rocket"></i> 区块链金融的未来</h4>
+                <p>区块链技术正在重塑金融行业的各个方面，从支付系统到投资管理，从保险到借贷，都在经历深刻的变革。</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-trending-up"></i> 发展趋势</h5>
+                        <ul>
+                            <li><i class="fas fa-layer-group"></i> 跨链互操作性</li>
+                            <li><i class="fas fa-tachometer-alt"></i> 可扩展性解决方案</li>
+                            <li><i class="fas fa-shield-alt"></i> 隐私保护技术</li>
+                            <li><i class="fas fa-leaf"></i> 绿色区块链</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-exclamation-triangle"></i> 挑战与机遇</h5>
+                        <ul>
+                            <li><i class="fas fa-balance-scale"></i> 监管合规</li>
+                            <li><i class="fas fa-users-cog"></i> 用户体验优化</li>
+                            <li><i class="fas fa-graduation-cap"></i> 技术人才培养</li>
+                            <li><i class="fas fa-handshake"></i> 传统金融融合</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 总结与进阶学习 -->
+        <section>
+            <h2><i class="fas fa-graduation-cap"></i> 学习总结与进阶方向</h2>
+            
+            <div class="concept-box">
+                <h4>🎓 学习成果回顾</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>✅ 已掌握的核心概念</h5>
+                        <ul>
+                            <li><strong>区块链基础</strong>：哈希、区块、链式结构</li>
+                            <li><strong>交易系统</strong>：数字签名、默克尔树</li>
+                            <li><strong>共识机制</strong>：工作量证明、挖矿</li>
+                            <li><strong>智能合约</strong>：自动执行、状态管理</li>
+                            <li><strong>DeFi应用</strong>：DEX、借贷、流动性</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>🚀 技术实现能力</h5>
+                        <ul>
+                            <li><strong>区块链开发</strong>：从零构建完整区块链</li>
+                            <li><strong>密码学应用</strong>：哈希函数、数字签名</li>
+                            <li><strong>算法优化</strong>：挖矿算法、难度调整</li>
+                            <li><strong>合约编程</strong>：智能合约设计与实现</li>
+                            <li><strong>金融建模</strong>：DeFi协议、AMM模型</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="concept-box">
+                <h4>🔮 进阶学习方向</h4>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">🔧 技术深化</h5>
+                                <ul class="list-unstyled">
+                                    <li>• 权益证明（PoS）共识</li>
+                                    <li>• 分片技术（Sharding）</li>
+                                    <li>• 跨链协议（Cross-chain）</li>
+                                    <li>• 零知识证明（ZK-Proofs）</li>
+                                    <li>• 第二层解决方案（Layer 2）</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">💼 应用拓展</h5>
+                                <ul class="list-unstyled">
+                                    <li>• 央行数字货币（CBDC）</li>
+                                    <li>• 供应链金融</li>
+                                    <li>• 数字身份认证</li>
+                                    <li>• NFT与数字资产</li>
+                                    <li>• 去中心化自治组织（DAO）</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">🏛️ 监管与合规</h5>
+                                <ul class="list-unstyled">
+                                    <li>• 金融监管框架</li>
+                                    <li>• 反洗钱（AML）合规</li>
+                                    <li>• 数据隐私保护</li>
+                                    <li>• 风险管理体系</li>
+                                    <li>• 国际标准与协议</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="concept-box">
+                <h4>📚 推荐学习资源</h4>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h5>📖 理论学习</h5>
+                        <ul>
+                            <li><strong>经典论文</strong>：比特币白皮书、以太坊黄皮书</li>
+                            <li><strong>技术书籍</strong>：《精通比特币》、《区块链技术指南》</li>
+                            <li><strong>学术课程</strong>：斯坦福CS251、MIT 15.S12</li>
+                            <li><strong>在线资源</strong>：Coursera、edX区块链课程</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>💻 实践项目</h5>
+                        <ul>
+                            <li><strong>开源项目</strong>：参与Bitcoin、Ethereum开发</li>
+                            <li><strong>DApp开发</strong>：使用Solidity、Web3.js</li>
+                            <li><strong>测试网络</strong>：在Ropsten、Goerli上部署</li>
+                            <li><strong>黑客马拉松</strong>：参加ETHGlobal等活动</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">🎉 恭喜完成区块链金融学习！</h4>
+                <p>您已经系统地学习了区块链在金融领域的核心技术和应用。从基础的哈希函数到复杂的DeFi协议，从简单的区块结构到完整的智能合约系统，您现在具备了：</p>
+                <hr>
+                <ul class="mb-0">
+                    <li><strong>理论基础</strong>：深入理解区块链的密码学原理和共识机制</li>
+                    <li><strong>实践能力</strong>：能够从零开始构建完整的区块链系统</li>
+                    <li><strong>应用视野</strong>：掌握DeFi生态的核心组件和运作机制</li>
+                    <li><strong>创新思维</strong>：具备设计和实现新型金融协议的能力</li>
+                </ul>
+                <p class="mt-3 mb-0">继续探索这个充满创新的领域，区块链技术正在重塑金融业的未来！</p>
+            </div>
+        </section>
+    </div>
+    </div>
+    
+    <!-- 返回顶部按钮 -->
+    <button onclick="topFunction()" id="backToTop" title="返回顶部">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- JavaScript for blockchain visualization -->
+    <script>
+        // 返回顶部按钮功能
+        window.onscroll = function() {scrollFunction()};
+        
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("backToTop").style.display = "block";
+            } else {
+                document.getElementById("backToTop").style.display = "none";
+            }
+        }
+        
+        function topFunction() {
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        }
+        
+        // 区块链可视化
+        function createBlockchainVisualization() {
+            const container = document.getElementById('blockchain-visualization');
+            if (!container) return;
+            
+            const blocks = [
+                { id: 0, hash: '000abc...', prev: null },
+                { id: 1, hash: '000def...', prev: '000abc...' },
+                { id: 2, hash: '000ghi...', prev: '000def...' },
+                { id: 3, hash: '000jkl...', prev: '000ghi...' }
+            ];
+            
+            let html = '<div class="blockchain-chain">';
+            blocks.forEach((block, index) => {
+                html += `
+                    <div class="block" title="Block ${block.id}\nHash: ${block.hash}">
+                        Block ${block.id}
+                    </div>
+                `;
+                if (index < blocks.length - 1) {
+                    html += '<div class="chain-arrow"></div>';
+                }
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+        
+        // 顶部导航功能
+        function initNavigation() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const sections = document.querySelectorAll('.content-section');
+            
+            // 导航按钮点击事件
+            navButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 移除所有活动状态
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    sections.forEach(section => section.classList.remove('active'));
+                    
+                    // 添加当前活动状态
+                    this.classList.add('active');
+                    
+                    // 显示对应内容
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                        
+                        // 平滑滚动到目标位置
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // 默认显示第一个章节
+            if (sections.length > 0) {
+                sections[0].classList.add('active');
+                if (navButtons.length > 0) {
+                    navButtons[0].classList.add('active');
+                }
+            }
+            
+            // 键盘导航支持
+            document.addEventListener('keydown', function(e) {
+                const activeIndex = Array.from(navButtons).findIndex(button => 
+                    button.classList.contains('active'));
+                
+                if (e.key === 'ArrowRight' && activeIndex < navButtons.length - 1) {
+                    e.preventDefault();
+                    navButtons[activeIndex + 1].click();
+                } else if (e.key === 'ArrowLeft' && activeIndex > 0) {
+                    e.preventDefault();
+                    navButtons[activeIndex - 1].click();
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            createBlockchainVisualization();
+            initNavigation();
+            
+            // MathJax渲染
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typesetPromise();
+            }
+        });
+    </script>
+</body>
+</html>

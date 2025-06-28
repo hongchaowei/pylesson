@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python金融编程课程 - 从基础到实战</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+            margin-bottom: 4rem;
+            border-radius: 20px;
+        }
+        .hero h2 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 900px;
+            margin: 0 auto 3rem auto;
+            line-height: 1.7;
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .theory-overview {
+            margin-bottom: 4rem;
+        }
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .theory-item {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+        .theory-item:hover {
+            transform: translateY(-8px);
+        }
+        .theory-item h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        .theory-item h3 i {
+            margin-right: 0.8rem;
+        }
+        .formula {
+            background: #f8f9fa;
+            padding: 1.2rem;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .course-parts {
+            display: grid;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+        .course-part {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+        .course-part:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .course-part h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+        }
+        .course-part h3 i {
+            margin-right: 1rem;
+            color: #667eea;
+        }
+        .course-part p {
+            color: #6c757d;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .course-highlights {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .course-part ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+        .course-part li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        .course-part li:last-child {
+            border-bottom: none;
+        }
+        .course-part li a {
+            color: #2c3e50;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+        .course-part li a:hover {
+            color: #667eea;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .feature {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+        .feature h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        .feature h3 i {
+            color: #667eea;
+            margin-right: 0.8rem;
+            font-size: 1.5rem;
+        }
+        .feature p {
+            color: #495057;
+            line-height: 1.6;
+        }
+        .get-started {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 4rem;
+            border-radius: 20px;
+            text-align: center;
+            margin: 4rem 0;
+        }
+        .get-started h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+        }
+        .get-started p {
+            color: #495057;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-large {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.1rem;
+        }
+        .course-part .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .course-part .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .hero .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            backdrop-filter: blur(10px);
+        }
+        .hero .btn:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-3px);
+        }
+        .get-started .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .get-started .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .footer-links a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer-links a:hover {
+            color: white;
+        }
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .social-links a {
+            color: #bdc3c7;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        .social-links a:hover {
+            color: #667eea;
+        }
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2.2rem;
+            }
+            .hero-stats {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            .course-parts {
+                gap: 2rem;
+            }
+            .course-part {
+                padding: 2rem;
+            }
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .footer-links {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    <main>
+        <div class="container">
+            <section class="hero">
+                <h2 style="color: #ffffff; font-weight: 600; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">用Python探索金融世界</h2>
+                <p style="color: #f8f9fa; font-weight: 500; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">欢迎来到Python金融应用课程！本课程将带领你从Python基础知识开始，逐步掌握数据分析技能，最终应用于金融领域的实际问题。课程涵盖现代投资组合理论、Black-Scholes期权定价模型、VaR风险度量、机器学习预测模型等核心金融理论与实践。</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">180+</span>
+                        <span class="stat-label">课时</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">16</span>
+                        <span class="stat-label">模块</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">实践项目</span>
+                    </div>
+                </div>
+                <a href="./syllabus.html" class="btn btn-large"><i class="fas fa-book"></i> 查看课程大纲</a>
+            </section>
+            <section class="theory-overview">
+                <h2>核心理论基础</h2>
+                <div class="theory-grid">
+                    <div class="theory-item">
+                        <h3><i class="fas fa-chart-line"></i> 现代投资组合理论</h3>
+                        <p style="color: #495057; font-weight: 500;">学习Markowitz均值-方差模型，掌握风险与收益的数学关系：</p>
+                        <div class="formula">E(R<sub>p</sub>) = Σw<sub>i</sub>E(R<sub>i</sub>), σ<sub>p</sub> = √(w<sup>T</sup>Σw)</div>
+                    </div>
+                    <div class="theory-item">
+                        <h3><i class="fas fa-calculator"></i> Black-Scholes模型</h3>
+                        <p style="color: #495057; font-weight: 500;">期权定价的经典模型，理解偏微分方程在金融中的应用：</p>
+                        <div class="formula">C = S₀N(d₁) - Ke<sup>-rT</sup>N(d₂)</div>
+                    </div>
+                    <div class="theory-item">
+                        <h3><i class="fas fa-shield-alt"></i> 风险度量理论</h3>
+                        <p style="color: #495057; font-weight: 500;">VaR、CVaR等风险指标的数学基础与计算方法：</p>
+                        <div class="formula">VaR<sub>α</sub> = -F<sup>-1</sup>(α)</div>
+                    </div>
+                    <div class="theory-item">
+                        <h3><i class="fas fa-robot"></i> 机器学习理论</h3>
+                        <p style="color: #495057; font-weight: 500;">时间序列分析、神经网络在金融预测中的数学原理：</p>
+                        <div class="formula">LSTM: f<sub>t</sub> = σ(W<sub>f</sub>[h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>f</sub>)</div>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <h2>课程结构</h2>
+                <div class="course-parts">
+                    <div class="course-part">
+                        <h3><i class="fas fa-code"></i> 第一部分: Python基础 (48课时)</h3>
+                        <p>从零开始学习Python编程语言的基础知识，包括语法、数据类型、控制流、函数和面向对象编程。建立扎实的编程基础，为后续金融应用做准备。</p>
+                        <div class="course-highlights">
+                            <span class="highlight">算法复杂度分析</span>
+                            <span class="highlight">数据结构优化</span>
+                            <span class="highlight">函数式编程</span>
+                        </div>
+                        <ul>
+                            <li><a href="./part1_python_basics/module1/index.html">模块1: Python编程环境与基础 (12课时)</a></li>
+                            <li><a href="./part1_python_basics/module2/index.html">模块2: 控制流程 (8课时)</a></li>
+                            <li><a href="./part1_python_basics/module3/index.html">模块3: 数据结构 (16课时)</a></li>
+                            <li><a href="./part1_python_basics/module4/index.html">模块4: 函数与模块 (12课时)</a></li>
+                        </ul>
+                        <a href="./part1_python_basics/index.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                    </div>
+                    <div class="course-part">
+                        <h3><i class="fas fa-chart-bar"></i> 第二部分: 数据分析基础 (48课时)</h3>
+                        <p>学习使用NumPy和Pandas等Python库进行数据处理、分析和可视化。掌握线性代数、统计学和概率论在数据分析中的应用，为金融建模打下坚实的数学基础。</p>
+                        <div class="course-highlights">
+                            <span class="highlight">线性代数运算</span>
+                            <span class="highlight">统计推断</span>
+                            <span class="highlight">时间序列分析</span>
+                        </div>
+                        <ul>
+                            <li><a href="./part2_data_analysis/module5/index.html">模块5: NumPy数值计算 (14课时)</a></li>
+                            <li><a href="./part2_data_analysis/module6/index.html">模块6: Pandas数据处理 (20课时)</a></li>
+                            <li><a href="./part2_data_analysis/module7/index.html">模块7: 数据可视化 (14课时)</a></li>
+                        </ul>
+                        <a href="./part2_data_analysis/index.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                    </div>
+                    <div class="course-part">
+                        <h3><i class="fas fa-chart-line"></i> 第三部分: 金融专业应用 (64课时)</h3>
+                        <p>将Python技能应用于金融领域核心问题。学习现代投资组合理论、期权定价模型、风险度量方法和算法交易策略。深入理解金融数学模型的实现与应用。</p>
+                        <div class="course-highlights">
+                            <span class="highlight">投资组合优化</span>
+                            <span class="highlight">衍生品定价</span>
+                            <span class="highlight">风险建模</span>
+                            <span class="highlight">算法交易</span>
+                        </div>
+                        <ul>
+                            <li><a href="./part2_data_analysis/module8/index.html">模块8: 统计分析基础 (8课时)</a></li>
+                            <li><a href="./part3_finance_applications/module9/index.html">模块9: 金融数据获取与处理 (16课时)</a></li>
+                            <li><a href="./part3_finance_applications/module10/index.html">模块10: 投资组合理论与实践 (14课时)</a></li>
+                            <li><a href="./part3_finance_applications/module11/index.html">模块11: 风险度量与管理 (12课时)</a></li>
+                            <li><a href="./part3_finance_applications/module12/index.html">模块12: 因子投资与多因子模型 (14课时)</a></li>
+                        </ul>
+                        <a href="./part3_finance_applications/index.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                    </div>
+                    <div class="course-part">
+                        <h3><i class="fas fa-brain"></i> 第四部分: 高级主题 (52课时)</h3>
+                        <p>探索前沿技术在金融领域的应用。深入学习机器学习算法、神经网络架构、深度学习模型在金融预测中的数学原理与实现，完成综合性毕业项目。</p>
+                        <div class="course-highlights">
+                            <span class="highlight">机器学习算法</span>
+                            <span class="highlight">深度神经网络</span>
+                            <span class="highlight">衍生品定价</span>
+                            <span class="highlight">综合项目</span>
+                        </div>
+                        <ul>
+                            <li><a href="./part4_advanced_topics/module13/index.html">模块13: 金融衍生品分析 (8课时)</a></li>
+                            <li><a href="./part4_advanced_topics/module14/index.html">模块14: 算法交易与回测系统 (8课时)</a></li>
+                            <li><a href="./part4_advanced_topics/module15/index.html">模块15: 机器学习在金融中的应用 (14课时)</a></li>
+                            <li><a href="./deep_learning_finance.html">深度学习金融应用 (16课时)</a></li>
+                            <li><a href="./blockchain_finance.html">区块链金融应用 (12课时)</a></li>
+                            <li><a href="./part4_advanced_topics/module16/index.html">模块16: 综合项目与实践 (8课时)</a></li>
+                        </ul>
+                        <a href="./part4_advanced_topics/index.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <h2>课程特色</h2>
+                <div class="feature-grid">
+                    <div class="feature">
+                        <h3><i class="fas fa-laptop-code"></i> 实践导向</h3>
+                        <p>每个模块都包含丰富的实践练习和项目，帮助你将所学知识应用到实际问题中。</p>
+                    </div>
+                    <div class="feature">
+                        <h3><i class="fas fa-project-diagram"></i> 完整项目</h3>
+                        <p>通过完成各个模块的项目，逐步构建你的金融分析技能和项目组合。</p>
+                    </div>
+                    <div class="feature">
+                        <h3><i class="fas fa-graduation-cap"></i> 循序渐进</h3>
+                        <p>课程设计由浅入深，即使你是编程新手，也能轻松跟上学习进度。</p>
+                    </div>
+                    <div class="feature">
+                        <h3><i class="fas fa-industry"></i> 行业相关</h3>
+                        <p>所有案例和项目都基于真实金融场景，帮助你为金融科技行业的职业发展做好准备。</p>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <h2>学习资源</h2>
+                <div class="feature-grid">
+                    <div class="feature">
+                        <h3><i class="fas fa-graduation-cap"></i> 金融学入门</h3>
+                        <p>从零开始理解金融世界，学习基本概念、投资原理和市场机制。</p>
+                        <a href="./finance_basics_intro.html" class="btn" style="margin-top: 1rem;"><i class="fas fa-arrow-right"></i> 开始学习</a>
+                    </div>
+                    <div class="feature">
+                        <h3><i class="fas fa-chart-line"></i> 高级案例研究</h3>
+                        <p>基于真实数据的Python金融分析实战案例，包含量化投资、风险评估等。</p>
+                        <a href="./advanced_case_studies.html" class="btn" style="margin-top: 1rem;"><i class="fas fa-arrow-right"></i> 查看案例</a>
+                    </div>
+                    <div class="feature">
+                        <h3><i class="fas fa-database"></i> 数据集下载</h3>
+                        <p>高质量的真实金融数据集，包含股票、债券、宏观经济等多种数据。</p>
+                        <a href="./datasets.html" class="btn" style="margin-top: 1rem;"><i class="fas fa-arrow-right"></i> 下载数据</a>
+                    </div>
+                </div>
+            </section>
+            <section class="get-started">
+                <h2>准备好开始学习了吗？</h2>
+                <p>无论你是想提升职业技能，还是对金融科技领域充满好奇，这门课程都将为你提供所需的知识和工具。</p>
+                <div class="buttons">
+                    <a href="./part1_python_basics/index.html" class="btn btn-large"><i class="fas fa-rocket"></i> 从基础开始</a>
+                    <a href="./finance_basics_intro.html" class="btn btn-large"><i class="fas fa-graduation-cap"></i> 金融学入门</a>
+                    <a href="./syllabus.html" class="btn btn-large"><i class="fas fa-list"></i> 查看课程大纲</a>
+                    <a href="./knowledge_graph.html" class="btn btn-large"><i class="fas fa-sitemap"></i> 知识图谱</a>
+                    <a href="./case_studies.html" class="btn btn-large"><i class="fas fa-briefcase"></i> 行业案例</a>
+                    <a href="./advanced_case_studies.html" class="btn btn-large"><i class="fas fa-chart-line"></i> 高级案例研究</a>
+                    <a href="./datasets.html" class="btn btn-large"><i class="fas fa-database"></i> 数据集下载</a>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Python金融应用课程. 保留所有权利.</p>
+            <p>通过实践学习，掌握Python在金融领域的应用</p>
+            <div class="footer-links">
+                <a href="#" aria-label="关于我们">关于我们</a>
+                <a href="#" aria-label="联系方式">联系方式</a>
+                <a href="#" aria-label="使用条款">使用条款</a>
+                <a href="#" aria-label="隐私政策">隐私政策</a>
+            </div>
+            <div class="social-links">
+                <a href="#" aria-label="微信公众号"><i class="fab fa-weixin"></i></a>
+                <a href="#" aria-label="QQ群"><i class="fab fa-qq"></i></a>
+                <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

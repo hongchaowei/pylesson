@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金融学入门 - Python金融编程课程</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .concept-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 5px solid #007bff;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .life-example {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .market-mechanism {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .infographic {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .investment-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .flow-step {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            margin: 10px;
+            min-width: 120px;
+            text-align: center;
+            position: relative;
+        }
+        .flow-step::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #007bff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .flow-step:last-child::after {
+            display: none;
+        }
+        .math-visual {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .formula-explanation {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .interactive-demo {
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        @media (max-width: 768px) {
+            .investment-flow {
+                flex-direction: column;
+            }
+            .flow-step::after {
+                content: '↓';
+                right: 50%;
+                bottom: -25px;
+                top: auto;
+                transform: translateX(50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="hero" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 0; text-align: center; margin-bottom: 2rem; border-radius: 15px;">
+            <h1><i class="fas fa-graduation-cap"></i> 金融学入门</h1>
+            <p style="font-size: 1.2rem; margin-top: 1rem;">从零开始理解金融世界</p>
+        </header>
+
+        <!-- 导航链接区域 -->
+        <div style="text-align: center; margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h3 style="color: #007bff; margin-bottom: 20px;"><i class="fas fa-compass"></i> 金融学入门系列课程</h3>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+                <a href="finance_basics_intro.html" style="display: inline-block; padding: 12px 20px; background: linear-gradient(135deg, #007bff, #0056b3); color: white; text-decoration: none; border-radius: 25px; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 10px rgba(0,123,255,0.3);">
+                    <i class="fas fa-play-circle"></i> 第1章：金融基础概念
+                </a>
+                <a href="other/finance_basics_intro2.html" style="display: inline-block; padding: 12px 20px; background: linear-gradient(135deg, #28a745, #20c997); color: white; text-decoration: none; border-radius: 25px; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 10px rgba(40,167,69,0.3);">
+                    <i class="fas fa-building"></i> 第2章：金融市场与机构
+                </a>
+                <a href="other/finance_basics_intro3.html" style="display: inline-block; padding: 12px 20px; background: linear-gradient(135deg, #ffc107, #ffb300); color: white; text-decoration: none; border-radius: 25px; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 10px rgba(255,193,7,0.3);">
+                    <i class="fas fa-chart-line"></i> 第3章：投资基础知识
+                </a>
+                <a href="other/finance_basics_intro4.html" style="display: inline-block; padding: 12px 20px; background: linear-gradient(135deg, #dc3545, #c82333); color: white; text-decoration: none; border-radius: 25px; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 10px rgba(220,53,69,0.3);">
+                    <i class="fas fa-piggy-bank"></i> 第4章：个人理财规划
+                </a>
+                <a href="other/finance_basics_intro5.html" style="display: inline-block; padding: 12px 20px; background: linear-gradient(135deg, #6f42c1, #5a32a3); color: white; text-decoration: none; border-radius: 25px; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 10px rgba(111,66,193,0.3);">
+                    <i class="fas fa-rocket"></i> 第5章：金融科技与未来
+                </a>
+            </div>
+            <style>
+                a[href*="finance_basics_intro"]:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important;
+                }
+                @media (max-width: 768px) {
+                    div[style*="flex-wrap"] {
+                        flex-direction: column;
+                        align-items: center;
+                    }
+                    a[href*="finance_basics_intro"] {
+                        width: 90%;
+                        text-align: center;
+                    }
+                }
+            </style>
+        </div>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-question-circle"></i> 为什么需要学习金融？</h2>
+            
+            <div class="life-example">
+                <h3><i class="fas fa-lightbulb"></i> 生活中的金融场景</h3>
+                <p><strong>想象一下：</strong></p>
+                <ul>
+                    <li>🏠 你想买房，但现在没有足够的钱，需要贷款</li>
+                    <li>💰 你有一笔闲钱，放在银行利息很低，想让钱"生钱"</li>
+                    <li>🎓 你计划为孩子准备教育基金</li>
+                    <li>🏥 你担心生病时的医疗费用</li>
+                    <li>👴 你希望退休后有足够的养老金</li>
+                </ul>
+                <p><strong>这些都是金融要解决的问题！</strong>金融就是关于<span style="color: #007bff; font-weight: bold;">时间、风险和金钱</span>的学问。</p>
+            </div>
+
+            <div class="concept-card">
+                <h3><i class="fas fa-coins"></i> 什么是投资？</h3>
+                <p><strong>简单理解：</strong>投资就是用今天的钱，去获得明天更多的钱。</p>
+                <p><strong>为什么需要投资？</strong></p>
+                <div class="math-visual">
+                    <h4>通胀的威力</h4>
+                    <p>假设通胀率每年3%，那么：</p>
+                    <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <strong>今天的100元</strong><br>
+                            <span style="color: #28a745; font-size: 1.2em;">购买力: 100%</span>
+                        </div>
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <strong>10年后的100元</strong><br>
+                            <span style="color: #dc3545; font-size: 1.2em;">购买力: 74%</span>
+                        </div>
+                    </div>
+                    <p style="color: #dc3545;"><strong>不投资 = 财富缩水！</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-chart-line"></i> 金融基本概念</h2>
+
+            <div class="concept-card">
+                <h3><i class="fas fa-certificate"></i> 股票 (Stock)</h3>
+                <p><strong>生活化理解：</strong>股票就像是公司的"股份证明书"。</p>
+                
+                <div class="life-example">
+                    <h4>🍕 披萨店的例子</h4>
+                    <p>假设你和3个朋友合开一家披萨店：</p>
+                    <ul>
+                        <li>总投资：40万元</li>
+                        <li>每人投资：10万元</li>
+                        <li>每人拥有：25%的股份</li>
+                    </ul>
+                    <p>如果披萨店赚钱了，你就能分到25%的利润；如果店铺升值了，你的股份也更值钱了！</p>
+                    <p><strong>上市公司的股票就是这个道理</strong>，只是规模更大，股东更多。</p>
+                </div>
+
+                <div class="infographic">
+                    <h4>股票投资收益来源</h4>
+                    <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #28a745, #20c997); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                                <i class="fas fa-coins" style="color: white; font-size: 24px;"></i>
+                            </div>
+                            <strong>股息分红</strong><br>
+                            <small>公司盈利分给股东</small>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #007bff, #0056b3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                                <i class="fas fa-chart-line" style="color: white; font-size: 24px;"></i>
+                            </div>
+                            <strong>股价上涨</strong><br>
+                            <small>买低卖高赚差价</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="interactive-demo" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <h4>🎮 股票价格模拟器</h4>
+                    <p>观察股票价格如何受市场因素影响：</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0;">
+                        <div>
+                            <label>市场情绪: <span id="market-sentiment-value">中性</span></label><br>
+                            <input type="range" id="market-sentiment" min="-2" max="2" value="0" step="0.5" style="width: 100%;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8em; margin-top: 5px;">
+                                <span>悲观</span><span>乐观</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label>公司业绩: <span id="company-performance-value">一般</span></label><br>
+                            <input type="range" id="company-performance" min="-2" max="2" value="0" step="0.5" style="width: 100%;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8em; margin-top: 5px;">
+                                <span>差</span><span>优秀</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="stock-price-chart" style="margin: 20px 0; height: 300px;"></div>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <button id="reset-simulation" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">重置模拟</button>
+                        <button id="add-news-event" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">添加新闻事件</button>
+                    </div>
+                    <div id="price-analysis" style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <strong>当前股价: </strong><span id="current-price" style="color: #007bff;">100.00元</span> |
+                        <strong>涨跌幅: </strong><span id="price-change" style="color: #28a745;">+0.00%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3><i class="fas fa-file-contract"></i> 债券 (Bond)</h3>
+                <p><strong>生活化理解：</strong>债券就像是"借条"。</p>
+                
+                <div class="life-example">
+                    <h4>🏛️ 政府债券的例子</h4>
+                    <p>政府需要修建高速公路，但缺钱：</p>
+                    <ul>
+                        <li>政府发行债券："借我1000元，3年后还你1100元"</li>
+                        <li>你买了这张债券</li>
+                        <li>3年后，政府还你1100元</li>
+                        <li>你赚了100元利息</li>
+                    </ul>
+                    <p><strong>债券特点：</strong>收益相对稳定，风险较低，但收益也较低。</p>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3><i class="fas fa-layer-group"></i> 投资组合 (Portfolio)</h3>
+                <p><strong>生活化理解：</strong>不要把鸡蛋放在一个篮子里。</p>
+                
+                <div class="life-example">
+                    <h4>🥚 鸡蛋篮子的智慧</h4>
+                    <p>如果你有10个鸡蛋：</p>
+                    <ul>
+                        <li>❌ 全放一个篮子：篮子掉了，鸡蛋全碎</li>
+                        <li>✅ 分放三个篮子：一个篮子掉了，还有其他篮子的鸡蛋</li>
+                    </ul>
+                    <p><strong>投资组合就是分散风险的艺术</strong></p>
+                </div>
+
+                <div class="infographic">
+                    <h4>典型投资组合示例</h4>
+                    <div id="portfolio-chart" style="margin: 20px 0;"></div>
+                    
+                    <div class="portfolio-simulator" style="margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                        <h5>🎯 投资组合模拟器</h5>
+                        <p>调整各类资产的比例，看看风险和收益如何变化：</p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                            <div>
+                                <label>股票比例: <span id="stock-percent">40</span>%</label><br>
+                                <input type="range" id="stock-slider" min="0" max="80" value="40" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label>债券比例: <span id="bond-percent">30</span>%</label><br>
+                                <input type="range" id="bond-slider" min="0" max="80" value="30" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label>现金比例: <span id="cash-percent">20</span>%</label><br>
+                                <input type="range" id="cash-slider" min="0" max="80" value="20" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label>其他比例: <span id="other-percent">10</span>%</label><br>
+                                <input type="range" id="other-slider" min="0" max="80" value="10" style="width: 100%;">
+                            </div>
+                        </div>
+                        <div id="portfolio-analysis" style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <h6>组合分析结果：</h6>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+                                <div>
+                                    <strong>预期收益率</strong><br>
+                                    <span id="expected-return" style="color: #28a745; font-size: 1.2em;">7.2%</span>
+                                </div>
+                                <div>
+                                    <strong>风险等级</strong><br>
+                                    <span id="risk-level" style="color: #ffc107; font-size: 1.2em;">中等</span>
+                                </div>
+                                <div>
+                                    <strong>夏普比率</strong><br>
+                                    <span id="sharpe-ratio" style="color: #007bff; font-size: 1.2em;">0.85</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="dynamic-portfolio-chart" style="margin: 20px 0;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-cogs"></i> 金融市场运作机制</h2>
+
+            <div class="market-mechanism">
+                <h3><i class="fas fa-exchange-alt"></i> 股票市场如何运作？</h3>
+                
+                <div class="infographic">
+                    <h4>股票交易流程</h4>
+                    <div class="investment-flow">
+                        <div class="flow-step">投资者下单</div>
+                        <div class="flow-step">券商接收</div>
+                        <div class="flow-step">交易所撮合</div>
+                        <div class="flow-step">成交确认</div>
+                        <div class="flow-step">资金交割</div>
+                    </div>
+                </div>
+
+                <div class="life-example">
+                    <h4>🛒 就像网购一样</h4>
+                    <p>股票交易其实和网购很相似：</p>
+                    <ul>
+                        <li><strong>淘宝</strong> ↔ <strong>证券交易所</strong>（交易平台）</li>
+                        <li><strong>买家</strong> ↔ <strong>买方投资者</strong></li>
+                        <li><strong>卖家</strong> ↔ <strong>卖方投资者</strong></li>
+                        <li><strong>支付宝</strong> ↔ <strong>证券公司</strong>（资金托管）</li>
+                    </ul>
+                    <p>区别是：网购买的是商品，股票交易买的是公司股份。</p>
+                </div>
+            </div>
+
+            <div class="market-mechanism">
+                <h3><i class="fas fa-balance-scale"></i> 价格是如何形成的？</h3>
+                
+                <div class="interactive-demo">
+                    <h4>供需关系决定价格</h4>
+                    <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                        <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px;">
+                            <i class="fas fa-arrow-up" style="color: #28a745; font-size: 24px;"></i><br>
+                            <strong>买的人多</strong><br>
+                            <span style="color: #28a745;">价格上涨</span>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                            <i class="fas fa-arrow-down" style="color: #dc3545; font-size: 24px;"></i><br>
+                            <strong>卖的人多</strong><br>
+                            <span style="color: #dc3545;">价格下跌</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-chart-demo">
+                        <h5>📈 股票价格走势模拟</h5>
+                        <div id="price-chart" style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0; border: 1px solid #ddd;">
+                            <canvas id="priceCanvas" width="600" height="300" style="max-width: 100%;"></canvas>
+                        </div>
+                        <div style="text-align: center; margin: 10px 0;">
+                            <button onclick="simulateMarket('bull')" style="background: #28a745; color: white; border: none; padding: 8px 16px; margin: 5px; border-radius: 4px; cursor: pointer;">牛市模拟</button>
+                            <button onclick="simulateMarket('bear')" style="background: #dc3545; color: white; border: none; padding: 8px 16px; margin: 5px; border-radius: 4px; cursor: pointer;">熊市模拟</button>
+                            <button onclick="simulateMarket('volatile')" style="background: #ffc107; color: black; border: none; padding: 8px 16px; margin: 5px; border-radius: 4px; cursor: pointer;">震荡市模拟</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="risk-return-chart">
+                    <h4>💰 风险与收益关系</h4>
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0; border: 1px solid #ddd;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px; position: relative;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">💰</div>
+                                <strong>储蓄</strong><br>
+                                <span style="color: #28a745;">低风险</span><br>
+                                <span style="color: #6c757d;">低收益</span>
+                                <div style="position: absolute; top: 5px; right: 5px; background: #28a745; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; line-height: 20px;">1</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #fff3cd; border-radius: 8px; position: relative;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">🏛️</div>
+                                <strong>债券</strong><br>
+                                <span style="color: #ffc107;">中低风险</span><br>
+                                <span style="color: #ffc107;">中低收益</span>
+                                <div style="position: absolute; top: 5px; right: 5px; background: #ffc107; color: black; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; line-height: 20px;">2</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #d1ecf1; border-radius: 8px; position: relative;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">📊</div>
+                                <strong>股票</strong><br>
+                                <span style="color: #17a2b8;">中高风险</span><br>
+                                <span style="color: #17a2b8;">中高收益</span>
+                                <div style="position: absolute; top: 5px; right: 5px; background: #17a2b8; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; line-height: 20px;">3</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #f8d7da; border-radius: 8px; position: relative;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">🎲</div>
+                                <strong>期货/期权</strong><br>
+                                <span style="color: #dc3545;">高风险</span><br>
+                                <span style="color: #dc3545;">高收益</span>
+                                <div style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; line-height: 20px;">4</div>
+                            </div>
+                        </div>
+                        <p style="text-align: center; margin-top: 15px; font-style: italic; color: #6c757d;">💡 投资金律：高收益往往伴随高风险</p>
+                    </div>
+                    
+                    <div class="interactive-demo" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <h5>📊 风险收益散点图</h5>
+                        <p>拖拽点位来探索不同投资产品的风险收益特征：</p>
+                        <div id="risk-return-scatter" style="margin: 20px 0; height: 400px;"></div>
+                        <div style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                            <strong>选中投资品种: </strong><span id="selected-investment" style="color: #007bff;">点击图中的点查看详情</span>
+                        </div>
+                    </div>
+                    
+                    <div class="interactive-demo" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <h5>📈 市场情绪指标</h5>
+                        <p>观察市场情绪如何影响投资决策：</p>
+                        <div id="market-sentiment-gauge" style="margin: 20px 0; height: 250px;"></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 15px 0;">
+                            <button onclick="updateMarketSentiment('fear')" style="padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">恐慌情绪</button>
+                            <button onclick="updateMarketSentiment('neutral')" style="padding: 8px 12px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">中性情绪</button>
+                            <button onclick="updateMarketSentiment('greed')" style="padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">贪婪情绪</button>
+                        </div>
+                        <div id="sentiment-analysis" style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                            <strong>当前市场情绪: </strong><span id="current-sentiment" style="color: #007bff;">中性</span><br>
+                            <strong>投资建议: </strong><span id="investment-advice">保持观望，适度配置</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-calculator"></i> 基础数学概念</h2>
+
+            <div class="formula-explanation">
+                <h3><i class="fas fa-percentage"></i> 为什么需要收益率公式？</h3>
+                <p><strong>问题：</strong>如何比较不同投资的表现？</p>
+                
+                <div class="life-example">
+                    <h4>比较投资表现</h4>
+                    <p>朋友A："我买的股票从10元涨到12元，赚了2元！"</p>
+                    <p>朋友B："我买的股票从100元涨到110元，赚了10元！"</p>
+                    <p><strong>谁的投资更成功？</strong></p>
+                </div>
+
+                <div class="math-visual">
+                    <h4>收益率公式</h4>
+                    <p><strong>为什么需要这个公式？</strong>因为我们需要标准化的比较方法！</p>
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                        $$\text{收益率} = \frac{\text{期末价格} - \text{期初价格}}{\text{期初价格}} \times 100\%$$
+                    </div>
+                    
+                    <div class="calculation-demo">
+                        <h5>📊 实际计算演示</h5>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0;">
+                            <div style="background: #e8f5e8; padding: 15px; border-radius: 8px;">
+                                <strong>朋友A的投资：</strong><br>
+                                收益率 = (12-10)/10 × 100% = <span style="color: #28a745; font-weight: bold;">20%</span>
+                            </div>
+                            <div style="background: #e8f5e8; padding: 15px; border-radius: 8px;">
+                                <strong>朋友B的投资：</strong><br>
+                                收益率 = (110-100)/100 × 100% = <span style="color: #28a745; font-weight: bold;">10%</span>
+                            </div>
+                        </div>
+                        <p style="text-align: center; font-weight: bold; color: #28a745;">结论：朋友A的投资更成功！</p>
+                    </div>
+                    
+                    <div class="interactive-calculator">
+                        <h5>🧮 收益率计算器</h5>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label>期初价格：</label><br>
+                                    <input type="number" id="initial-price" value="100" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label>期末价格：</label><br>
+                                    <input type="number" id="final-price" value="120" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label>收益率：</label><br>
+                                    <div id="return-result" style="padding: 8px; background: white; border: 2px solid #28a745; border-radius: 4px; font-weight: bold; color: #28a745;">20.00%</div>
+                                </div>
+                            </div>
+                            <button onclick="calculateReturn()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">计算收益率</button>
+                        </div>
+                    </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px;">
+                            <strong>朋友A</strong><br>
+                            $(12-10)/10 = 20\%$
+                        </div>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px;">
+                            <strong>朋友B</strong><br>
+                            $(110-100)/100 = 10\%$
+                        </div>
+                    </div>
+                    <p><strong>结论：</strong>朋友A的投资更成功！</p>
+                </div>
+            </div>
+
+            <div class="formula-explanation">
+                <h3><i class="fas fa-chart-area"></i> 为什么需要复利公式？</h3>
+                <p><strong>问题：</strong>钱是如何"生钱"的？</p>
+                
+                <div class="math-visual">
+                    <h4>复利的魔力</h4>
+                    <p><strong>复利公式：</strong></p>
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                        $$A = P(1 + r)^t$$
+                        <p style="margin-top: 10px; font-size: 0.9em;">
+                            A = 最终金额，P = 本金，r = 年利率，t = 年数
+                        </p>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>🎯 复利计算器</h4>
+                        <div style="margin: 20px 0;">
+                            <label>本金：<input type="number" id="principal" value="10000" style="margin-left: 10px; padding: 5px;"> 元</label><br><br>
+                            <label>年利率：<input type="number" id="rate" value="8" step="0.1" style="margin-left: 10px; padding: 5px;"> %</label><br><br>
+                            <label>投资年数：<input type="number" id="years" value="10" style="margin-left: 10px; padding: 5px;"> 年</label><br><br>
+                            <button onclick="calculateCompound()" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">计算</button>
+                        </div>
+                        <div id="compound-result" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-book"></i> 金融术语词典</h2>
+            <div class="glossary-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div class="term-card" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #007bff;">
+                    <h4>📊 市盈率 (P/E)</h4>
+                    <p><strong>定义：</strong>股价与每股收益的比值</p>
+                    <p><strong>公式：</strong>P/E = 股价 ÷ 每股收益</p>
+                    <div class="interactive-demo" style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                        <label>股价: <input type="number" id="stock-price-pe" value="50" style="width: 60px;"> 元</label><br>
+                        <label>每股收益: <input type="number" id="eps" value="2.5" step="0.1" style="width: 60px;"> 元</label><br>
+                        <strong>市盈率: <span id="pe-result" style="color: #007bff;">20</span></strong>
+                    </div>
+                </div>
+                
+                <div class="term-card" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #28a745;">
+                    <h4>📈 年化收益率</h4>
+                    <p><strong>定义：</strong>投资在一年期间的收益率</p>
+                    <p><strong>公式：</strong>年化收益率 = (期末价值/期初价值)^(1/年数) - 1</p>
+                    <div class="interactive-demo" style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                        <label>初始投资: <input type="number" id="initial-investment" value="10000" style="width: 80px;"> 元</label><br>
+                        <label>最终价值: <input type="number" id="final-value" value="12000" style="width: 80px;"> 元</label><br>
+                        <label>投资年数: <input type="number" id="investment-years" value="2" step="0.1" style="width: 60px;"> 年</label><br>
+                        <strong>年化收益率: <span id="annual-return" style="color: #28a745;">9.5%</span></strong>
+                    </div>
+                </div>
+                
+                <div class="term-card" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107;">
+                    <h4>⚖️ 贝塔系数 (β)</h4>
+                    <p><strong>定义：</strong>衡量股票相对于市场的波动性</p>
+                    <p><strong>含义：</strong>β=1表示与市场同步，β>1表示波动更大</p>
+                    <div class="beta-visualization" style="margin: 10px 0; padding: 10px; background: white; border-radius: 5px;">
+                        <label>贝塔值: <input type="range" id="beta-slider" min="0" max="2" value="1" step="0.1" style="width: 100%;"></label>
+                        <div style="text-align: center; margin: 10px 0;">
+                            <strong>β = <span id="beta-value" style="color: #ffc107;">1.0</span></strong>
+                        </div>
+                        <div id="beta-interpretation" style="font-size: 0.9em; color: #6c757d;">与市场同步波动</div>
+                    </div>
+                </div>
+                
+                <div class="term-card" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #dc3545;">
+                    <h4>📉 最大回撤</h4>
+                    <p><strong>定义：</strong>投资组合从峰值到谷值的最大跌幅</p>
+                    <p><strong>用途：</strong>衡量投资的风险承受能力</p>
+                    <div id="drawdown-chart" style="margin: 10px 0; height: 150px; background: white; border-radius: 5px;"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="lesson-content">
+            <h2><i class="fas fa-chart-line"></i> 实战案例分析</h2>
+            <div class="case-studies" style="margin: 20px 0;">
+                <div class="case-study" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                    <h3>📱 案例一：科技股投资分析</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0;">
+                        <div>
+                            <h4>公司基本面</h4>
+                            <ul>
+                                <li>营收增长率：25%</li>
+                                <li>净利润率：15%</li>
+                                <li>市盈率：35倍</li>
+                                <li>负债率：30%</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>投资决策分析</h4>
+                            <div id="tech-stock-analysis" style="background: white; padding: 15px; border-radius: 8px;">
+                                <div style="margin: 10px 0;">
+                                    <strong>估值水平：</strong><span style="color: #ffc107;">偏高</span>
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <strong>成长性：</strong><span style="color: #28a745;">优秀</span>
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <strong>风险等级：</strong><span style="color: #dc3545;">中高</span>
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <strong>投资建议：</strong><span style="color: #007bff;">分批建仓</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="analyzeStock('tech')" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">深度分析</button>
+                </div>
+                
+                <div class="case-study" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                    <h3>🏦 案例二：银行股价值投资</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0;">
+                        <div>
+                            <h4>财务指标</h4>
+                            <ul>
+                                <li>净资产收益率：12%</li>
+                                <li>市净率：0.8倍</li>
+                                <li>不良贷款率：1.2%</li>
+                                <li>资本充足率：14%</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>价值评估</h4>
+                            <div id="bank-stock-analysis" style="background: white; padding: 15px; border-radius: 8px;">
+                                <div style="margin: 10px 0;">
+                                    <strong>估值水平：</strong><span style="color: #28a745;">低估</span>
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <strong>盈利能力：</strong><span style="color: #28a745;">稳定</span>
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <strong>风险等级：</strong><span style="color: #ffc107;">中等</span>
+                                </div>
+                                <div style="margin: 10px 0;">
+                                    <strong>投资建议：</strong><span style="color: #28a745;">长期持有</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="analyzeStock('bank')" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">价值分析</button>
+                </div>
+            </div>
+        </section>
+        
+        <section class="lesson-content">
+            <h2><i class="fas fa-road"></i> 学习路径建议</h2>
+            
+            <div class="infographic">
+                <h3>从入门到精通</h3>
+                <div class="investment-flow">
+                    <div class="flow-step">理解基本概念</div>
+                    <div class="flow-step">学习Python编程</div>
+                    <div class="flow-step">数据分析技能</div>
+                    <div class="flow-step">金融建模</div>
+                    <div class="flow-step">实战项目</div>
+                </div>
+            </div>
+
+            <div class="concept-card">
+                <h3><i class="fas fa-lightbulb"></i> 学习建议</h3>
+                <ul>
+                    <li>📚 <strong>理论与实践结合：</strong>每学一个概念，都要想想生活中的例子</li>
+                    <li>💻 <strong>动手实践：</strong>用代码验证理论，让抽象概念具体化</li>
+                    <li>📊 <strong>关注市场：</strong>经常看财经新闻，理解市场动态</li>
+                    <li>🤝 <strong>交流讨论：</strong>和同学、朋友讨论投资理念</li>
+                    <li>⏰ <strong>持续学习：</strong>金融市场在变化，知识也要不断更新</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 复利计算器
+        function calculateCompound() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            const years = parseInt(document.getElementById('years').value);
+            
+            const finalAmount = principal * Math.pow(1 + rate, years);
+            const totalInterest = finalAmount - principal;
+            
+            document.getElementById('compound-result').innerHTML = `
+                <h4>计算结果：</h4>
+                <p><strong>最终金额：</strong>${finalAmount.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})} 元</p>
+                <p><strong>总利息：</strong>${totalInterest.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})} 元</p>
+                <p><strong>收益倍数：</strong>${(finalAmount/principal).toFixed(2)} 倍</p>
+            `;
+        }
+
+        // 收益率计算器
+        function calculateReturn() {
+            const initialPrice = parseFloat(document.getElementById('initial-price').value);
+            const finalPrice = parseFloat(document.getElementById('final-price').value);
+            
+            if (initialPrice && finalPrice && initialPrice > 0) {
+                const returnRate = ((finalPrice - initialPrice) / initialPrice) * 100;
+                document.getElementById('return-result').textContent = returnRate.toFixed(2) + '%';
+                
+                // 根据收益率改变颜色
+                const resultElement = document.getElementById('return-result');
+                if (returnRate > 0) {
+                    resultElement.style.color = '#28a745';
+                    resultElement.style.borderColor = '#28a745';
+                } else if (returnRate < 0) {
+                    resultElement.style.color = '#dc3545';
+                    resultElement.style.borderColor = '#dc3545';
+                } else {
+                    resultElement.style.color = '#6c757d';
+                    resultElement.style.borderColor = '#6c757d';
+                }
+            }
+        }
+        
+        // 实时计算收益率
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialInput = document.getElementById('initial-price');
+            const finalInput = document.getElementById('final-price');
+            
+            if (initialInput && finalInput) {
+                initialInput.addEventListener('input', calculateReturn);
+                finalInput.addEventListener('input', calculateReturn);
+                calculateReturn(); // 初始计算
+            }
+         });
+         
+        // 股票价格走势模拟
+        function simulateMarket(type) {
+            const canvas = document.getElementById('priceCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, width, height);
+            
+            // 绘制坐标轴
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            
+            // Y轴
+            ctx.beginPath();
+            ctx.moveTo(50, 20);
+            ctx.lineTo(50, height - 30);
+            ctx.stroke();
+            
+            // X轴
+            ctx.beginPath();
+            ctx.moveTo(50, height - 30);
+            ctx.lineTo(width - 20, height - 30);
+            ctx.stroke();
+            
+            // 生成价格数据
+            const points = 50;
+            const prices = [100]; // 起始价格
+            
+            for (let i = 1; i < points; i++) {
+                let change;
+                switch(type) {
+                    case 'bull': // 牛市：总体上涨趋势
+                        change = (Math.random() - 0.3) * 4;
+                        break;
+                    case 'bear': // 熊市：总体下跌趋势
+                        change = (Math.random() - 0.7) * 4;
+                        break;
+                    case 'volatile': // 震荡市：大幅波动
+                        change = (Math.random() - 0.5) * 8;
+                        break;
+                    default:
+                        change = (Math.random() - 0.5) * 2;
+                }
+                prices.push(Math.max(20, prices[i-1] + change));
+            }
+            
+            // 绘制价格线
+            const xStep = (width - 70) / (points - 1);
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            const priceRange = maxPrice - minPrice || 1;
+            
+            ctx.strokeStyle = type === 'bull' ? '#28a745' : type === 'bear' ? '#dc3545' : '#ffc107';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let i = 0; i < prices.length; i++) {
+                const x = 50 + i * xStep;
+                const y = height - 30 - ((prices[i] - minPrice) / priceRange) * (height - 80);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            // 添加标签
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.fillText('价格', 10, 25);
+            ctx.fillText('时间', width - 40, height - 10);
+            
+            // 显示价格范围
+            ctx.fillText(maxPrice.toFixed(1), 10, 40);
+            ctx.fillText(minPrice.toFixed(1), 10, height - 40);
+            
+            // 显示市场类型
+            const marketType = type === 'bull' ? '牛市 📈' : type === 'bear' ? '熊市 📉' : '震荡市 📊';
+            ctx.fillStyle = type === 'bull' ? '#28a745' : type === 'bear' ? '#dc3545' : '#ffc107';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(marketType, width - 150, 30);
+        }
+        
+        // 页面加载时显示默认图表
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => simulateMarket('bull'), 500);
+            initializeStockSimulator();
+            initializeRiskReturnScatter();
+            initializeMarketSentimentGauge();
+        });
+        
+        // 股票价格模拟器
+        let stockPriceData = [];
+        let stockChart;
+        
+        function initializeStockSimulator() {
+            const sentimentSlider = document.getElementById('market-sentiment');
+            const performanceSlider = document.getElementById('company-performance');
+            
+            if (!sentimentSlider || !performanceSlider) return;
+            
+            // 初始化数据
+            stockPriceData = [{time: 0, price: 100}];
+            
+            // 创建图表
+            createStockChart();
+            
+            // 添加事件监听
+            sentimentSlider.addEventListener('input', updateStockPrice);
+            performanceSlider.addEventListener('input', updateStockPrice);
+            
+            const resetBtn = document.getElementById('reset-simulation');
+            const newsBtn = document.getElementById('add-news-event');
+            
+            if (resetBtn) resetBtn.addEventListener('click', resetStockSimulation);
+            if (newsBtn) newsBtn.addEventListener('click', addNewsEvent);
+            
+            // 开始实时更新
+            setInterval(updateStockPrice, 2000);
+        }
+        
+        function createStockChart() {
+            const container = d3.select('#stock-price-chart');
+            container.selectAll('*').remove();
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 50};
+            const width = 600 - margin.left - margin.right;
+            const height = 250 - margin.bottom - margin.top;
+            
+            const svg = container.append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .style('max-width', '100%')
+                .style('height', 'auto');
+                
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+                
+            stockChart = {svg, g, width, height, margin};
+            updateStockChart();
+        }
+        
+        function updateStockPrice() {
+            const sentiment = parseFloat(document.getElementById('market-sentiment')?.value || 0);
+            const performance = parseFloat(document.getElementById('company-performance')?.value || 0);
+            
+            // 更新标签
+            const sentimentLabels = ['极度悲观', '悲观', '中性', '乐观', '极度乐观'];
+            const performanceLabels = ['很差', '差', '一般', '好', '优秀'];
+            
+            const sentimentLabel = document.getElementById('market-sentiment-value');
+            const performanceLabel = document.getElementById('company-performance-value');
+            
+            if (sentimentLabel) sentimentLabel.textContent = sentimentLabels[sentiment + 2];
+            if (performanceLabel) performanceLabel.textContent = performanceLabels[performance + 2];
+            
+            // 计算价格变化
+            const lastPrice = stockPriceData[stockPriceData.length - 1].price;
+            const volatility = 0.02;
+            const trend = (sentiment + performance) * 0.005;
+            const randomChange = (Math.random() - 0.5) * volatility;
+            const newPrice = Math.max(10, lastPrice * (1 + trend + randomChange));
+            
+            stockPriceData.push({
+                time: stockPriceData.length,
+                price: newPrice
+            });
+            
+            // 保持最近50个数据点
+            if (stockPriceData.length > 50) {
+                stockPriceData.shift();
+                stockPriceData.forEach((d, i) => d.time = i);
+            }
+            
+            updateStockChart();
+            updatePriceAnalysis();
+        }
+        
+        function updateStockChart() {
+            if (!stockChart || stockPriceData.length === 0) return;
+            
+            const {g, width, height} = stockChart;
+            
+            const xScale = d3.scaleLinear()
+                .domain(d3.extent(stockPriceData, d => d.time))
+                .range([0, width]);
+                
+            const yScale = d3.scaleLinear()
+                .domain(d3.extent(stockPriceData, d => d.price))
+                .nice()
+                .range([height, 0]);
+                
+            const line = d3.line()
+                .x(d => xScale(d.time))
+                .y(d => yScale(d.price))
+                .curve(d3.curveMonotoneX);
+                
+            // 清除旧内容
+            g.selectAll('*').remove();
+            
+            // 添加坐标轴
+            g.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(xScale));
+                
+            g.append('g')
+                .call(d3.axisLeft(yScale));
+                
+            // 添加价格线
+            const currentPrice = stockPriceData[stockPriceData.length - 1].price;
+            const initialPrice = stockPriceData[0].price;
+            const lineColor = currentPrice >= initialPrice ? '#28a745' : '#dc3545';
+            
+            g.append('path')
+                .datum(stockPriceData)
+                .attr('fill', 'none')
+                .attr('stroke', lineColor)
+                .attr('stroke-width', 2)
+                .attr('d', line);
+                
+            // 添加数据点
+            g.selectAll('.dot')
+                .data(stockPriceData)
+                .enter().append('circle')
+                .attr('class', 'dot')
+                .attr('cx', d => xScale(d.time))
+                .attr('cy', d => yScale(d.price))
+                .attr('r', 2)
+                .attr('fill', lineColor);
+        }
+        
+        function updatePriceAnalysis() {
+            if (stockPriceData.length < 2) return;
+            
+            const currentPrice = stockPriceData[stockPriceData.length - 1].price;
+            const initialPrice = stockPriceData[0].price;
+            const change = ((currentPrice - initialPrice) / initialPrice) * 100;
+            
+            const priceElement = document.getElementById('current-price');
+            const changeElement = document.getElementById('price-change');
+            
+            if (priceElement) {
+                priceElement.textContent = currentPrice.toFixed(2) + '元';
+                priceElement.style.color = change >= 0 ? '#28a745' : '#dc3545';
+            }
+            
+            if (changeElement) {
+                changeElement.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+                changeElement.style.color = change >= 0 ? '#28a745' : '#dc3545';
+            }
+        }
+        
+        function resetStockSimulation() {
+            stockPriceData = [{time: 0, price: 100}];
+            document.getElementById('market-sentiment').value = 0;
+            document.getElementById('company-performance').value = 0;
+            updateStockPrice();
+        }
+        
+        function addNewsEvent() {
+            const events = [
+                {type: 'positive', message: '公司发布超预期财报', impact: 0.05},
+                {type: 'negative', message: '监管政策收紧', impact: -0.03},
+                {type: 'positive', message: '获得重大合同', impact: 0.08},
+                {type: 'negative', message: '竞争对手推出新产品', impact: -0.02},
+                {type: 'positive', message: '央行降息', impact: 0.04}
+            ];
+            
+            const event = events[Math.floor(Math.random() * events.length)];
+            const lastPrice = stockPriceData[stockPriceData.length - 1].price;
+            const newPrice = lastPrice * (1 + event.impact);
+            
+            stockPriceData.push({
+                time: stockPriceData.length,
+                price: newPrice
+            });
+            
+            updateStockChart();
+            updatePriceAnalysis();
+            
+            // 显示新闻事件
+            alert(`📰 突发新闻: ${event.message}`);
+        }
+        
+        // 风险收益散点图
+        function initializeRiskReturnScatter() {
+            const investments = [
+                {name: '储蓄', risk: 1, return: 2, color: '#28a745'},
+                {name: '国债', risk: 2, return: 3, color: '#ffc107'},
+                {name: '企业债', risk: 3, return: 4, color: '#fd7e14'},
+                {name: '混合基金', risk: 4, return: 6, color: '#6f42c1'},
+                {name: '股票基金', risk: 6, return: 8, color: '#007bff'},
+                {name: '个股', risk: 8, return: 12, color: '#dc3545'},
+                {name: '期货', risk: 9, return: 15, color: '#e83e8c'}
+            ];
+            
+            const container = d3.select('#risk-return-scatter');
+            container.selectAll('*').remove();
+            
+            const margin = {top: 20, right: 30, bottom: 60, left: 60};
+            const width = 500 - margin.left - margin.right;
+            const height = 350 - margin.bottom - margin.top;
+            
+            const svg = container.append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .style('max-width', '100%')
+                .style('height', 'auto');
+                
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+                
+            const xScale = d3.scaleLinear()
+                .domain([0, 10])
+                .range([0, width]);
+                
+            const yScale = d3.scaleLinear()
+                .domain([0, 16])
+                .range([height, 0]);
+                
+            // 添加坐标轴
+            g.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(xScale))
+                .append('text')
+                .attr('x', width / 2)
+                .attr('y', 40)
+                .attr('fill', 'black')
+                .style('text-anchor', 'middle')
+                .text('风险等级');
+                
+            g.append('g')
+                .call(d3.axisLeft(yScale))
+                .append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', -40)
+                .attr('x', -height / 2)
+                .attr('fill', 'black')
+                .style('text-anchor', 'middle')
+                .text('预期收益率 (%)');
+                
+            // 添加散点
+            g.selectAll('.investment-point')
+                .data(investments)
+                .enter().append('circle')
+                .attr('class', 'investment-point')
+                .attr('cx', d => xScale(d.risk))
+                .attr('cy', d => yScale(d.return))
+                .attr('r', 8)
+                .attr('fill', d => d.color)
+                .attr('stroke', 'white')
+                .attr('stroke-width', 2)
+                .style('cursor', 'pointer')
+                .on('click', function(event, d) {
+                    document.getElementById('selected-investment').textContent = 
+                        `${d.name} - 风险: ${d.risk}/10, 预期收益: ${d.return}%`;
+                })
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('r', 12);
+                })
+                .on('mouseout', function(event, d) {
+                    d3.select(this).attr('r', 8);
+                });
+                
+            // 添加标签
+            g.selectAll('.investment-label')
+                .data(investments)
+                .enter().append('text')
+                .attr('class', 'investment-label')
+                .attr('x', d => xScale(d.risk))
+                .attr('y', d => yScale(d.return) - 12)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '10px')
+                .style('font-weight', 'bold')
+                .text(d => d.name);
+        }
+        
+        // 市场情绪指标
+        let sentimentGauge;
+        
+        function initializeMarketSentimentGauge() {
+            const container = d3.select('#market-sentiment-gauge');
+            container.selectAll('*').remove();
+            
+            const width = 400;
+            const height = 200;
+            const radius = Math.min(width, height) / 2 - 20;
+            
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .style('max-width', '100%')
+                .style('height', 'auto');
+                
+            const g = svg.append('g')
+                .attr('transform', `translate(${width/2},${height-20})`);
+                
+            // 创建弧形背景
+            const arc = d3.arc()
+                .innerRadius(radius - 20)
+                .outerRadius(radius)
+                .startAngle(-Math.PI)
+                .endAngle(0);
+                
+            // 恐慌区域
+            g.append('path')
+                .datum({startAngle: -Math.PI, endAngle: -Math.PI * 2/3})
+                .style('fill', '#dc3545')
+                .attr('d', d3.arc().innerRadius(radius - 20).outerRadius(radius));
+                
+            // 中性区域
+            g.append('path')
+                .datum({startAngle: -Math.PI * 2/3, endAngle: -Math.PI / 3})
+                .style('fill', '#ffc107')
+                .attr('d', d3.arc().innerRadius(radius - 20).outerRadius(radius));
+                
+            // 贪婪区域
+            g.append('path')
+                .datum({startAngle: -Math.PI / 3, endAngle: 0})
+                .style('fill', '#28a745')
+                .attr('d', d3.arc().innerRadius(radius - 20).outerRadius(radius));
+                
+            // 添加指针
+            const pointer = g.append('line')
+                .attr('x1', 0)
+                .attr('y1', 0)
+                .attr('x2', 0)
+                .attr('y2', -radius + 10)
+                .attr('stroke', '#333')
+                .attr('stroke-width', 3)
+                .attr('stroke-linecap', 'round');
+                
+            // 添加中心点
+            g.append('circle')
+                .attr('cx', 0)
+                .attr('cy', 0)
+                .attr('r', 5)
+                .attr('fill', '#333');
+                
+            // 添加标签
+            g.append('text')
+                .attr('x', -radius + 30)
+                .attr('y', -10)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text('恐慌');
+                
+            g.append('text')
+                .attr('x', 0)
+                .attr('y', -radius - 5)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text('中性');
+                
+            g.append('text')
+                .attr('x', radius - 30)
+                .attr('y', -10)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text('贪婪');
+                
+            sentimentGauge = {g, pointer, radius};
+            updateMarketSentiment('neutral');
+        }
+        
+        function updateMarketSentiment(sentiment) {
+            if (!sentimentGauge) return;
+            
+            const {pointer} = sentimentGauge;
+            let angle, sentimentText, advice;
+            
+            switch(sentiment) {
+                case 'fear':
+                    angle = -Math.PI * 5/6;
+                    sentimentText = '恐慌';
+                    advice = '市场恐慌时是买入良机，但要谨慎选择';
+                    break;
+                case 'neutral':
+                    angle = -Math.PI / 2;
+                    sentimentText = '中性';
+                    advice = '保持观望，适度配置，分散投资';
+                    break;
+                case 'greed':
+                    angle = -Math.PI / 6;
+                    sentimentText = '贪婪';
+                    advice = '市场过热，考虑获利了结，控制风险';
+                    break;
+            }
+            
+            const x2 = Math.cos(angle) * (sentimentGauge.radius - 10);
+            const y2 = Math.sin(angle) * (sentimentGauge.radius - 10);
+            
+            pointer.transition()
+                .duration(1000)
+                .attr('x2', x2)
+                .attr('y2', y2);
+                
+            document.getElementById('current-sentiment').textContent = sentimentText;
+            document.getElementById('investment-advice').textContent = advice;
+        }
+
+降低户的理解难度        // 绘制投资组合饼图
+        function drawPortfolioChart() {
+            const data = [
+                {name: '股票', value: 40, color: '#007bff'},
+                {name: '债券', value: 30, color: '#28a745'},
+                {name: '现金', value: 20, color: '#ffc107'},
+                {name: '其他', value: 10, color: '#6c757d'}
+            ];
+
+            const width = 300;
+            const height = 200;
+            const radius = Math.min(width, height) / 2;
+
+            const svg = d3.select('#portfolio-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width/2},${height/2})`);
+
+            const pie = d3.pie().value(d => d.value);
+            const arc = d3.arc().innerRadius(0).outerRadius(radius - 10);
+
+            const arcs = svg.selectAll('arc')
+                .data(pie(data))
+                .enter()
+                .append('g');
+
+            arcs.append('path')
+                .attr('d', arc)
+                .attr('fill', d => d.data.color);
+
+            arcs.append('text')
+                .attr('transform', d => `translate(${arc.centroid(d)})`)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .style('font-weight', 'bold')
+                .text(d => `${d.data.name}\n${d.data.value}%`);
+        }
+        
+        // 投资组合模拟器
+        function initializePortfolioSimulator() {
+            const sliders = {
+                stock: document.getElementById('stock-slider'),
+                bond: document.getElementById('bond-slider'),
+                cash: document.getElementById('cash-slider'),
+                other: document.getElementById('other-slider')
+            };
+            
+            const percentSpans = {
+                stock: document.getElementById('stock-percent'),
+                bond: document.getElementById('bond-percent'),
+                cash: document.getElementById('cash-percent'),
+                other: document.getElementById('other-percent')
+            };
+            
+            // 添加事件监听器
+            Object.keys(sliders).forEach(key => {
+                if (sliders[key]) {
+                    sliders[key].addEventListener('input', () => updatePortfolio(sliders, percentSpans));
+                }
+            });
+            
+            // 初始化图表
+            updatePortfolio(sliders, percentSpans);
+        }
+        
+        function updatePortfolio(sliders, percentSpans) {
+            const values = {
+                stock: parseInt(sliders.stock?.value || 40),
+                bond: parseInt(sliders.bond?.value || 30),
+                cash: parseInt(sliders.cash?.value || 20),
+                other: parseInt(sliders.other?.value || 10)
+            };
+            
+            // 确保总和为100%
+            const total = Object.values(values).reduce((sum, val) => sum + val, 0);
+            if (total !== 100) {
+                const factor = 100 / total;
+                Object.keys(values).forEach(key => {
+                    values[key] = Math.round(values[key] * factor);
+                });
+            }
+            
+            // 更新显示
+            Object.keys(percentSpans).forEach(key => {
+                if (percentSpans[key]) {
+                    percentSpans[key].textContent = values[key];
+                }
+                if (sliders[key]) {
+                    sliders[key].value = values[key];
+                }
+            });
+            
+            // 计算风险收益指标
+            const expectedReturn = calculateExpectedReturn(values);
+            const riskLevel = calculateRiskLevel(values);
+            const sharpeRatio = calculateSharpeRatio(expectedReturn, riskLevel);
+            
+            // 更新分析结果
+            const returnElement = document.getElementById('expected-return');
+            const riskElement = document.getElementById('risk-level');
+            const sharpeElement = document.getElementById('sharpe-ratio');
+            
+            if (returnElement) returnElement.textContent = expectedReturn.toFixed(1) + '%';
+            if (riskElement) riskElement.textContent = riskLevel;
+            if (sharpeElement) sharpeElement.textContent = sharpeRatio.toFixed(2);
+            
+            // 更新动态图表
+            updateDynamicPortfolioChart(values);
+        }
+        
+        function calculateExpectedReturn(values) {
+            const returns = {stock: 8, bond: 4, cash: 1, other: 6};
+            return Object.keys(values).reduce((total, key) => {
+                return total + (values[key] / 100) * returns[key];
+            }, 0);
+        }
+        
+        function calculateRiskLevel(values) {
+            const riskScore = (values.stock * 0.8 + values.other * 0.6 + values.bond * 0.3 + values.cash * 0.1) / 100;
+            if (riskScore < 0.3) return '低风险';
+            if (riskScore < 0.6) return '中等风险';
+            return '高风险';
+        }
+        
+        function calculateSharpeRatio(expectedReturn, riskLevel) {
+            const riskFreeRate = 2; // 无风险利率
+            const riskMultiplier = riskLevel === '低风险' ? 0.5 : riskLevel === '中等风险' ? 1 : 1.5;
+            return (expectedReturn - riskFreeRate) / (riskMultiplier * 10);
+        }
+        
+        function updateDynamicPortfolioChart(values) {
+            const container = d3.select('#dynamic-portfolio-chart');
+            container.selectAll('*').remove();
+            
+            const data = [
+                {name: '股票', value: values.stock, color: '#007bff'},
+                {name: '债券', value: values.bond, color: '#28a745'},
+                {name: '现金', value: values.cash, color: '#ffc107'},
+                {name: '其他', value: values.other, color: '#6c757d'}
+            ].filter(d => d.value > 0);
+            
+            const width = 250;
+            const height = 250;
+            const radius = Math.min(width, height) / 2 - 10;
+            
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .style('max-width', '100%')
+                .style('height', 'auto');
+                
+            const g = svg.append('g')
+                .attr('transform', `translate(${width/2},${height/2})`);
+                
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+                
+            const arc = d3.arc()
+                .innerRadius(radius * 0.4)
+                .outerRadius(radius);
+                
+            const arcs = g.selectAll('.arc')
+                .data(pie(data))
+                .enter().append('g')
+                .attr('class', 'arc');
+                
+            arcs.append('path')
+                .attr('d', arc)
+                .attr('fill', d => d.data.color)
+                .attr('stroke', 'white')
+                .attr('stroke-width', 2)
+                .style('opacity', 0)
+                .transition()
+                .duration(500)
+                .style('opacity', 1);
+                
+            arcs.append('text')
+                .attr('transform', d => `translate(${arc.centroid(d)})`)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '11px')
+                .style('font-weight', 'bold')
+                .style('fill', 'white')
+                .text(d => d.data.value > 5 ? `${d.data.value}%` : '')
+                .style('opacity', 0)
+                .transition()
+                .duration(500)
+                .delay(200)
+                .style('opacity', 1);
+        }
+        
+        // 初始化所有功能
+        document.addEventListener('DOMContentLoaded', function() {
+            drawPortfolioChart();
+            initializePortfolioSimulator();
+            initializeGlossaryInteractions();
+            drawDrawdownChart();
+        });
+        
+        // 金融术语词典交互功能
+        function initializeGlossaryInteractions() {
+            // 市盈率计算器
+            const stockPriceInput = document.getElementById('stock-price-pe');
+            const epsInput = document.getElementById('eps');
+            const peResult = document.getElementById('pe-result');
+            
+            function updatePE() {
+                const stockPrice = parseFloat(stockPriceInput.value) || 0;
+                const eps = parseFloat(epsInput.value) || 1;
+                const pe = (stockPrice / eps).toFixed(1);
+                peResult.textContent = pe;
+                
+                // 根据市盈率水平设置颜色
+                if (pe < 15) {
+                    peResult.style.color = '#28a745'; // 绿色 - 低估
+                } else if (pe < 25) {
+                    peResult.style.color = '#007bff'; // 蓝色 - 合理
+                } else {
+                    peResult.style.color = '#dc3545'; // 红色 - 高估
+                }
+            }
+            
+            if (stockPriceInput && epsInput) {
+                stockPriceInput.addEventListener('input', updatePE);
+                epsInput.addEventListener('input', updatePE);
+            }
+            
+            // 年化收益率计算器
+            const initialInvestmentInput = document.getElementById('initial-investment');
+            const finalValueInput = document.getElementById('final-value');
+            const investmentYearsInput = document.getElementById('investment-years');
+            const annualReturnResult = document.getElementById('annual-return');
+            
+            function updateAnnualReturn() {
+                const initial = parseFloat(initialInvestmentInput.value) || 1;
+                const final = parseFloat(finalValueInput.value) || 1;
+                const years = parseFloat(investmentYearsInput.value) || 1;
+                
+                const annualReturn = (Math.pow(final / initial, 1 / years) - 1) * 100;
+                annualReturnResult.textContent = annualReturn.toFixed(1) + '%';
+                
+                // 根据收益率设置颜色
+                if (annualReturn > 10) {
+                    annualReturnResult.style.color = '#28a745';
+                } else if (annualReturn > 5) {
+                    annualReturnResult.style.color = '#007bff';
+                } else {
+                    annualReturnResult.style.color = '#dc3545';
+                }
+            }
+            
+            if (initialInvestmentInput && finalValueInput && investmentYearsInput) {
+                initialInvestmentInput.addEventListener('input', updateAnnualReturn);
+                finalValueInput.addEventListener('input', updateAnnualReturn);
+                investmentYearsInput.addEventListener('input', updateAnnualReturn);
+            }
+            
+            // 贝塔系数可视化
+            const betaSlider = document.getElementById('beta-slider');
+            const betaValue = document.getElementById('beta-value');
+            const betaInterpretation = document.getElementById('beta-interpretation');
+            
+            function updateBeta() {
+                const beta = parseFloat(betaSlider.value);
+                betaValue.textContent = beta.toFixed(1);
+                
+                let interpretation = '';
+                let color = '';
+                
+                if (beta < 0.5) {
+                    interpretation = '低风险，波动性远小于市场';
+                    color = '#28a745';
+                } else if (beta < 0.8) {
+                    interpretation = '中低风险，波动性小于市场';
+                    color = '#17a2b8';
+                } else if (beta < 1.2) {
+                    interpretation = '与市场同步波动';
+                    color = '#ffc107';
+                } else if (beta < 1.5) {
+                    interpretation = '高风险，波动性大于市场';
+                    color = '#fd7e14';
+                } else {
+                    interpretation = '极高风险，波动性远大于市场';
+                    color = '#dc3545';
+                }
+                
+                betaInterpretation.textContent = interpretation;
+                betaValue.style.color = color;
+            }
+            
+            if (betaSlider) {
+                betaSlider.addEventListener('input', updateBeta);
+            }
+        }
+        
+        // 绘制最大回撤图表
+        function drawDrawdownChart() {
+            const container = d3.select('#drawdown-chart');
+            if (container.empty()) return;
+            
+            const width = 280;
+            const height = 120;
+            const margin = { top: 10, right: 10, bottom: 20, left: 30 };
+            
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            
+            // 模拟投资组合价值数据
+            const data = [];
+            let value = 100;
+            let maxValue = 100;
+            
+            for (let i = 0; i <= 100; i++) {
+                // 模拟价格波动
+                const change = (Math.random() - 0.5) * 4;
+                value = Math.max(value + change, 50);
+                maxValue = Math.max(maxValue, value);
+                
+                const drawdown = ((value - maxValue) / maxValue) * 100;
+                
+                data.push({
+                    day: i,
+                    value: value,
+                    drawdown: drawdown
+                });
+            }
+            
+            const xScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([margin.left, width - margin.right]);
+            
+            const yScale = d3.scaleLinear()
+                .domain(d3.extent(data, d => d.drawdown))
+                .range([height - margin.bottom, margin.top]);
+            
+            const line = d3.line()
+                .x(d => xScale(d.day))
+                .y(d => yScale(d.drawdown))
+                .curve(d3.curveMonotoneX);
+            
+            // 绘制回撤线
+            svg.append('path')
+                .datum(data)
+                .attr('fill', 'none')
+                .attr('stroke', '#dc3545')
+                .attr('stroke-width', 2)
+                .attr('d', line);
+            
+            // 填充回撤区域
+            const area = d3.area()
+                .x(d => xScale(d.day))
+                .y0(yScale(0))
+                .y1(d => yScale(d.drawdown))
+                .curve(d3.curveMonotoneX);
+            
+            svg.append('path')
+                .datum(data)
+                .attr('fill', '#dc3545')
+                .attr('fill-opacity', 0.3)
+                .attr('d', area);
+            
+            // 添加坐标轴
+            svg.append('g')
+                .attr('transform', `translate(0,${yScale(0)})`)
+                .call(d3.axisBottom(xScale).ticks(5).tickFormat(d => d + '天'));
+            
+            svg.append('g')
+                .attr('transform', `translate(${margin.left},0)`)
+                .call(d3.axisLeft(yScale).ticks(4).tickFormat(d => d.toFixed(1) + '%'));
+            
+            // 标注最大回撤
+            const maxDrawdown = d3.min(data, d => d.drawdown);
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', margin.top)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '12px')
+                .attr('fill', '#dc3545')
+                .text(`最大回撤: ${maxDrawdown.toFixed(1)}%`);
+        }
+        
+        // 股票分析功能
+        function analyzeStock(type) {
+            if (type === 'tech') {
+                alert('科技股深度分析：\n\n' +
+                      '优势：\n' +
+                      '• 高成长性，营收增长率25%\n' +
+                      '• 创新能力强，技术壁垒高\n' +
+                      '• 市场前景广阔\n\n' +
+                      '风险：\n' +
+                      '• 估值偏高，市盈率35倍\n' +
+                      '• 行业竞争激烈\n' +
+                      '• 政策风险较大\n\n' +
+                      '投资策略：\n' +
+                      '• 分批建仓，控制仓位\n' +
+                      '• 关注业绩增长持续性\n' +
+                      '• 设置止损点位');
+            } else if (type === 'bank') {
+                alert('银行股价值分析：\n\n' +
+                      '优势：\n' +
+                      '• 估值较低，市净率0.8倍\n' +
+                      '• 盈利稳定，ROE达12%\n' +
+                      '• 分红收益率较高\n\n' +
+                      '风险：\n' +
+                      '• 成长性有限\n' +
+                      '• 利率环境影响较大\n' +
+                      '• 信贷风险需关注\n\n' +
+                      '投资策略：\n' +
+                      '• 适合长期价值投资\n' +
+                      '• 关注资产质量变化\n' +
+                      '• 享受稳定分红收益');
+            }
+        }
+    </script>
+</body>
+</html>

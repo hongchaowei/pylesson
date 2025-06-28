@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程大纲 - Python金融编程课程</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .syllabus-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .syllabus-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            opacity: 0.3;
+        }
+        
+        .syllabus-hero .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .syllabus-hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .syllabus-hero .subtitle {
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .part-section {
+            margin: 60px 0;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .part-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .part-section h3 {
+            color: #667eea;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .part-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .syllabus-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .syllabus-table thead {
+            background: linear-gradient(135deg, #f8f9ff, #e8ecff);
+        }
+        
+        .syllabus-table th {
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .syllabus-table td {
+            padding: 25px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+        
+        .syllabus-table tr:hover {
+            background: #f8faff;
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+        }
+        
+        .module-link {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .module-link:hover {
+            color: #5a67d8;
+            transform: translateX(5px);
+        }
+        
+        .module-link i {
+            font-size: 0.9rem;
+        }
+        
+        .content-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .content-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4a5568;
+        }
+        
+        .content-list li::before {
+            content: '✓';
+            color: #48bb78;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .learning-tips {
+            background: linear-gradient(135deg, #f0fff4, #e6fffa);
+            border-radius: 16px;
+            padding: 40px;
+            margin: 50px 0;
+            border-left: 5px solid #48bb78;
+        }
+        
+        .learning-tips h3 {
+            color: #2f855a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .learning-tips ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .learning-tips li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #2d3748;
+        }
+        
+        .learning-tips li::before {
+            content: '💡';
+            font-size: 1.2rem;
+        }
+        
+        .get-started {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .get-started::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .get-started h3 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .get-started p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .get-started .btn {
+            background: white;
+            color: #667eea;
+            font-size: 1.2rem;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .get-started .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            color: #667eea;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .part-section {
+                padding: 25px;
+                margin: 40px 0;
+            }
+            
+            .syllabus-table th,
+            .syllabus-table td {
+                padding: 15px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .part-section h3 {
+                font-size: 1.8rem;
+            }
+            
+            .get-started {
+                padding: 35px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<!-- 英雄区域 -->
+<section class="syllabus-hero">
+    <div class="container">
+        <h1><i class="fas fa-graduation-cap"></i> 课程大纲</h1>
+        <p class="subtitle">从零开始掌握Python编程，深入金融数据分析与应用开发的完整学习路径</p>
+    </div>
+</section>
+
+<main class="container">
+    <section class="lesson-content">
+        <p style="font-size: 1.2rem; text-align: center; color: #4a5568; margin: 40px 0; line-height: 1.8;">本课程旨在帮助学习者从零开始掌握Python编程，并将其应用于金融数据分析和应用开发。课程分为四个主要部分，每个部分包含四个模块，循序渐进地引导您从基础知识到高级应用。</p>
+        
+        <div class="part-section">
+            <h3><div class="part-icon"><i class="fas fa-code"></i></div>第一部分: Python基础</h3>
+            <table class="syllabus-table">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>内容</th>
+                        <th>学习目标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="part1_python_basics/module1/index.html" class="module-link"><i class="fas fa-play-circle"></i>模块1: Python入门</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>Python简介与环境设置</li>
+                                <li>基本语法与数据类型</li>
+                                <li>变量与运算符</li>
+                                <li>输入与输出</li>
+                            </ul>
+                        </td>
+                        <td>搭建Python开发环境，理解基本语法，能够编写简单的Python程序</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part1_python_basics/module2/index.html" class="module-link"><i class="fas fa-database"></i>模块2: 数据结构与控制流</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>列表、元组与字典</li>
+                                <li>条件语句</li>
+                                <li>循环结构</li>
+                                <li>推导式</li>
+                            </ul>
+                        </td>
+                        <td>掌握Python核心数据结构，能够使用条件判断和循环控制程序流程</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part1_python_basics/module3/index.html" class="module-link"><i class="fas fa-puzzle-piece"></i>模块3: 函数与模块</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>函数定义与调用</li>
+                                <li>参数传递</li>
+                                <li>模块导入与使用</li>
+                                <li>包管理</li>
+                            </ul>
+                        </td>
+                        <td>能够创建和使用函数，理解模块化编程，使用第三方库</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part1_python_basics/module4/index.html" class="module-link"><i class="fas fa-object-group"></i>模块4: 面向对象编程</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>类与对象</li>
+                                <li>继承与多态</li>
+                                <li>封装与抽象</li>
+                                <li>特殊方法</li>
+                            </ul>
+                        </td>
+                        <td>理解面向对象编程概念，能够设计和实现类，使用面向对象方法解决问题</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="part-section">
+            <h3><div class="part-icon"><i class="fas fa-chart-line"></i></div>第二部分: 数据分析</h3>
+            <table class="syllabus-table">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>内容</th>
+                        <th>学习目标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="part2_data_analysis/module5/index.html" class="module-link"><i class="fas fa-calculator"></i>模块5: NumPy与数据处理</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>NumPy基础</li>
+                                <li>数组操作</li>
+                                <li>数学函数</li>
+                                <li>随机数生成</li>
+                            </ul>
+                        </td>
+                        <td>掌握NumPy库的使用，能够进行高效的数值计算和数组操作</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part2_data_analysis/module6/index.html" class="module-link"><i class="fas fa-table"></i>模块6: Pandas与金融数据</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>Series与DataFrame</li>
+                                <li>数据导入与导出</li>
+                                <li>数据清洗与预处理</li>
+                                <li>金融时间序列处理</li>
+                            </ul>
+                        </td>
+                        <td>能够使用Pandas处理和分析金融数据，进行数据清洗和预处理</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part2_data_analysis/module7/index.html" class="module-link"><i class="fas fa-chart-bar"></i>模块7: 数据可视化</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>Matplotlib基础</li>
+                                <li>金融图表绘制</li>
+                                <li>交互式可视化</li>
+                                <li>高级图表定制</li>
+                            </ul>
+                        </td>
+                        <td>能够创建各种金融数据可视化，制作专业的数据报告和图表</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part2_data_analysis/module8/index.html" class="module-link"><i class="fas fa-chart-pie"></i>模块8: 统计分析基础</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>描述性统计</li>
+                                <li>概率分布</li>
+                                <li>假设检验</li>
+                                <li>回归分析</li>
+                            </ul>
+                        </td>
+                        <td>掌握基本统计分析方法，能够对金融数据进行统计推断和建模</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="part-section">
+            <h3><div class="part-icon"><i class="fas fa-coins"></i></div>第三部分: 金融应用</h3>
+            <table class="syllabus-table">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>内容</th>
+                        <th>学习目标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="part3_finance_applications/module9/index.html" class="module-link"><i class="fas fa-download"></i>模块9: 金融API与数据获取</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>金融数据源介绍</li>
+                                <li>API调用与数据获取</li>
+                                <li>数据存储与管理</li>
+                                <li>实时数据处理</li>
+                            </ul>
+                        </td>
+                        <td>能够从各种金融数据源获取数据，构建数据管道</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part3_finance_applications/module10/index.html" class="module-link"><i class="fas fa-briefcase"></i>模块10: 投资组合分析</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>现代投资组合理论</li>
+                                <li>资产收益与风险计算</li>
+                                <li>投资组合优化</li>
+                                <li>绩效评估</li>
+                            </ul>
+                        </td>
+                        <td>能够构建和分析投资组合，进行风险收益评估和优化</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part3_finance_applications/module11/index.html" class="module-link"><i class="fas fa-shield-alt"></i>模块11: 风险评估模型</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>风险度量方法</li>
+                                <li>VaR与CVaR计算</li>
+                                <li>压力测试</li>
+                                <li>风险模型评估</li>
+                            </ul>
+                        </td>
+                        <td>掌握金融风险评估方法，能够构建风险模型并进行分析</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part3_finance_applications/module12/index.html" class="module-link"><i class="fas fa-robot"></i>模块12: 自动化交易策略</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>交易策略设计</li>
+                                <li>回测框架</li>
+                                <li>策略优化</li>
+                                <li>实时交易系统</li>
+                            </ul>
+                        </td>
+                        <td>能够设计、回测和实现自动化交易策略</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="part-section">
+            <h3><div class="part-icon"><i class="fas fa-rocket"></i></div>第四部分: 高级主题</h3>
+            <table class="syllabus-table">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>内容</th>
+                        <th>学习目标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="part4_advanced_topics/module13/index.html" class="module-link"><i class="fas fa-chart-area"></i>模块13: 金融衍生品分析</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>期权定价模型</li>
+                                <li>期货与远期合约</li>
+                                <li>衍生品风险管理</li>
+                                <li>希腊字母计算</li>
+                            </ul>
+                        </td>
+                        <td>掌握金融衍生品定价原理，能够使用Python进行衍生品分析和风险管理</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part4_advanced_topics/module14/index.html" class="module-link"><i class="fas fa-cogs"></i>模块14: 算法交易与回测系统</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>算法交易策略</li>
+                                <li>回测框架构建</li>
+                                <li>交易成本分析</li>
+                                <li>高频交易基础</li>
+                            </ul>
+                        </td>
+                        <td>能够构建完整的算法交易回测系统，评估交易策略性能</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part4_advanced_topics/module15/index.html" class="module-link"><i class="fas fa-brain"></i>模块15: 机器学习在金融中的应用</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>监督学习模型</li>
+                                <li>无监督学习应用</li>
+                                <li>特征工程</li>
+                                <li>模型评估与解释</li>
+                            </ul>
+                        </td>
+                        <td>掌握机器学习在金融领域的应用方法，能够构建预测模型</td>
+                    </tr>
+                    <tr>
+                        <td><a href="part4_advanced_topics/module16/index.html" class="module-link"><i class="fas fa-project-diagram"></i>模块16: 综合项目与实践</a></td>
+                        <td>
+                            <ul class="content-list">
+                                <li>项目规划与设计</li>
+                                <li>数据获取与处理</li>
+                                <li>模型构建与优化</li>
+                                <li>结果分析与报告</li>
+                            </ul>
+                        </td>
+                        <td>能够整合所学知识，完成一个完整的金融数据分析或交易系统项目</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="learning-tips">
+            <h3><i class="fas fa-lightbulb"></i>学习方法与建议</h3>
+            <p style="margin-bottom: 20px; font-size: 1.1rem;">为了获得最佳学习效果，我们建议：</p>
+            <ul>
+                <li>按照课程顺序学习，确保掌握前面的基础知识</li>
+                <li>完成每个模块的练习和项目</li>
+                <li>定期复习和实践所学内容</li>
+                <li>参与讨论，与其他学习者交流</li>
+                <li>将所学知识应用到实际金融问题中</li>
+            </ul>
+        </div>
+        
+        <div class="get-started">
+            <h3>准备好开始学习了吗？</h3>
+            <p>从Python基础开始，逐步构建您的金融编程技能。</p>
+            <a href="part1_python_basics/module1/lesson1.html" class="btn btn-large"><i class="fas fa-rocket"></i>开始第一课</a>
+        </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

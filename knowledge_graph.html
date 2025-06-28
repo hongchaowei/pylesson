@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python金融编程课程 - 知识图谱</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .knowledge-graph {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .node {
+            cursor: pointer;
+        }
+        .node circle {
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+        .node text {
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+        }
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 5px;
+            pointer-events: none;
+            font-size: 12px;
+            max-width: 200px;
+        }
+        .legend {
+            margin: 20px 0;
+        }
+        .legend-item {
+            display: inline-block;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>课程知识结构图</h2>
+            <p>下图展示了Python金融编程课程各模块之间的依赖关系和知识结构。点击节点查看详细信息。</p>
+            <div class="legend">
+                <h3>图例</h3>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #ff6b6b;"></span>
+                    <span>Python基础</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #4ecdc4;"></span>
+                    <span>数据分析</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #45b7d1;"></span>
+                    <span>金融应用</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #f9ca24;"></span>
+                    <span>高级主题</span>
+                </div>
+            </div>
+            <div id="knowledge-graph" class="knowledge-graph"></div>
+            <div class="tooltip" id="tooltip" style="display: none;"></div>
+        </section>
+    </main>
+
+    <script>
+        // 知识图谱数据
+        const graphData = {
+            nodes: [
+                // Python基础模块
+                { id: "module1", name: "Python基础语法", group: "python_basics", level: 1, description: "变量、数据类型、控制结构" },
+                { id: "module2", name: "函数与模块", group: "python_basics", level: 1, description: "函数定义、模块导入、包管理" },
+                { id: "module3", name: "面向对象编程", group: "python_basics", level: 1, description: "类、对象、继承、多态" },
+                { id: "module4", name: "异常处理与文件操作", group: "python_basics", level: 1, description: "异常处理、文件读写、数据持久化" },
+                
+                // 数据分析模块
+                { id: "module5", name: "NumPy数值计算", group: "data_analysis", level: 2, description: "数组操作、数学运算、线性代数" },
+                { id: "module6", name: "Pandas数据处理", group: "data_analysis", level: 2, description: "数据清洗、转换、分析" },
+                { id: "module7", name: "数据可视化", group: "data_analysis", level: 2, description: "Matplotlib、Seaborn图表制作" },
+                { id: "module8", name: "统计分析基础", group: "data_analysis", level: 2, description: "描述性统计、假设检验、回归分析" },
+                
+                // 金融应用模块
+                { id: "module9", name: "金融数据获取", group: "finance_apps", level: 3, description: "API接口、数据源、实时数据" },
+                { id: "module10", name: "投资组合分析", group: "finance_apps", level: 3, description: "风险收益、资产配置、优化" },
+                { id: "module11", name: "技术分析", group: "finance_apps", level: 3, description: "技术指标、图表分析、交易信号" },
+                { id: "module12", name: "风险管理", group: "finance_apps", level: 3, description: "VaR、压力测试、风险度量" },
+                
+                // 高级主题模块
+                { id: "module13", name: "算法交易", group: "advanced", level: 4, description: "策略开发、回测、实盘交易" },
+                { id: "module14", name: "机器学习应用", group: "advanced", level: 4, description: "预测模型、特征工程、模型评估" },
+                { id: "module15", name: "深度学习金融", group: "advanced", level: 4, description: "神经网络、时间序列预测" },
+                { id: "module16", name: "综合项目", group: "advanced", level: 4, description: "完整的金融分析系统" }
+            ],
+            links: [
+                // Python基础内部依赖
+                { source: "module1", target: "module2", type: "prerequisite" },
+                { source: "module2", target: "module3", type: "prerequisite" },
+                { source: "module3", target: "module4", type: "prerequisite" },
+                
+                // Python基础到数据分析
+                { source: "module1", target: "module5", type: "foundation" },
+                { source: "module2", target: "module6", type: "foundation" },
+                { source: "module4", target: "module6", type: "foundation" },
+                
+                // 数据分析内部依赖
+                { source: "module5", target: "module6", type: "prerequisite" },
+                { source: "module6", target: "module7", type: "prerequisite" },
+                { source: "module6", target: "module8", type: "prerequisite" },
+                
+                // 数据分析到金融应用
+                { source: "module6", target: "module9", type: "foundation" },
+                { source: "module7", target: "module11", type: "foundation" },
+                { source: "module8", target: "module10", type: "foundation" },
+                { source: "module8", target: "module12", type: "foundation" },
+                
+                // 金融应用内部依赖
+                { source: "module9", target: "module10", type: "prerequisite" },
+                { source: "module9", target: "module11", type: "prerequisite" },
+                { source: "module10", target: "module12", type: "prerequisite" },
+                
+                // 金融应用到高级主题
+                { source: "module11", target: "module13", type: "foundation" },
+                { source: "module12", target: "module13", type: "foundation" },
+                { source: "module8", target: "module14", type: "foundation" },
+                { source: "module14", target: "module15", type: "prerequisite" },
+                { source: "module13", target: "module16", type: "integration" },
+                { source: "module14", target: "module16", type: "integration" },
+                { source: "module15", target: "module16", type: "integration" }
+            ]
+        };
+
+        // 颜色配置
+        const colorMap = {
+            python_basics: "#ff6b6b",
+            data_analysis: "#4ecdc4",
+            finance_apps: "#45b7d1",
+            advanced: "#f9ca24"
+        };
+
+        // 创建SVG
+        const width = document.getElementById('knowledge-graph').clientWidth;
+        const height = 800;
+
+        const svg = d3.select("#knowledge-graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        // 创建力导向图
+        const simulation = d3.forceSimulation(graphData.nodes)
+            .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(100))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(40));
+
+        // 创建连线
+        const link = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graphData.links)
+            .enter().append("line")
+            .attr("class", "link")
+            .style("stroke-dasharray", d => d.type === "prerequisite" ? "0" : "5,5");
+
+        // 创建节点组
+        const node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graphData.nodes)
+            .enter().append("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        // 添加圆圈
+        node.append("circle")
+            .attr("r", 25)
+            .attr("fill", d => colorMap[d.group])
+            .on("mouseover", function(event, d) {
+                showTooltip(event, d);
+            })
+            .on("mouseout", function() {
+                hideTooltip();
+            })
+            .on("click", function(event, d) {
+                // 点击节点跳转到对应模块
+                const moduleNum = d.id.replace('module', '');
+                let partNum, moduleLink;
+                
+                if (parseInt(moduleNum) <= 4) {
+                    partNum = 1;
+                    moduleLink = `part1_python_basics/module${moduleNum}/index.html`;
+                } else if (parseInt(moduleNum) <= 8) {
+                    partNum = 2;
+                    moduleLink = `part2_data_analysis/module${moduleNum}/index.html`;
+                } else if (parseInt(moduleNum) <= 12) {
+                    partNum = 3;
+                    moduleLink = `part3_finance_applications/module${moduleNum}/index.html`;
+                } else {
+                    partNum = 4;
+                    moduleLink = `part4_advanced_topics/module${moduleNum}/index.html`;
+                }
+                
+                window.location.href = moduleLink;
+            });
+
+        // 添加文本标签
+        node.append("text")
+            .text(d => d.name.length > 8 ? d.name.substring(0, 6) + "..." : d.name)
+            .attr("dy", ".35em")
+            .style("font-size", "10px")
+            .style("fill", "white")
+            .style("font-weight", "bold");
+
+        // 模拟更新
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        // 拖拽函数
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // 工具提示函数
+        function showTooltip(event, d) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.display = 'block';
+            tooltip.style.left = (event.pageX + 10) + 'px';
+            tooltip.style.top = (event.pageY - 10) + 'px';
+            tooltip.innerHTML = `
+                <strong>${d.name}</strong><br>
+                ${d.description}<br>
+                <em>点击查看详情</em>
+            `;
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').style.display = 'none';
+        }
+
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            const newWidth = document.getElementById('knowledge-graph').clientWidth;
+            svg.attr('width', newWidth);
+            simulation.force('center', d3.forceCenter(newWidth / 2, height / 2));
+            simulation.alpha(0.3).restart();
+        });
+    </script>
+</body>
+</html>

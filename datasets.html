@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金融数据集下载中心 - Python金融编程</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .dataset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .dataset-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dataset-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .dataset-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .dataset-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+            color: var(--primary-color);
+        }
+        .dataset-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+        .dataset-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .meta-item i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+        .download-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .download-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem 0.5rem 0 0;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .download-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .download-btn.primary {
+            background: #28a745;
+        }
+        .download-btn.primary:hover {
+            background: #218838;
+        }
+        .sample-code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .data-preview {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #ffc107;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list li i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+    
+    <div class="container">
+        <div class="hero-section">
+            <h1><i class="fas fa-database"></i> 金融数据集下载中心</h1>
+            <p class="hero-subtitle">高质量的真实金融数据，助力您的Python金融编程学习</p>
+        </div>
+
+        <div class="warning-box">
+            <h4><i class="fas fa-exclamation-triangle"></i> 重要声明</h4>
+            <p>所有数据集仅供学习和研究使用，不得用于商业目的。数据已进行脱敏处理以保护隐私。使用前请仔细阅读<a href="#license">数据使用协议</a>。</p>
+        </div>
+
+        <!-- 快速下载区域 -->
+        <div class="quick-download-section">
+            <h2><i class="fas fa-rocket"></i> 一键数据生成</h2>
+            <p>基于AkShare数据模拟器，快速生成高质量的金融数据集用于学习和研究</p>
+            
+            <div class="quick-download-grid">
+                <button class="quick-btn" id="download-all-stock">
+                    <i class="fas fa-chart-line"></i>
+                    <span>股票数据包</span>
+                    <small>包含价格、技术指标</small>
+                </button>
+                
+                <button class="quick-btn" id="download-all-financial">
+                    <i class="fas fa-calculator"></i>
+                    <span>财务数据包</span>
+                    <small>资产负债表、利润表</small>
+                </button>
+                
+                <button class="quick-btn" id="download-all-macro">
+                    <i class="fas fa-globe"></i>
+                    <span>宏观数据包</span>
+                    <small>GDP、CPI、利率</small>
+                </button>
+                
+                <button class="quick-btn" id="download-complete-package">
+                    <i class="fas fa-download"></i>
+                    <span>完整数据包</span>
+                    <small>所有数据集合集</small>
+                </button>
+            </div>
+        </div>
+
+        <style>
+            .quick-download-section {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 2rem;
+                border-radius: 12px;
+                margin: 2rem 0;
+                text-align: center;
+            }
+            
+            .quick-download-section h2 {
+                margin-bottom: 0.5rem;
+                font-size: 1.8rem;
+            }
+            
+            .quick-download-section p {
+                margin-bottom: 2rem;
+                opacity: 0.9;
+            }
+            
+            .quick-download-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            
+            .quick-btn {
+                background: rgba(255, 255, 255, 0.15);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                color: white;
+                padding: 1.5rem 1rem;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-align: center;
+                backdrop-filter: blur(10px);
+            }
+            
+            .quick-btn:hover {
+                background: rgba(255, 255, 255, 0.25);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            }
+            
+            .quick-btn i {
+                font-size: 2rem;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+            
+            .quick-btn span {
+                display: block;
+                font-weight: bold;
+                font-size: 1.1rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .quick-btn small {
+                 display: block;
+                 opacity: 0.8;
+                 font-size: 0.85rem;
+             }
+             
+             .download-message {
+                 position: fixed;
+                 top: 20px;
+                 right: 20px;
+                 padding: 1rem 1.5rem;
+                 border-radius: 8px;
+                 color: white;
+                 font-weight: bold;
+                 z-index: 10000;
+                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                 animation: slideIn 0.3s ease-out;
+             }
+             
+             .download-message.error-message {
+                 background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+             }
+             
+             .download-message i {
+                 margin-right: 0.5rem;
+             }
+             
+             @keyframes slideIn {
+                 from {
+                     transform: translateX(100%);
+                     opacity: 0;
+                 }
+                 to {
+                     transform: translateX(0);
+                     opacity: 1;
+                 }
+             }
+         </style>
+
+        <div class="dataset-grid">
+            <!-- 股票市场数据集 -->
+            <div class="dataset-card">
+                <div class="dataset-header">
+                    <i class="fas fa-chart-line dataset-icon"></i>
+                    <div class="dataset-title">A股市场历史数据集</div>
+                </div>
+                
+                <p>包含2010-2023年A股市场完整的交易数据，涵盖价格、成交量、技术指标等信息。</p>
+                
+                <div class="dataset-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>2010-2023年</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-building"></i>
+                        <span>4,500+股票</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-hdd"></i>
+                        <span>2.5GB</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-sync"></i>
+                        <span>日频数据</span>
+                    </div>
+                </div>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i>开高低收价格数据</li>
+                    <li><i class="fas fa-check"></i>成交量和成交额</li>
+                    <li><i class="fas fa-check"></i>复权价格数据</li>
+                    <li><i class="fas fa-check"></i>技术指标预计算</li>
+                    <li><i class="fas fa-check"></i>行业分类信息</li>
+                </ul>
+                
+                <div class="sample-code">
+# 数据加载示例
+import pandas as pd
+
+# 加载股价数据
+stock_data = pd.read_csv('stock_prices.csv', 
+                        parse_dates=['date'],
+                        index_col='date')
+
+# 查看数据结构
+print(stock_data.head())
+print(f"数据形状: {stock_data.shape}")
+                </div>
+                
+                <div class="data-preview">
+                    <h5>数据预览</h5>
+                    <pre>date       symbol  open   high   low    close  volume
+2023-01-03 000001  10.50  10.80  10.45  10.75  1250000
+2023-01-03 000002  25.30  25.60  25.10  25.45  890000
+...</pre>
+                </div>
+                
+                <div class="download-section">
+                    <h5><i class="fas fa-download"></i> 下载选项</h5>
+                    <a href="#" class="download-btn primary"><i class="fas fa-file-csv"></i> 完整数据集 (2.5GB)</a>
+                    <a href="#" class="download-btn"><i class="fas fa-file-archive"></i> 样本数据 (50MB)</a>
+                    <a href="#" class="download-btn"><i class="fas fa-file-code"></i> 处理脚本</a>
+                    <a href="#" class="download-btn"><i class="fas fa-book"></i> 数据说明</a>
+                </div>
+            </div>
+
+            <!-- 财务数据集 -->
+            <div class="dataset-card">
+                <div class="dataset-header">
+                    <i class="fas fa-calculator dataset-icon"></i>
+                    <div class="dataset-title">上市公司财务数据集</div>
+                </div>
+                
+                <p>上市公司年报和季报财务数据，包含资产负债表、利润表、现金流量表等核心财务指标。</p>
+                
+                <div class="dataset-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>2010-2023年</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-building"></i>
+                        <span>4,500+公司</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-hdd"></i>
+                        <span>800MB</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-sync"></i>
+                        <span>季度数据</span>
+                    </div>
+                </div>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i>资产负债表数据</li>
+                    <li><i class="fas fa-check"></i>利润表数据</li>
+                    <li><i class="fas fa-check"></i>现金流量表数据</li>
+                    <li><i class="fas fa-check"></i>财务比率计算</li>
+                    <li><i class="fas fa-check"></i>行业对比数据</li>
+                </ul>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">200+</div>
+                        <div class="stat-label">财务指标</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">56</div>
+                        <div class="stat-label">季度数据</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">数据完整性</div>
+                    </div>
+                </div>
+                
+                <div class="download-section">
+                    <h5><i class="fas fa-download"></i> 下载选项</h5>
+                    <a href="#" class="download-btn primary"><i class="fas fa-file-excel"></i> 财务数据 (800MB)</a>
+                    <a href="#" class="download-btn"><i class="fas fa-chart-bar"></i> 比率数据 (200MB)</a>
+                    <a href="#" class="download-btn"><i class="fas fa-file-code"></i> 分析脚本</a>
+                </div>
+            </div>
+
+            <!-- 宏观经济数据集 -->
+            <div class="dataset-card">
+                <div class="dataset-header">
+                    <i class="fas fa-globe dataset-icon"></i>
+                    <div class="dataset-title">宏观经济数据集</div>
+                </div>
+                
+                <p>中国宏观经济核心指标数据，包含GDP、CPI、利率、汇率等关键经济变量。</p>
+                
+                <div class="dataset-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>2000-2023年</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>150+指标</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-hdd"></i>
+                        <span>100MB</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-sync"></i>
+                        <span>月度数据</span>
+                    </div>
+                </div>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i>GDP和增长率数据</li>
+                    <li><i class="fas fa-check"></i>通胀指标(CPI/PPI)</li>
+                    <li><i class="fas fa-check"></i>货币政策指标</li>
+                    <li><i class="fas fa-check"></i>汇率和利率数据</li>
+                    <li><i class="fas fa-check"></i>就业和消费数据</li>
+                </ul>
+                
+                <div class="download-section">
+                    <h5><i class="fas fa-download"></i> 下载选项</h5>
+                    <a href="#" class="download-btn primary"><i class="fas fa-file-csv"></i> 宏观数据 (100MB)</a>
+                    <a href="#" class="download-btn"><i class="fas fa-file-code"></i> 可视化脚本</a>
+                </div>
+            </div>
+
+            <!-- 期权数据集 -->
+            <div class="dataset-card">
+                <div class="dataset-header">
+                    <i class="fas fa-coins dataset-icon"></i>
+                    <div class="dataset-title">期权市场数据集</div>
+                </div>
+                
+                <p>50ETF期权和300ETF期权的完整交易数据，包含价格、隐含波动率、希腊字母等。</p>
+                
+                <div class="dataset-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>2015-2023年</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-coins"></i>
+                        <span>10,000+合约</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-hdd"></i>
+                        <span>1.2GB</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-sync"></i>
+                        <span>日频数据</span>
+                    </div>
+                </div>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i>期权价格数据</li>
+                    <li><i class="fas fa-check"></i>隐含波动率</li>
+                    <li><i class="fas fa-check"></i>希腊字母计算</li>
+                    <li><i class="fas fa-check"></i>到期日和行权价</li>
+                    <li><i class="fas fa-check"></i>成交量和持仓量</li>
+                </ul>
+                
+                <div class="download-section">
+                    <h5><i class="fas fa-download"></i> 下载选项</h5>
+                    <a href="#" class="download-btn primary"><i class="fas fa-file-csv"></i> 期权数据 (1.2GB)</a>
+                    <a href="#" class="download-btn"><i class="fas fa-calculator"></i> 定价模型</a>
+                </div>
+            </div>
+
+            <!-- 高频数据集 -->
+            <div class="dataset-card">
+                <div class="dataset-header">
+                    <i class="fas fa-tachometer-alt dataset-icon"></i>
+                    <div class="dataset-title">高频交易数据集</div>
+                </div>
+                
+                <p>Level-2高频行情数据，包含逐笔成交、委托队列等微观结构信息。</p>
+                
+                <div class="dataset-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>2022-2023年</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-building"></i>
+                        <span>100只股票</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-hdd"></i>
+                        <span>5GB</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-sync"></i>
+                        <span>毫秒级数据</span>
+                    </div>
+                </div>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i>逐笔成交数据</li>
+                    <li><i class="fas fa-check"></i>五档委托队列</li>
+                    <li><i class="fas fa-check"></i>买卖盘口信息</li>
+                    <li><i class="fas fa-check"></i>时间戳精确到毫秒</li>
+                    <li><i class="fas fa-check"></i>市场微观结构指标</li>
+                </ul>
+                
+                <div class="download-section">
+                    <h5><i class="fas fa-download"></i> 下载选项</h5>
+                    <a href="#" class="download-btn primary"><i class="fas fa-file-archive"></i> 高频数据 (5GB)</a>
+                    <a href="#" class="download-btn"><i class="fas fa-cogs"></i> 处理工具</a>
+                </div>
+            </div>
+
+            <!-- ESG数据集 -->
+            <div class="dataset-card">
+                <div class="dataset-header">
+                    <i class="fas fa-leaf dataset-icon"></i>
+                    <div class="dataset-title">ESG可持续投资数据集</div>
+                </div>
+                
+                <p>企业ESG评级数据、年报文本、ESG相关新闻等，支持可持续投资研究。</p>
+                
+                <div class="dataset-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>2018-2023年</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-building"></i>
+                        <span>3,000+公司</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-hdd"></i>
+                        <span>1.5GB</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-sync"></i>
+                        <span>年度数据</span>
+                    </div>
+                </div>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i>ESG评级分数</li>
+                    <li><i class="fas fa-check"></i>年报文本数据</li>
+                    <li><i class="fas fa-check"></i>ESG新闻情感分析</li>
+                    <li><i class="fas fa-check"></i>碳排放数据</li>
+                    <li><i class="fas fa-check"></i>社会责任指标</li>
+                </ul>
+                
+                <div class="download-section">
+                    <h5><i class="fas fa-download"></i> 下载选项</h5>
+                    <a href="#" class="download-btn primary"><i class="fas fa-file-alt"></i> ESG数据 (1.5GB)</a>
+                    <a href="#" class="download-btn"><i class="fas fa-brain"></i> NLP工具</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用指南 -->
+        <div class="section">
+            <h2><i class="fas fa-book-open"></i> 数据使用指南</h2>
+            
+            <div class="guide-content">
+                <h3>🚀 快速开始</h3>
+                <div class="sample-code">
+# 1. 安装必要的库
+pip install pandas numpy matplotlib seaborn yfinance
+
+# 2. 加载数据
+import pandas as pd
+import numpy as np
+
+# 加载股价数据
+df = pd.read_csv('stock_prices.csv', parse_dates=['date'])
+print(df.info())
+
+# 3. 基础分析
+# 计算收益率
+df['returns'] = df.groupby('symbol')['close'].pct_change()
+
+# 计算移动平均
+df['ma_20'] = df.groupby('symbol')['close'].rolling(20).mean()
+
+# 4. 可视化
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12, 6))
+plt.plot(df[df['symbol']=='000001']['date'], 
+         df[df['symbol']=='000001']['close'])
+plt.title('股价走势图')
+plt.show()
+                </div>
+                
+                <h3>📋 数据字段说明</h3>
+                <div class="data-preview">
+                    <h5>股价数据字段</h5>
+                    <ul>
+                        <li><strong>date:</strong> 交易日期 (YYYY-MM-DD)</li>
+                        <li><strong>symbol:</strong> 股票代码 (6位数字)</li>
+                        <li><strong>open/high/low/close:</strong> 开高低收价格</li>
+                        <li><strong>volume:</strong> 成交量 (股)</li>
+                        <li><strong>amount:</strong> 成交额 (元)</li>
+                        <li><strong>adj_close:</strong> 复权收盘价</li>
+                    </ul>
+                </div>
+                
+                <h3>⚠️ 注意事项</h3>
+                <ul>
+                    <li>数据仅供学习研究使用，不构成投资建议</li>
+                    <li>使用前请检查数据的完整性和准确性</li>
+                    <li>建议使用版本控制管理您的分析代码</li>
+                    <li>大数据集建议分批处理以避免内存溢出</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 许可协议 -->
+        <div class="section" id="license">
+            <h2><i class="fas fa-file-contract"></i> 数据使用协议</h2>
+            
+            <div class="warning-box">
+                <h4>使用条款</h4>
+                <ol>
+                    <li><strong>用途限制：</strong>数据仅可用于教育、学习和非商业研究目的</li>
+                    <li><strong>禁止行为：</strong>不得将数据用于商业交易、投资决策或盈利活动</li>
+                    <li><strong>数据保护：</strong>不得重新分发或公开发布数据集</li>
+                    <li><strong>免责声明：</strong>数据提供方不对数据准确性承担责任</li>
+                    <li><strong>版权声明：</strong>数据版权归原始数据提供方所有</li>
+                </ol>
+                <p><strong>下载即表示您同意以上条款。</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/load-nav.js"></script>
+    <script src="js/akshare-data.js"></script>
+    <script>
+        // 数据下载功能
+        class DatasetDownloader {
+            constructor() {
+                this.initializeDownloadButtons();
+            }
+
+            initializeDownloadButtons() {
+                 // 为所有下载按钮添加事件监听器
+                 document.addEventListener('DOMContentLoaded', () => {
+                     this.setupQuickDownloadButtons();
+                     this.setupStockDataDownload();
+                     this.setupFinancialDataDownload();
+                     this.setupMacroDataDownload();
+                     this.setupOptionsDataDownload();
+                     this.setupHighFreqDataDownload();
+                     this.setupESGDataDownload();
+                 });
+             }
+
+             // 设置快速下载按钮
+             setupQuickDownloadButtons() {
+                 const stockPackageBtn = document.getElementById('download-all-stock');
+                 const financialPackageBtn = document.getElementById('download-all-financial');
+                 const macroPackageBtn = document.getElementById('download-all-macro');
+                 const completePackageBtn = document.getElementById('download-complete-package');
+
+                 if (stockPackageBtn) {
+                     stockPackageBtn.addEventListener('click', () => {
+                         this.downloadStockPackage();
+                     });
+                 }
+
+                 if (financialPackageBtn) {
+                     financialPackageBtn.addEventListener('click', () => {
+                         this.downloadFinancialPackage();
+                     });
+                 }
+
+                 if (macroPackageBtn) {
+                     macroPackageBtn.addEventListener('click', () => {
+                         this.downloadMacroPackage();
+                     });
+                 }
+
+                 if (completePackageBtn) {
+                     completePackageBtn.addEventListener('click', () => {
+                         this.downloadCompletePackage();
+                     });
+                 }
+             }
+
+             // 下载股票数据包
+             async downloadStockPackage() {
+                 this.showLoadingMessage('正在生成股票数据包...');
+                 
+                 try {
+                     // 生成股票价格数据
+                     const stockData = mockStockData.generateStockData('000001', 500);
+                     const technicalData = mockStockData.generateTechnicalIndicators(stockData);
+                     
+                     // 合并数据
+                     const combinedData = stockData.map((item, index) => ({
+                         ...item,
+                         ...technicalData[index]
+                     }));
+                     
+                     // 下载CSV文件
+                     this.downloadCSV(combinedData, 'stock_data_package.csv');
+                     this.showSuccessMessage('股票数据包下载成功！包含价格数据和技术指标。');
+                 } catch (error) {
+                     console.error('下载股票数据包失败:', error);
+                     this.showErrorMessage('下载失败，请重试。');
+                 }
+             }
+
+             // 下载财务数据包
+             async downloadFinancialPackage() {
+                 this.showLoadingMessage('正在生成财务数据包...');
+                 
+                 try {
+                     const financialData = mockStockData.generateFinancialData('000001', 20);
+                     this.downloadCSV(financialData, 'financial_data_package.csv');
+                     this.showSuccessMessage('财务数据包下载成功！包含资产负债表和利润表数据。');
+                 } catch (error) {
+                     console.error('下载财务数据包失败:', error);
+                     this.showErrorMessage('下载失败，请重试。');
+                 }
+             }
+
+             // 下载宏观数据包
+             async downloadMacroPackage() {
+                 this.showLoadingMessage('正在生成宏观数据包...');
+                 
+                 try {
+                     const macroData = mockMacroData.generateMacroData(60);
+                     this.downloadCSV(macroData, 'macro_data_package.csv');
+                     this.showSuccessMessage('宏观数据包下载成功！包含GDP、CPI、利率等数据。');
+                 } catch (error) {
+                     console.error('下载宏观数据包失败:', error);
+                     this.showErrorMessage('下载失败，请重试。');
+                 }
+             }
+
+             // 下载完整数据包
+             async downloadCompletePackage() {
+                 this.showLoadingMessage('正在生成完整数据包，这可能需要几秒钟...');
+                 
+                 try {
+                     // 生成所有类型的数据
+                     const stockData = mockStockData.generateStockData('000001', 250);
+                     const financialData = mockStockData.generateFinancialData('000001', 12);
+                     const macroData = mockMacroData.generateMacroData(36);
+                     const optionsData = mockDerivativesData.generateOptionsData('000001', 100);
+                     
+                     // 分别下载不同类型的数据
+                     this.downloadCSV(stockData, 'complete_package_stock_data.csv');
+                     
+                     setTimeout(() => {
+                         this.downloadCSV(financialData, 'complete_package_financial_data.csv');
+                     }, 500);
+                     
+                     setTimeout(() => {
+                         this.downloadCSV(macroData, 'complete_package_macro_data.csv');
+                     }, 1000);
+                     
+                     setTimeout(() => {
+                         this.downloadCSV(optionsData, 'complete_package_options_data.csv');
+                         this.showSuccessMessage('完整数据包下载成功！已下载4个CSV文件，包含所有类型的金融数据。');
+                     }, 1500);
+                     
+                 } catch (error) {
+                     console.error('下载完整数据包失败:', error);
+                     this.showErrorMessage('下载失败，请重试。');
+                 }
+             }
+
+             // 显示错误消息
+             showErrorMessage(message) {
+                 const messageDiv = document.createElement('div');
+                 messageDiv.className = 'download-message error-message';
+                 messageDiv.innerHTML = `
+                     <i class="fas fa-exclamation-circle"></i>
+                     <span>${message}</span>
+                 `;
+                 
+                 document.body.appendChild(messageDiv);
+                 
+                 setTimeout(() => {
+                     messageDiv.remove();
+                 }, 4000);
+             }
+
+            // 设置股票数据下载
+            setupStockDataDownload() {
+                const stockCard = document.querySelector('.dataset-card:nth-child(1)');
+                const downloadBtns = stockCard.querySelectorAll('.download-btn');
+                
+                downloadBtns[0].addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadStockData('full');
+                });
+                
+                downloadBtns[1].addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadStockData('sample');
+                });
+            }
+
+            // 设置财务数据下载
+            setupFinancialDataDownload() {
+                const financialCard = document.querySelector('.dataset-card:nth-child(2)');
+                const downloadBtns = financialCard.querySelectorAll('.download-btn');
+                
+                downloadBtns[0].addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadFinancialData();
+                });
+            }
+
+            // 设置宏观数据下载
+            setupMacroDataDownload() {
+                const macroCard = document.querySelector('.dataset-card:nth-child(3)');
+                const downloadBtns = macroCard.querySelectorAll('.download-btn');
+                
+                downloadBtns[0].addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadMacroData();
+                });
+            }
+
+            // 设置期权数据下载
+            setupOptionsDataDownload() {
+                const optionsCard = document.querySelector('.dataset-card:nth-child(4)');
+                const downloadBtns = optionsCard.querySelectorAll('.download-btn');
+                
+                downloadBtns[0].addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadOptionsData();
+                });
+            }
+
+            // 设置高频数据下载
+            setupHighFreqDataDownload() {
+                const hfCard = document.querySelector('.dataset-card:nth-child(5)');
+                const downloadBtns = hfCard.querySelectorAll('.download-btn');
+                
+                downloadBtns[0].addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadHighFreqData();
+                });
+            }
+
+            // 设置ESG数据下载
+            setupESGDataDownload() {
+                const esgCard = document.querySelector('.dataset-card:nth-child(6)');
+                const downloadBtns = esgCard.querySelectorAll('.download-btn');
+                
+                downloadBtns[0].addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadESGData();
+                });
+            }
+
+            // 下载股票数据
+            downloadStockData(type = 'sample') {
+                this.showLoadingMessage('正在生成股票数据...');
+                
+                setTimeout(() => {
+                    const stockCodes = ['000001.SZ', '000002.SZ', '600000.SH', '600036.SH', '600519.SH'];
+                    const allData = [];
+                    
+                    stockCodes.forEach(code => {
+                        const days = type === 'full' ? 1000 : 100;
+                        const basePrice = Math.random() * 100 + 20;
+                        const stockData = mockStockData.generateStockPrices(code, days, basePrice);
+                        allData.push(...stockData);
+                    });
+                    
+                    this.downloadCSV(allData, `stock_prices_${type}.csv`);
+                    this.hideLoadingMessage();
+                }, 1000);
+            }
+
+            // 下载财务数据
+            downloadFinancialData() {
+                this.showLoadingMessage('正在生成财务数据...');
+                
+                setTimeout(() => {
+                    const stockCodes = ['000001.SZ', '000002.SZ', '600000.SH', '600036.SH', '600519.SH'];
+                    const allData = [];
+                    
+                    stockCodes.forEach(code => {
+                        const financialData = mockStockData.generateFinancialData(code, 20);
+                        financialData.forEach(item => {
+                            allData.push({
+                                symbol: code,
+                                ...item
+                            });
+                        });
+                    });
+                    
+                    this.downloadCSV(allData, 'financial_data.csv');
+                    this.hideLoadingMessage();
+                }, 1000);
+            }
+
+            // 下载宏观数据
+            downloadMacroData() {
+                this.showLoadingMessage('正在生成宏观经济数据...');
+                
+                setTimeout(() => {
+                    const gdpData = mockMacroData.generateGDPData(10);
+                    const cpiData = mockMacroData.generateCPIData(36);
+                    const rateData = mockMacroData.generateInterestRateData(24);
+                    
+                    // 合并所有宏观数据
+                    const allData = {
+                        gdp: gdpData,
+                        cpi: cpiData,
+                        interestRates: rateData
+                    };
+                    
+                    this.downloadJSON(allData, 'macro_economic_data.json');
+                    this.hideLoadingMessage();
+                }, 1000);
+            }
+
+            // 下载期权数据
+            downloadOptionsData() {
+                this.showLoadingMessage('正在生成期权数据...');
+                
+                setTimeout(() => {
+                    const optionsData = mockDerivativesData.generateOptionsData('50ETF', 3.0);
+                    this.downloadCSV(optionsData, 'options_data.csv');
+                    this.hideLoadingMessage();
+                }, 1000);
+            }
+
+            // 下载高频数据
+            downloadHighFreqData() {
+                this.showLoadingMessage('正在生成高频交易数据...');
+                
+                setTimeout(() => {
+                    const contracts = ['IF2312', 'IC2312', 'IH2312'];
+                    const allData = [];
+                    
+                    contracts.forEach(contract => {
+                        const futuresData = mockDerivativesData.generateFuturesData(contract, 50);
+                        allData.push(...futuresData);
+                    });
+                    
+                    this.downloadCSV(allData, 'high_frequency_data.csv');
+                    this.hideLoadingMessage();
+                }, 1500);
+            }
+
+            // 下载ESG数据
+            downloadESGData() {
+                this.showLoadingMessage('正在生成ESG数据...');
+                
+                setTimeout(() => {
+                    const esgData = this.generateESGData();
+                    this.downloadCSV(esgData, 'esg_data.csv');
+                    this.hideLoadingMessage();
+                }, 1000);
+            }
+
+            // 生成ESG数据
+            generateESGData() {
+                const companies = ['000001.SZ', '000002.SZ', '600000.SH', '600036.SH', '600519.SH'];
+                const data = [];
+                
+                companies.forEach(symbol => {
+                    for (let year = 2020; year <= 2023; year++) {
+                        data.push({
+                            symbol: symbol,
+                            year: year,
+                            esgScore: Math.floor(Math.random() * 40 + 60), // 60-100分
+                            environmentScore: Math.floor(Math.random() * 40 + 60),
+                            socialScore: Math.floor(Math.random() * 40 + 60),
+                            governanceScore: Math.floor(Math.random() * 40 + 60),
+                            carbonEmission: Math.floor(Math.random() * 1000000 + 100000),
+                            renewableEnergyRatio: Math.floor(Math.random() * 80 + 20),
+                            employeeSatisfaction: Math.floor(Math.random() * 30 + 70)
+                        });
+                    }
+                });
+                
+                return data;
+            }
+
+            // 下载CSV文件
+            downloadCSV(data, filename) {
+                if (data.length === 0) return;
+                
+                const headers = Object.keys(data[0]);
+                const csvContent = [
+                    headers.join(','),
+                    ...data.map(row => headers.map(header => {
+                        const value = row[header];
+                        return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
+                    }).join(','))
+                ].join('\n');
+                
+                this.downloadFile(csvContent, filename, 'text/csv');
+            }
+
+            // 下载JSON文件
+            downloadJSON(data, filename) {
+                const jsonContent = JSON.stringify(data, null, 2);
+                this.downloadFile(jsonContent, filename, 'application/json');
+            }
+
+            // 通用文件下载函数
+            downloadFile(content, filename, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                this.showSuccessMessage(`文件 ${filename} 下载成功！`);
+            }
+
+            // 显示加载消息
+            showLoadingMessage(message) {
+                this.removeExistingMessages();
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'loading-message';
+                loadingDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #007bff;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 5px;
+                    z-index: 1000;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                `;
+                loadingDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${message}`;
+                document.body.appendChild(loadingDiv);
+            }
+
+            // 隐藏加载消息
+            hideLoadingMessage() {
+                const loadingDiv = document.getElementById('loading-message');
+                if (loadingDiv) {
+                    loadingDiv.remove();
+                }
+            }
+
+            // 显示成功消息
+            showSuccessMessage(message) {
+                this.removeExistingMessages();
+                const successDiv = document.createElement('div');
+                successDiv.id = 'success-message';
+                successDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #28a745;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 5px;
+                    z-index: 1000;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                `;
+                successDiv.innerHTML = `<i class="fas fa-check"></i> ${message}`;
+                document.body.appendChild(successDiv);
+                
+                setTimeout(() => {
+                    successDiv.remove();
+                }, 3000);
+            }
+
+            // 移除现有消息
+            removeExistingMessages() {
+                const existingMessages = document.querySelectorAll('#loading-message, #success-message');
+                existingMessages.forEach(msg => msg.remove());
+            }
+        }
+
+        // 初始化下载器
+        const datasetDownloader = new DatasetDownloader();
+    </script>
+</body>
+</html>

@@ -1,0 +1,3164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面标题</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        .math-formula {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .code-example {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+        
+        .code-example pre {
+            text-align: left;
+            margin: 0;
+        }
+        
+        .code-example code {
+            text-align: left;
+        }
+        
+        pre {
+            text-align: left !important;
+        }
+        
+        code {
+            text-align: left !important;
+        }
+        .complexity-badge {
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .model-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .performance-metrics {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .neural-network-viz {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .layer-node {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            line-height: 40px;
+            margin: 5px;
+            font-size: 12px;
+        }
+        .connection-line {
+            stroke: #6c757d;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+        
+        /* 概念解释样式 */
+        .concept-explanation {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .concept-explanation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1);
+        }
+        
+        .concept-explanation h4 {
+            margin: 0 0 15px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .concept-explanation p {
+            margin: 10px 0;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+        
+        .concept-explanation strong {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        /* 公式解释样式 */
+        .formula-explanation {
+            background-color: #f8f9ff;
+            color: #4a5568;
+            padding: 8px 12px;
+            border-left: 3px solid #667eea;
+            margin: 5px 0 15px 20px;
+            font-style: italic;
+            font-size: 0.9em;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .math-formula {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 15px 0;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .math-formula::before {
+            content: '📐';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.2em;
+            opacity: 0.6;
+        }
+        
+        .code-example {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .complexity-badge {
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .model-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .performance-metrics {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .neural-network-viz {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .layer-node {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            line-height: 40px;
+            margin: 5px;
+            font-size: 12px;
+        }
+        .connection-line {
+            stroke: #6c757d;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+        .math-formula {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .code-example {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .complexity-badge {
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .model-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .performance-metrics {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .neural-network-viz {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .layer-node {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            line-height: 40px;
+            margin: 5px;
+            font-size: 12px;
+        }
+        .connection-line {
+            stroke: #6c757d;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+        .math-formula {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .code-example {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .complexity-badge {
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .model-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .performance-metrics {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .neural-network-viz {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .layer-node {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            line-height: 40px;
+            margin: 5px;
+            font-size: 12px;
+        }
+        .connection-line {
+            stroke: #6c757d;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+        
+        /* 顶部导航按键样式 */
+        .top-navigation {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            background: linear-gradient(135deg, #0056b3, #004085);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .nav-btn.active:hover {
+            background: linear-gradient(135deg, #1e7e34, #155724);
+        }
+        
+        /* 内容分页样式 */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-btn {
+                padding: 8px 12px;
+                margin: 3px;
+                font-size: 0.8em;
+            }
+            
+            .top-navigation {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-btn {
+                padding: 6px 10px;
+                margin: 2px;
+                font-size: 0.75em;
+                display: block;
+                width: 100%;
+                margin-bottom: 8px;
+            }
+            
+            .top-navigation {
+                padding: 10px;
+            }
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="navigation-container"></div>
+
+
+
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    <style>
+        .math-formula {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .code-example {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .complexity-badge {
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .model-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .performance-metrics {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .neural-network-viz {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .layer-node {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            line-height: 40px;
+            margin: 5px;
+            font-size: 12px;
+        }
+        .connection-line {
+            stroke: #6c757d;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+    </style>
+    
+
+                </div>
+            
+<!-- 主内容区域 -->
+            <div class="container">
+                <h1 class="text-center mb-4">深度学习在金融中的应用</h1>
+                
+                <!-- 顶部导航按键 -->
+                <div class="top-navigation text-center mb-4">
+                    <button class="nav-btn active" data-section="overview">🧠 深度学习概述</button>
+                    <button class="nav-btn" data-section="neural-networks">🔗 神经网络基础</button>
+                    <button class="nav-btn" data-section="lstm-models">🔄 LSTM时间序列</button>
+                    <button class="nav-btn" data-section="cnn-models">🖼️ CNN图像识别</button>
+                    <button class="nav-btn" data-section="transformer-models">🔄 Transformer注意力</button>
+                    <button class="nav-btn" data-section="gan-models">🎭 生成对抗网络</button>
+                    <button class="nav-btn" data-section="reinforcement-learning">🎯 强化学习</button>
+                    <button class="nav-btn" data-section="autoencoder">🔄 自编码器</button>
+                    <button class="nav-btn" data-section="practical-applications">💼 实际应用</button>
+                    <button class="nav-btn" data-section="performance-comparison">📊 性能对比</button>
+                </div>
+                    <!-- 概述 -->
+    <main class="container">
+                    <section id="overview" class="content-section mb-5">
+                        <h2>🧠 深度学习概述</h2>
+                        <p>深度学习是机器学习的一个分支，通过构建多层神经网络来学习数据的复杂模式。在金融领域，深度学习被广泛应用于价格预测、风险管理、算法交易、欺诈检测等场景。</p>
+                        <div class="math-formula">
+                            <h5>深度学习的核心概念</h5>
+                            <div class="concept-explanation">
+                                <h4>💡 为什么需要这些神经网络公式？</h4>
+                                <p>神经网络的核心思想是模拟人脑神经元的工作方式。在金融预测中，我们需要从复杂的市场数据中找到隐藏的模式，而传统的线性模型往往无法捕捉这些非线性关系。</p>
+                                <p><strong>生活化理解：</strong>就像人类学习投资一样，我们先观察市场数据（前向传播），然后根据结果的好坏调整我们的判断标准（反向传播），不断重复这个过程直到做出准确的预测。</p>
+                                <p><strong>实际应用：</strong>在股价预测中，神经网络可以同时考虑技术指标、基本面数据、市场情绪等多个因素，并自动发现它们之间的复杂关系。</p>
+                            </div>
+                            
+                            <div class="concept-explanation">
+                                <h4>🔍 前向传播公式推导</h4>
+                                <p><strong>步骤1：线性变换</strong></p>
+                                <p>对于第l层，我们需要将前一层的输出a^[l-1]转换为当前层的输入z^[l]：</p>
+                            </div>
+                            \[ z^{[l]} = W^{[l]} a^{[l-1]} + b^{[l]} \]
+                            <div class="formula-explanation">
+                                <p><strong>公式含义：</strong></p>
+                                <ul>
+                                    <li>W^[l]：第l层的权重矩阵，维度为(n^[l], n^[l-1])</li>
+                                    <li>a^[l-1]：前一层的激活输出，维度为(n^[l-1], 1)</li>
+                                    <li>b^[l]：第l层的偏置向量，维度为(n^[l], 1)</li>
+                                    <li>z^[l]：第l层的线性输出，维度为(n^[l], 1)</li>
+                                </ul>
+                                <p><strong>计算示例：</strong>假设输入层有3个特征（开盘价、成交量、技术指标），隐藏层有4个神经元：</p>
+                                <pre>
+W^[1] = [[0.2, 0.3, -0.1],    a^[0] = [[100],     b^[1] = [[0.1],
+         [0.1, -0.2, 0.4],              [1000],              [0.2],
+         [-0.3, 0.5, 0.2],              [0.6]]               [0.0],
+         [0.4, 0.1, -0.2]]                                   [-0.1]]
+
+z^[1] = W^[1] × a^[0] + b^[1] = [[0.2×100 + 0.3×1000 - 0.1×0.6 + 0.1],
+                                 [0.1×100 - 0.2×1000 + 0.4×0.6 + 0.2],
+                                 [-0.3×100 + 0.5×1000 + 0.2×0.6 + 0.0],
+                                 [0.4×100 + 0.1×1000 - 0.2×0.6 - 0.1]]
+      = [[319.84], [-179.56], [470.12], [49.78]]
+                                </pre>
+                            </div>
+                            
+                            <div class="concept-explanation">
+                                <h4>🔍 激活函数推导</h4>
+                                <p><strong>步骤2：非线性激活</strong></p>
+                                <p>线性变换后，我们需要通过激活函数引入非线性：</p>
+                            </div>
+                            \[ a^{[l]} = g^{[l]}(z^{[l]}) \]
+                            <div class="formula-explanation">
+                                <p><strong>激活函数选择原理：</strong></p>
+                                <ul>
+                                    <li><strong>ReLU：</strong>g(z) = max(0, z)，计算简单，避免梯度消失</li>
+                                    <li><strong>Sigmoid：</strong>g(z) = 1/(1+e^(-z))，输出[0,1]，适合概率</li>
+                                    <li><strong>Tanh：</strong>g(z) = (e^z - e^(-z))/(e^z + e^(-z))，输出[-1,1]，零中心</li>
+                                </ul>
+                                <p><strong>计算示例（使用ReLU）：</strong></p>
+                                <pre>
+z^[1] = [[319.84], [-179.56], [470.12], [49.78]]
+a^[1] = ReLU(z^[1]) = [[319.84], [0], [470.12], [49.78]]
+                                </pre>
+                            </div>
+                            
+                            <div class="concept-explanation">
+                                <h4>🔍 反向传播推导</h4>
+                                <p><strong>核心思想：</strong>使用链式法则计算损失函数对每个参数的梯度</p>
+                                <p><strong>推导过程：</strong></p>
+                                <p>1. 根据链式法则：∂L/∂W^[l] = (∂L/∂z^[l]) × (∂z^[l]/∂W^[l])</p>
+                                <p>2. 由于z^[l] = W^[l]a^[l-1] + b^[l]，所以∂z^[l]/∂W^[l] = a^[l-1]</p>
+                                <p>3. 因此得到权重梯度公式</p>
+                            </div>
+                            \[ \frac{\partial L}{\partial W^{[l]}} = \frac{\partial L}{\partial z^{[l]}} \cdot a^{[l-1]T} \]
+                            <div class="formula-explanation">
+                                <p><strong>计算示例：</strong>假设∂L/∂z^[1] = [[0.1], [0], [0.2], [0.05]]</p>
+                                <pre>
+∂L/∂W^[1] = ∂L/∂z^[1] × a^[0]^T
+          = [[0.1],  × [[100, 1000, 0.6]]
+             [0],
+             [0.2],
+             [0.05]]
+          = [[10, 100, 0.06],
+             [0, 0, 0],
+             [20, 200, 0.12],
+             [5, 50, 0.03]]
+                                </pre>
+                            </div>
+                            
+                            \[ \frac{\partial L}{\partial b^{[l]}} = \frac{\partial L}{\partial z^{[l]}} \]
+                            <div class="formula-explanation">
+                                <p><strong>偏置梯度：</strong>由于z^[l] = W^[l]a^[l-1] + b^[l]，∂z^[l]/∂b^[l] = 1</p>
+                                <p><strong>计算示例：</strong>∂L/∂b^[1] = [[0.1], [0], [0.2], [0.05]]</p>
+                            </div>
+                            
+                            <div class="concept-explanation">
+                                <h4>🔍 梯度下降更新</h4>
+                                <p><strong>更新原理：</strong>沿着梯度的反方向移动，寻找损失函数的最小值</p>
+                                <p><strong>学习率选择：</strong>太大可能跳过最优解，太小收敛太慢</p>
+                            </div>
+                            \[ W^{[l]} := W^{[l]} - \alpha \frac{\partial L}{\partial W^{[l]}} \]
+                            <div class="formula-explanation">
+                                <p><strong>参数更新示例：</strong>假设学习率α = 0.01</p>
+                                <pre>
+W^[1]_new = W^[1]_old - 0.01 × ∂L/∂W^[1]
+          = [[0.2, 0.3, -0.1],     [[10, 100, 0.06],
+             [0.1, -0.2, 0.4],  - 0.01 × [0, 0, 0],
+             [-0.3, 0.5, 0.2],       [20, 200, 0.12],
+             [0.4, 0.1, -0.2]]       [5, 50, 0.03]]
+          = [[0.1, -0.7, -0.1006],
+             [0.1, -0.2, 0.4],
+             [-0.5, -1.5, 0.0788],
+             [0.35, -0.4, -0.2003]]
+                                </pre>
+                                <p><strong>收敛判断：</strong>当梯度接近零或损失函数变化很小时停止训练</p>
+                            </div>
+                        
+<div class="row">
+                            <div class="col-md-6">
+                                <h5>深度学习在金融中的优势</h5>
+                                <ul>
+                                    <li>自动特征提取</li>
+                                    <li>处理非线性关系</li>
+                                    <li>适应大规模数据</li>
+                                    <li>端到端学习</li>
+                                    <li>实时预测能力</li>
+                                </ul>
+                            
+<div class="col-md-6">
+                                <h5>主要应用场景</h5>
+                                <ul>
+                                    <li>股价预测与趋势分析</li>
+                                    <li>信用风险评估</li>
+                                    <li>高频交易策略</li>
+                                    <li>欺诈检测</li>
+                                    <li>投资组合优化</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- 神经网络基础 -->
+                    <section id="neural-networks" class="content-section mb-5">
+                        <h2>🔗 神经网络基础</h2>
+                        <div class="model-card">
+                            <h4>多层感知机 (MLP) <span class="badge bg-info complexity-badge">时间复杂度: O(n·m·h·e)</span></h4>
+                            <div class="concept-explanation">
+                                <h4>💡 为什么需要激活函数和损失函数？</h4>
+                                <p>激活函数是神经网络的"开关"，决定神经元是否被激活。在金融建模中，市场反应往往是非线性的——小的变化可能引起大的波动，或者在某个阈值之前毫无反应。</p>
+                                <p><strong>激活函数选择：</strong>ReLU适合深层网络（避免梯度消失），Sigmoid适合概率输出（如涨跌概率），Tanh适合需要负值的场景。</p>
+                                <p><strong>损失函数作用：</strong>衡量预测与实际的差距，指导模型学习方向。MSE适合回归任务（如价格预测），交叉熵适合分类任务（如涨跌判断）。</p>
+                            </div>
+                            <div class="math-formula">
+                                <h5>数学原理</h5>
+                                <p><strong>激活函数：</strong></p>
+                                \[ \text{ReLU}(x) = \max(0, x) \]
+                                <p class="formula-explanation">修正线性单元：保留正值，抑制负值，计算简单且有效防止梯度消失</p>
+                                \[ \text{Sigmoid}(x) = \frac{1}{1 + e^{-x}} \]
+                                <p class="formula-explanation">S型函数：输出范围[0,1]，适合概率预测，如股票上涨概率</p>
+                                \[ \text{Tanh}(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} \]
+                                <p class="formula-explanation">双曲正切：输出范围[-1,1]，零中心化，收敛更快</p>
+                                <p><strong>损失函数：</strong></p>
+                                \[ \text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 \]
+                                <p class="formula-explanation">均方误差：衡量预测值与真实值的平方差，适合回归任务如股价预测</p>
+                                \[ \text{Cross-Entropy} = -\sum_{i=1}^{n} y_i \log(\hat{y}_i) \]
+                                <p class="formula-explanation">交叉熵：衡量概率分布差异，适合分类任务如涨跌方向预测</p>
+                            
+<div class="neural-network-viz" id="mlp-visualization">
+                                <h6>MLP网络结构可视化</h6>
+                                <!-- 这里将通过JavaScript动态生成网络图 -->
+                            
+<div class="code-example">
+                                <h6>股价预测MLP实现</h6>
+                                <pre><code class="language-python">
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+class StockPriceMLP:
+    """
+    股价预测多层感知机
+    时间复杂度: O(n·m·h·e) - n:样本数, m:特征数, h:隐藏层神经元数, e:训练轮数
+    空间复杂度: O(m·h + h·o) - o:输出层神经元数
+    """
+    def __init__(self, input_dim, hidden_layers=[64, 32], dropout_rate=0.2):
+        self.input_dim = input_dim
+        self.hidden_layers = hidden_layers
+        self.dropout_rate = dropout_rate
+        self.model = None
+        self.scaler = MinMaxScaler()
+    def build_model(self):
+        """构建MLP模型"""
+        model = tf.keras.Sequential()
+        # 输入层
+        model.add(tf.keras.layers.Dense(
+            self.hidden_layers[0],
+            input_dim=self.input_dim,
+            activation='relu',
+            kernel_regularizer=tf.keras.regularizers.l2(0.001)
+        ))
+        model.add(tf.keras.layers.Dropout(self.dropout_rate))
+        # 隐藏层
+        for units in self.hidden_layers[1:]:
+            model.add(tf.keras.layers.Dense(
+                units,
+                activation='relu',
+                kernel_regularizer=tf.keras.regularizers.l2(0.001)
+            ))
+            model.add(tf.keras.layers.Dropout(self.dropout_rate))
+        # 输出层
+        model.add(tf.keras.layers.Dense(1, activation='linear'))
+        # 编译模型
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+            loss='mse',
+            metrics=['mae']
+        )
+        self.model = model
+        return model
+    def prepare_data(self, data, target_col='close', lookback=30):
+        """准备训练数据"""
+        # 特征工程
+        features = self.create_features(data)
+        # 创建时间序列数据
+        X, y = [], []
+        for i in range(lookback, len(features)):
+            X.append(features.iloc[i-lookback:i].values.flatten())
+            y.append(data[target_col].iloc[i])
+        X = np.array(X)
+        y = np.array(y)
+        # 数据标准化
+        X_scaled = self.scaler.fit_transform(X)
+        return X_scaled, y
+    def create_features(self, data):
+        """创建技术指标特征"""
+        df = data.copy()
+        # 价格特征
+        df['returns'] = df['close'].pct_change()
+        df['log_returns'] = np.log(df['close'] / df['close'].shift(1))
+        # 移动平均
+        for period in [5, 10, 20, 50]:
+            df[f'sma_{period}'] = df['close'].rolling(period).mean()
+            df[f'ema_{period}'] = df['close'].ewm(span=period).mean()
+        # 技术指标
+        df['rsi'] = self.calculate_rsi(df['close'])
+        df['macd'], df['macd_signal'] = self.calculate_macd(df['close'])
+        df['bb_upper'], df['bb_lower'] = self.calculate_bollinger_bands(df['close'])
+        # 波动率特征
+        df['volatility'] = df['returns'].rolling(20).std()
+        df['volume_sma'] = df['volume'].rolling(20).mean()
+        return df.dropna()
+    def calculate_rsi(self, prices, period=14):
+        """计算RSI指标"""
+        delta = prices.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+        rs = gain / loss
+        return 100 - (100 / (1 + rs))
+    def calculate_macd(self, prices, fast=12, slow=26, signal=9):
+        """计算MACD指标"""
+        ema_fast = prices.ewm(span=fast).mean()
+        ema_slow = prices.ewm(span=slow).mean()
+        macd = ema_fast - ema_slow
+        macd_signal = macd.ewm(span=signal).mean()
+        return macd, macd_signal
+    def calculate_bollinger_bands(self, prices, period=20, std_dev=2):
+        """计算布林带"""
+        sma = prices.rolling(period).mean()
+        std = prices.rolling(period).std()
+        upper = sma + (std * std_dev)
+        lower = sma - (std * std_dev)
+        return upper, lower
+    def train(self, X_train, y_train, X_val, y_val, epochs=100, batch_size=32):
+        """训练模型"""
+        if self.model is None:
+            self.build_model()
+        # 回调函数
+        callbacks = [
+            tf.keras.callbacks.EarlyStopping(
+                monitor='val_loss', patience=10, restore_best_weights=True
+            ),
+            tf.keras.callbacks.ReduceLROnPlateau(
+                monitor='val_loss', factor=0.5, patience=5, min_lr=1e-6
+            )
+        ]
+        # 训练模型
+        history = self.model.fit(
+            X_train, y_train,
+            validation_data=(X_val, y_val),
+            epochs=epochs,
+            batch_size=batch_size,
+            callbacks=callbacks,
+            verbose=1
+        )
+        return history
+    def predict(self, X):
+        """预测"""
+        return self.model.predict(X)
+    def evaluate_model(self, X_test, y_test):
+        """评估模型性能"""
+        y_pred = self.predict(X_test)
+        mse = mean_squared_error(y_test, y_pred)
+        mae = mean_absolute_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        # 方向准确率
+        direction_accuracy = self.calculate_direction_accuracy(y_test, y_pred)
+        return {
+            'MSE': mse,
+            'MAE': mae,
+            'RMSE': rmse,
+            'Direction_Accuracy': direction_accuracy
+        }
+    def calculate_direction_accuracy(self, y_true, y_pred):
+        """计算方向预测准确率"""
+        true_direction = np.diff(y_true) > 0
+        pred_direction = np.diff(y_pred.flatten()) > 0
+        return np.mean(true_direction == pred_direction)
+# 使用示例
+def demo_mlp_stock_prediction():
+    """MLP股价预测演示"""
+    # 生成模拟数据
+    np.random.seed(42)
+    dates = pd.date_range('2020-01-01', periods=1000, freq='D')
+    # 模拟股价数据
+    price = 100
+    prices = [price]
+    volumes = []
+    for i in range(999):
+        # 随机游走 + 趋势
+        change = np.random.normal(0, 0.02) + 0.0001 * np.sin(i * 0.01)
+        price *= (1 + change)
+        prices.append(price)
+        volumes.append(np.random.randint(1000000, 5000000))
+    data = pd.DataFrame({
+        'date': dates,
+        'close': prices,
+        'volume': volumes + [volumes[-1]]
+    })
+    # 创建和训练模型
+    mlp = StockPriceMLP(input_dim=200)  # 假设200个特征
+    # 准备数据
+    X, y = mlp.prepare_data(data)
+    # 分割数据
+    train_size = int(0.7 * len(X))
+    val_size = int(0.15 * len(X))
+    X_train, y_train = X[:train_size], y[:train_size]
+    X_val, y_val = X[train_size:train_size+val_size], y[train_size:train_size+val_size]
+    X_test, y_test = X[train_size+val_size:], y[train_size+val_size:]
+    # 训练模型
+    print("开始训练MLP模型...")
+    history = mlp.train(X_train, y_train, X_val, y_val, epochs=50)
+    # 评估模型
+    metrics = mlp.evaluate_model(X_test, y_test)
+    print("\nMLP模型性能:")
+    for metric, value in metrics.items():
+        print(f"{metric}: {value:.4f}")
+    return mlp, history, metrics
+# 运行演示
+if __name__ == "__main__":
+    mlp_model, training_history, performance_metrics = demo_mlp_stock_prediction()
+                                </code></pre>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- LSTM时间序列预测 -->
+                    <section id="lstm-models" class="content-section mb-5">
+                        <h2>🔄 LSTM时间序列预测</h2>
+                        <div class="model-card">
+                            <h4>长短期记忆网络 (LSTM) <span class="badge bg-success complexity-badge">时间复杂度: O(T·h²)</span></h4>
+                            <div class="concept-explanation">
+                                <h4>💡 为什么LSTM能解决长期依赖问题？</h4>
+                                <p>传统RNN存在梯度消失问题，无法学习长期依赖关系。LSTM通过引入门控机制和细胞状态，能够选择性地记住和遗忘信息。</p>
+                                <p><strong>金融应用场景：</strong>股价不仅受近期消息影响，也受长期趋势、季节性因素影响。LSTM能够同时捕捉短期波动和长期趋势。</p>
+                                <p><strong>门控机制类比：</strong>就像投资决策一样，我们需要决定哪些历史信息要记住（输入门），哪些要忘记（遗忘门），以及如何输出当前判断（输出门）。</p>
+                            </div>
+                            
+                            <div class="math-formula">
+                                <h5>LSTM核心公式推导</h5>
+                                
+                                <div class="concept-explanation">
+                                    <h4>🔍 遗忘门推导</h4>
+                                    <p><strong>作用：</strong>决定从细胞状态中丢弃什么信息</p>
+                                    <p><strong>输入：</strong>前一时刻隐藏状态h_{t-1}和当前输入x_t</p>
+                                    <p><strong>输出：</strong>0到1之间的数值，0表示完全遗忘，1表示完全保留</p>
+                                </div>
+                                \[ f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) \]
+                                <div class="formula-explanation">
+                                    <p><strong>计算示例：</strong>假设隐藏状态维度=2，输入维度=3</p>
+                                    <pre>
+h_{t-1} = [0.5, 0.3]    x_t = [100, 1000, 0.6]  (价格、成交量、技术指标)
+[h_{t-1}, x_t] = [0.5, 0.3, 100, 1000, 0.6]  # 拼接
+
+W_f = [[0.1, 0.2, 0.01, 0.001, 0.5],    b_f = [0.1,
+       [0.3, 0.1, 0.02, 0.002, 0.3]]            0.2]
+
+f_t = σ(W_f × [h_{t-1}, x_t] + b_f)
+    = σ([[0.1×0.5 + 0.2×0.3 + 0.01×100 + 0.001×1000 + 0.5×0.6 + 0.1],
+         [0.3×0.5 + 0.1×0.3 + 0.02×100 + 0.002×1000 + 0.3×0.6 + 0.2]])
+    = σ([2.41, 4.58]) = [0.92, 0.99]  # 大部分信息保留
+                                    </pre>
+                                </div>
+                                
+                                <div class="concept-explanation">
+                                    <h4>🔍 输入门推导</h4>
+                                    <p><strong>作用：</strong>决定在细胞状态中存储什么新信息</p>
+                                    <p><strong>两步过程：</strong>1) 决定更新哪些值 2) 创建候选值</p>
+                                </div>
+                                \[ i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i) \]
+                                <div class="formula-explanation">
+                                    <p><strong>输入门计算：</strong>决定哪些新信息需要存储</p>
+                                    <pre>
+i_t = σ(W_i × [h_{t-1}, x_t] + b_i) = [0.7, 0.8]  # 大部分新信息被接受
+                                    </pre>
+                                </div>
+                                
+                                \[ \tilde{C}_t = \tanh(W_C \cdot [h_{t-1}, x_t] + b_C) \]
+                                <div class="formula-explanation">
+                                    <p><strong>候选值计算：</strong>创建可能添加到细胞状态的新候选值</p>
+                                    <pre>
+C̃_t = tanh(W_C × [h_{t-1}, x_t] + b_C) = [0.6, -0.4]  # 候选更新值
+                                    </pre>
+                                </div>
+                                
+                                <div class="concept-explanation">
+                                    <h4>🔍 细胞状态更新推导</h4>
+                                    <p><strong>核心思想：</strong>结合遗忘门和输入门的结果更新细胞状态</p>
+                                    <p><strong>更新规则：</strong>旧信息 × 遗忘门 + 新信息 × 输入门</p>
+                                </div>
+                                \[ C_t = f_t * C_{t-1} + i_t * \tilde{C}_t \]
+                                <div class="formula-explanation">
+                                    <p><strong>计算示例：</strong></p>
+                                    <pre>
+C_{t-1} = [0.8, 0.5]  # 前一时刻的细胞状态
+
+C_t = f_t ⊙ C_{t-1} + i_t ⊙ C̃_t  # ⊙表示逐元素乘法
+    = [0.92, 0.99] ⊙ [0.8, 0.5] + [0.7, 0.8] ⊙ [0.6, -0.4]
+    = [0.736, 0.495] + [0.42, -0.32]
+    = [1.156, 0.175]
+
+# 解释：第一个维度信息增强，第二个维度信息减弱
+                                    </pre>
+                                </div>
+                                
+                                <div class="concept-explanation">
+                                    <h4>🔍 输出门推导</h4>
+                                    <p><strong>作用：</strong>决定细胞状态的哪些部分将输出</p>
+                                    <p><strong>两步过程：</strong>1) 决定输出哪些部分 2) 对细胞状态进行tanh处理</p>
+                                </div>
+                                \[ o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) \]
+                                <div class="formula-explanation">
+                                    <p><strong>输出门计算：</strong></p>
+                                    <pre>
+o_t = σ(W_o × [h_{t-1}, x_t] + b_o) = [0.85, 0.75]  # 输出控制
+                                    </pre>
+                                </div>
+                                
+                                \[ h_t = o_t * \tanh(C_t) \]
+                                <div class="formula-explanation">
+                                    <p><strong>隐藏状态计算：</strong></p>
+                                    <pre>
+h_t = o_t ⊙ tanh(C_t)
+    = [0.85, 0.75] ⊙ tanh([1.156, 0.175])
+    = [0.85, 0.75] ⊙ [0.82, 0.17]
+    = [0.697, 0.128]
+
+# 最终输出：h_t可用于下一时刻计算或作为当前时刻的预测基础
+                                    </pre>
+                                </div>
+                            </div>
+                            
+<div class="code-example">
+                                <h6>多变量时间序列LSTM预测</h6>
+                                <pre><code class="language-python">
+class MultivariateLSTM:
+    """
+    多变量时间序列LSTM预测模型
+    时间复杂度: O(T·h²·L) - T:序列长度, h:隐藏单元数, L:层数
+    空间复杂度: O(h·L + T·h)
+    """
+    def __init__(self, n_features, sequence_length=60, lstm_units=[50, 50]):
+        self.n_features = n_features
+        self.sequence_length = sequence_length
+        self.lstm_units = lstm_units
+        self.model = None
+        self.scalers = {}
+    def build_model(self, dropout_rate=0.2):
+        """构建多层LSTM模型"""
+        model = tf.keras.Sequential()
+        # 第一层LSTM
+        model.add(tf.keras.layers.LSTM(
+            self.lstm_units[0],
+            return_sequences=len(self.lstm_units) > 1,
+            input_shape=(self.sequence_length, self.n_features),
+            dropout=dropout_rate,
+            recurrent_dropout=dropout_rate
+        ))
+        # 额外的LSTM层
+        for i, units in enumerate(self.lstm_units[1:]):
+            return_seq = i < len(self.lstm_units) - 2
+            model.add(tf.keras.layers.LSTM(
+                units,
+                return_sequences=return_seq,
+                dropout=dropout_rate,
+                recurrent_dropout=dropout_rate
+            ))
+        # 全连接层
+        model.add(tf.keras.layers.Dense(25, activation='relu'))
+        model.add(tf.keras.layers.Dropout(dropout_rate))
+        model.add(tf.keras.layers.Dense(1))
+        # 编译模型
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+            loss='mse',
+            metrics=['mae']
+        )
+        self.model = model
+        return model
+    def prepare_sequences(self, data, target_column):
+        """准备LSTM序列数据"""
+        # 数据标准化
+        scaled_data = {}
+        for column in data.columns:
+            scaler = MinMaxScaler()
+            scaled_data[column] = scaler.fit_transform(
+                data[column].values.reshape(-1, 1)
+            ).flatten()
+            self.scalers[column] = scaler
+        scaled_df = pd.DataFrame(scaled_data)
+        # 创建序列
+        X, y = [], []
+        for i in range(self.sequence_length, len(scaled_df)):
+            X.append(scaled_df.iloc[i-self.sequence_length:i].values)
+            y.append(scaled_df[target_column].iloc[i])
+        return np.array(X), np.array(y)
+    def train_with_attention(self, X_train, y_train, X_val, y_val, epochs=100):
+        """带注意力机制的训练"""
+        # 构建带注意力的模型
+        inputs = tf.keras.layers.Input(shape=(self.sequence_length, self.n_features))
+        # LSTM层
+        lstm_out = tf.keras.layers.LSTM(
+            self.lstm_units[0],
+            return_sequences=True,
+            dropout=0.2
+        )(inputs)
+        # 注意力机制
+        attention = tf.keras.layers.Dense(1, activation='tanh')(lstm_out)
+        attention = tf.keras.layers.Flatten()(attention)
+        attention = tf.keras.layers.Activation('softmax')(attention)
+        attention = tf.keras.layers.RepeatVector(self.lstm_units[0])(attention)
+        attention = tf.keras.layers.Permute([2, 1])(attention)
+        # 应用注意力权重
+        sent_representation = tf.keras.layers.Multiply()([lstm_out, attention])
+        sent_representation = tf.keras.layers.Lambda(
+            lambda xin: tf.keras.backend.sum(xin, axis=1)
+        )(sent_representation)
+        # 输出层
+        outputs = tf.keras.layers.Dense(1)(sent_representation)
+        model = tf.keras.Model(inputs=inputs, outputs=outputs)
+        model.compile(
+            optimizer='adam',
+            loss='mse',
+            metrics=['mae']
+        )
+        # 训练
+        history = model.fit(
+            X_train, y_train,
+            validation_data=(X_val, y_val),
+            epochs=epochs,
+            batch_size=32,
+            verbose=1
+        )
+        self.model = model
+        return history
+    def predict_future(self, last_sequence, n_steps=30):
+        """预测未来多步"""
+        predictions = []
+        current_sequence = last_sequence.copy()
+        for _ in range(n_steps):
+            # 预测下一步
+            next_pred = self.model.predict(
+                current_sequence.reshape(1, self.sequence_length, self.n_features)
+            )[0, 0]
+            predictions.append(next_pred)
+            # 更新序列（简化版本，实际应用中需要更复杂的特征更新）
+            new_row = current_sequence[-1].copy()
+            new_row[0] = next_pred  # 假设第一个特征是目标变量
+            current_sequence = np.vstack([current_sequence[1:], new_row])
+        return np.array(predictions)
+    def calculate_volatility_forecast(self, predictions):
+        """计算波动率预测"""
+        returns = np.diff(predictions) / predictions[:-1]
+        volatility = np.std(returns) * np.sqrt(252)  # 年化波动率
+        return volatility
+# LSTM变体：GRU模型
+class GRUModel:
+    """
+    门控循环单元(GRU)模型
+    时间复杂度: O(T·h²) - 比LSTM稍快
+    空间复杂度: O(h·L)
+    """
+    def __init__(self, n_features, sequence_length=60):
+        self.n_features = n_features
+        self.sequence_length = sequence_length
+        self.model = None
+    def build_model(self, gru_units=50):
+        """构建GRU模型"""
+        model = tf.keras.Sequential([
+            tf.keras.layers.GRU(
+                gru_units,
+                return_sequences=True,
+                input_shape=(self.sequence_length, self.n_features)
+            ),
+            tf.keras.layers.GRU(gru_units//2),
+            tf.keras.layers.Dense(25, activation='relu'),
+            tf.keras.layers.Dense(1)
+        ])
+        model.compile(
+            optimizer='adam',
+            loss='mse',
+            metrics=['mae']
+        )
+        self.model = model
+        return model
+# 双向LSTM模型
+class BidirectionalLSTM:
+    """
+    双向LSTM模型
+    时间复杂度: O(2·T·h²) - 双倍于单向LSTM
+    空间复杂度: O(2·h·L)
+    """
+    def build_model(self, n_features, sequence_length, lstm_units=50):
+        """构建双向LSTM模型"""
+        model = tf.keras.Sequential([
+            tf.keras.layers.Bidirectional(
+                tf.keras.layers.LSTM(
+                    lstm_units,
+                    return_sequences=True
+                ),
+                input_shape=(sequence_length, n_features)
+            ),
+            tf.keras.layers.Bidirectional(
+                tf.keras.layers.LSTM(lstm_units//2)
+            ),
+            tf.keras.layers.Dense(25, activation='relu'),
+            tf.keras.layers.Dense(1)
+        ])
+        model.compile(
+            optimizer='adam',
+            loss='mse',
+            metrics=['mae']
+        )
+        return model
+                                </code></pre>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- CNN模型 -->
+                    <section id="cnn-models" class="content-section mb-5">
+                        <h2>🖼️ CNN图像识别在金融中的应用</h2>
+                        <div class="model-card">
+                            <h4>卷积神经网络 (CNN) <span class="badge bg-warning complexity-badge">时间复杂度: O(K²·C·H·W·F)</span></h4>
+                            <div class="math-formula">
+                                <h5>CNN数学原理</h5>
+                                <p><strong>卷积操作：</strong></p>
+                                \[ (f * g)(t) = \sum_{m=-\infty}^{\infty} f(m) \cdot g(t-m) \]
+                                <p><strong>特征图计算：</strong></p>
+                                \[ Y_{i,j} = \sum_{m=0}^{K-1} \sum_{n=0}^{K-1} X_{i+m,j+n} \cdot W_{m,n} + b \]
+                                <p><strong>池化操作：</strong></p>
+                                \[ \text{MaxPool}(X) = \max_{i,j \in \text{window}} X_{i,j} \]
+                                \[ \text{AvgPool}(X) = \frac{1}{|\text{window}|} \sum_{i,j \in \text{window}} X_{i,j} \]
+                            
+<div class="code-example">
+                                <h6>金融图表模式识别CNN</h6>
+                                <pre><code class="language-python">
+class FinancialChartCNN:
+    """
+    金融图表模式识别CNN模型
+    用于识别K线图中的技术分析模式
+    时间复杂度: O(K²·C·H·W·F) - K:卷积核大小, C:通道数, H,W:图像尺寸, F:滤波器数
+    空间复杂度: O(H·W·C + F·K²·C)
+    """
+    def __init__(self, input_shape=(64, 64, 3), num_classes=10):
+        self.input_shape = input_shape
+        self.num_classes = num_classes
+        self.model = None
+    def build_model(self):
+        """构建CNN模型用于图表模式识别"""
+        model = tf.keras.Sequential([
+            # 第一个卷积块
+            tf.keras.layers.Conv2D(
+                32, (3, 3),
+                activation='relu',
+                input_shape=self.input_shape
+            ),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Dropout(0.25),
+            # 第二个卷积块
+            tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Dropout(0.25),
+            # 第三个卷积块
+            tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+            tf.keras.layers.MaxPooling2D((2, 2)),
+            tf.keras.layers.Dropout(0.25),
+            # 全连接层
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(512, activation='relu'),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Dropout(0.5),
+            tf.keras.layers.Dense(256, activation='relu'),
+            tf.keras.layers.Dropout(0.5),
+            tf.keras.layers.Dense(self.num_classes, activation='softmax')
+        ])
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+            loss='categorical_crossentropy',
+            metrics=['accuracy']
+        )
+        self.model = model
+        return model
+    def generate_candlestick_image(self, ohlc_data, width=64, height=64):
+        """将OHLC数据转换为K线图图像"""
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as patches
+        from io import BytesIO
+        import PIL.Image as Image
+        fig, ax = plt.subplots(figsize=(width/10, height/10))
+        ax.set_xlim(0, len(ohlc_data))
+        ax.set_ylim(ohlc_data['low'].min() * 0.99, ohlc_data['high'].max() * 1.01)
+        for i, (idx, row) in enumerate(ohlc_data.iterrows()):
+            # 绘制K线
+            color = 'red' if row['close'] > row['open'] else 'green'
+            # 影线
+            ax.plot([i, i], [row['low'], row['high']], color='black', linewidth=1)
+            # 实体
+            body_height = abs(row['close'] - row['open'])
+            body_bottom = min(row['open'], row['close'])
+            rect = patches.Rectangle(
+                (i-0.3, body_bottom), 0.6, body_height,
+                linewidth=1, edgecolor='black', facecolor=color, alpha=0.8
+            )
+            ax.add_patch(rect)
+        ax.axis('off')
+        plt.tight_layout()
+        # 转换为图像数组
+        buf = BytesIO()
+        plt.savefig(buf, format='png', dpi=10, bbox_inches='tight', pad_inches=0)
+        buf.seek(0)
+        img = Image.open(buf)
+        img_array = np.array(img.resize((width, height)))
+        plt.close()
+        return img_array[:, :, :3]  # 去除alpha通道
+    def create_pattern_dataset(self, price_data, window_size=20):
+        """创建图表模式数据集"""
+        patterns = {
+            'head_and_shoulders': 0,
+            'double_top': 1,
+            'double_bottom': 2,
+            'triangle': 3,
+            'flag': 4,
+            'wedge': 5,
+            'channel': 6,
+            'support_resistance': 7,
+            'breakout': 8,
+            'reversal': 9
+        }
+        X, y = [], []
+        for i in range(window_size, len(price_data) - window_size):
+            window_data = price_data.iloc[i-window_size:i+window_size]
+            # 生成K线图图像
+            img = self.generate_candlestick_image(window_data)
+            # 识别模式（简化版本）
+            pattern_label = self.identify_pattern(window_data)
+            X.append(img)
+            y.append(pattern_label)
+        return np.array(X), tf.keras.utils.to_categorical(y, self.num_classes)
+    def identify_pattern(self, data):
+        """简化的模式识别逻辑"""
+        # 这里是简化的模式识别，实际应用中需要更复杂的算法
+        high_points = data['high'].rolling(5).max()
+        low_points = data['low'].rolling(5).min()
+        # 简单的模式识别规则
+        if len(data) > 10:
+            recent_trend = data['close'].iloc[-5:].mean() - data['close'].iloc[:5].mean()
+            volatility = data['close'].std()
+            if recent_trend > volatility:
+                return 8  # breakout
+            elif recent_trend < -volatility:
+                return 9  # reversal
+            else:
+                return np.random.randint(0, 8)  # 其他模式
+        return 0
+    def train_with_augmentation(self, X_train, y_train, X_val, y_val, epochs=50):
+        """使用数据增强训练模型"""
+        # 数据增强
+        datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+            rotation_range=10,
+            width_shift_range=0.1,
+            height_shift_range=0.1,
+            horizontal_flip=True,
+            zoom_range=0.1,
+            fill_mode='nearest'
+        )
+        # 训练
+        history = self.model.fit(
+            datagen.flow(X_train, y_train, batch_size=32),
+            validation_data=(X_val, y_val),
+            epochs=epochs,
+            steps_per_epoch=len(X_train) // 32,
+            callbacks=[
+                tf.keras.callbacks.EarlyStopping(
+                    monitor='val_accuracy', patience=10, restore_best_weights=True
+                ),
+                tf.keras.callbacks.ReduceLROnPlateau(
+                    monitor='val_loss', factor=0.5, patience=5
+                )
+            ]
+        )
+        return history
+    def predict_pattern(self, ohlc_data):
+        """预测图表模式"""
+        img = self.generate_candlestick_image(ohlc_data)
+        img_normalized = img.astype('float32') / 255.0
+        prediction = self.model.predict(np.expand_dims(img_normalized, axis=0))
+        pattern_names = [
+            'Head and Shoulders', 'Double Top', 'Double Bottom', 'Triangle',
+            'Flag', 'Wedge', 'Channel', 'Support/Resistance', 'Breakout', 'Reversal'
+        ]
+        predicted_class = np.argmax(prediction[0])
+        confidence = prediction[0][predicted_class]
+        return pattern_names[predicted_class], confidence
+# 1D CNN用于时间序列
+class TimeSeries1DCNN:
+    """
+    一维CNN用于时间序列分析
+    时间复杂度: O(T·K·F) - T:序列长度, K:卷积核大小, F:滤波器数
+    空间复杂度: O(T·F)
+    """
+    def __init__(self, sequence_length, n_features):
+        self.sequence_length = sequence_length
+        self.n_features = n_features
+        self.model = None
+    def build_model(self):
+        """构建1D CNN模型"""
+        model = tf.keras.Sequential([
+            tf.keras.layers.Conv1D(
+                filters=64, kernel_size=3, activation='relu',
+                input_shape=(self.sequence_length, self.n_features)
+            ),
+            tf.keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu'),
+            tf.keras.layers.MaxPooling1D(pool_size=2),
+            tf.keras.layers.Dropout(0.25),
+            tf.keras.layers.Conv1D(filters=128, kernel_size=3, activation='relu'),
+            tf.keras.layers.Conv1D(filters=128, kernel_size=3, activation='relu'),
+            tf.keras.layers.GlobalMaxPooling1D(),
+            tf.keras.layers.Dropout(0.5),
+            tf.keras.layers.Dense(50, activation='relu'),
+            tf.keras.layers.Dense(1)
+        ])
+        model.compile(
+            optimizer='adam',
+            loss='mse',
+            metrics=['mae']
+        )
+        self.model = model
+        return model
+                                </code></pre>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- Transformer模型 -->
+                    <section id="transformer-models" class="content-section mb-5">
+                        <h2>🔄 Transformer注意力机制</h2>
+                        <div class="model-card">
+                            <h4>Transformer模型 <span class="badge bg-primary complexity-badge">时间复杂度: O(T²·d)</span></h4>
+                            <div class="math-formula">
+                                <h5>注意力机制数学原理</h5>
+                                <p><strong>自注意力计算：</strong></p>
+                                \[ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V \]
+                                <p><strong>多头注意力：</strong></p>
+                                \[ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O \]
+                                \[ \text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V) \]
+                                <p><strong>位置编码：</strong></p>
+                                \[ PE_{(pos,2i)} = \sin\left(\frac{pos}{10000^{2i/d_{model}}}\right) \]
+                                \[ PE_{(pos,2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{model}}}\right) \]
+                            
+<div class="code-example">
+                                <h6>金融时间序列Transformer</h6>
+                                <pre><code class="language-python">
+class FinancialTransformer:
+    """
+    金融时间序列Transformer模型
+    时间复杂度: O(T²·d + T·d²) - T:序列长度, d:模型维度
+    空间复杂度: O(T²·h + T·d) - h:注意力头数
+    """
+    def __init__(self, seq_length, d_model=128, num_heads=8, num_layers=6):
+        self.seq_length = seq_length
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.num_layers = num_layers
+        self.model = None
+    def build_model(self, input_dim):
+        """构建Transformer模型"""
+        inputs = tf.keras.layers.Input(shape=(self.seq_length, input_dim))
+        # 输入嵌入和位置编码
+        x = tf.keras.layers.Dense(self.d_model)(inputs)
+        x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
+        
+        # 添加位置编码
+        positions = tf.range(start=0, limit=self.seq_length, delta=1)
+        positions = tf.expand_dims(positions, 0)
+        position_encoding = self.positional_encoding(positions, self.d_model)
+        x += position_encoding
+        
+        # Transformer层
+        for _ in range(self.num_layers):
+            # 多头自注意力
+            attention_output = tf.keras.layers.MultiHeadAttention(
+                num_heads=self.num_heads,
+                key_dim=self.d_model // self.num_heads
+            )(x, x)
+            # 残差连接和层归一化
+            x = tf.keras.layers.LayerNormalization()(x + attention_output)
+            # 前馈网络
+            ffn_output = tf.keras.layers.Dense(
+                self.d_model * 4, activation='relu'
+            )(x)
+            ffn_output = tf.keras.layers.Dense(self.d_model)(ffn_output)
+            # 残差连接和层归一化
+            x = tf.keras.layers.LayerNormalization()(x + ffn_output)
+        # 全局平均池化
+        x = tf.keras.layers.GlobalAveragePooling1D()(x)
+        # 输出层
+        outputs = tf.keras.layers.Dense(1)(x)
+        model = tf.keras.Model(inputs=inputs, outputs=outputs)
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+            loss='mse',
+            metrics=['mae']
+        )
+        self.model = model
+        return model
+    
+    def positional_encoding(self, position, d_model):
+        """位置编码"""
+        angle_rads = self.get_angles(tf.range(position, dtype=tf.float32)[:, tf.newaxis],
+                                   tf.range(d_model, dtype=tf.float32)[tf.newaxis, :],
+                                   d_model)
+        # 对偶数索引应用sin
+        angle_rads = tf.cast(angle_rads, tf.float32)
+        sines = tf.math.sin(angle_rads[:, :, 0::2])
+        cosines = tf.math.cos(angle_rads[:, :, 1::2])
+        pos_encoding = tf.concat([sines, cosines], axis=-1)
+        pos_encoding = pos_encoding[tf.newaxis, ...]
+        return tf.cast(pos_encoding, tf.float32)
+    
+    def get_angles(self, pos, i, d_model):
+        """计算角度"""
+        angle_rates = 1 / tf.pow(10000, (2 * (i//2)) / tf.cast(d_model, tf.float32))
+        return pos * angle_rates
+    
+    def train_model(self, X_train, y_train, X_val, y_val, epochs=100):
+        """训练模型"""
+        early_stopping = tf.keras.callbacks.EarlyStopping(
+            monitor='val_loss', patience=10, restore_best_weights=True
+        )
+        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+            monitor='val_loss', factor=0.5, patience=5, min_lr=1e-7
+        )
+        
+        history = self.model.fit(
+            X_train, y_train,
+            validation_data=(X_val, y_val),
+            epochs=epochs,
+            batch_size=32,
+            callbacks=[early_stopping, reduce_lr],
+            verbose=1
+        )
+        return history
+    
+    def predict(self, X):
+        """预测"""
+        return self.model.predict(X)
+
+# 虚拟数据生成函数
+def generate_financial_data(n_samples=10000, seq_length=60, n_features=5):
+    """生成虚拟金融时间序列数据"""
+    import numpy as np
+    
+    # 设置随机种子
+    np.random.seed(42)
+    
+    # 生成基础价格序列
+    base_price = 100
+    prices = [base_price]
+    
+    for i in range(n_samples + seq_length):
+        # 添加趋势、季节性和随机波动
+        trend = 0.0001 * i
+        seasonal = 0.02 * np.sin(2 * np.pi * i / 252)  # 年度季节性
+        noise = np.random.normal(0, 0.02)
+        
+        # 价格变化
+        price_change = trend + seasonal + noise
+        new_price = prices[-1] * (1 + price_change)
+        prices.append(new_price)
+    
+    prices = np.array(prices)
+    
+    # 计算技术指标
+    def calculate_rsi(prices, window=14):
+        """计算RSI指标"""
+        deltas = np.diff(prices)
+        gains = np.where(deltas > 0, deltas, 0)
+        losses = np.where(deltas < 0, -deltas, 0)
+        
+        avg_gains = np.convolve(gains, np.ones(window)/window, mode='valid')
+        avg_losses = np.convolve(losses, np.ones(window)/window, mode='valid')
+        
+        rs = avg_gains / (avg_losses + 1e-8)
+        rsi = 100 - (100 / (1 + rs))
+        return rsi
+    
+    def calculate_macd(prices, fast=12, slow=26, signal=9):
+        """计算MACD指标"""
+        ema_fast = pd.Series(prices).ewm(span=fast).mean()
+        ema_slow = pd.Series(prices).ewm(span=slow).mean()
+        macd = ema_fast - ema_slow
+        signal_line = macd.ewm(span=signal).mean()
+        return macd.values, signal_line.values
+    
+    # 创建特征矩阵
+    features = []
+    targets = []
+    
+    for i in range(seq_length, len(prices) - 1):
+        # 价格序列
+        price_seq = prices[i-seq_length:i]
+        
+        # 计算收益率
+        returns = np.diff(price_seq) / price_seq[:-1]
+        returns = np.append(returns, 0)  # 补齐长度
+        
+        # 计算移动平均
+        ma_5 = np.mean(price_seq[-5:])
+        ma_20 = np.mean(price_seq[-20:]) if len(price_seq) >= 20 else np.mean(price_seq)
+        
+        # 计算波动率
+        volatility = np.std(returns[-20:]) if len(returns) >= 20 else np.std(returns)
+        
+        # RSI
+        if i >= seq_length + 14:
+            rsi = calculate_rsi(prices[i-seq_length-14:i])[-1]
+        else:
+            rsi = 50  # 默认值
+        
+        # 组合特征
+        feature_vector = np.array([
+            price_seq[-1],  # 当前价格
+            returns[-1],    # 当前收益率
+            ma_5 / price_seq[-1],  # MA5比率
+            ma_20 / price_seq[-1], # MA20比率
+            volatility,     # 波动率
+            rsi / 100       # 标准化RSI
+        ])
+        
+        # 创建序列特征
+        seq_features = np.column_stack([
+            price_seq,
+            np.append(np.diff(price_seq) / price_seq[:-1], 0),
+            np.full(seq_length, ma_5 / price_seq[-1]),
+            np.full(seq_length, ma_20 / price_seq[-1]),
+            np.full(seq_length, volatility)
+        ])
+        
+        features.append(seq_features)
+        
+        # 目标：下一期收益率
+        next_return = (prices[i+1] - prices[i]) / prices[i]
+        targets.append(next_return)
+        
+        if len(features) >= n_samples:
+            break
+    
+    return np.array(features), np.array(targets)
+
+# 使用示例
+if __name__ == "__main__":
+    # 生成虚拟数据
+    X, y = generate_financial_data(n_samples=5000, seq_length=60, n_features=5)
+    
+    # 数据分割
+    train_size = int(0.8 * len(X))
+    X_train, X_test = X[:train_size], X[train_size:]
+    y_train, y_test = y[:train_size], y[train_size:]
+    
+    # 创建和训练Transformer模型
+    transformer = FinancialTransformer(seq_length=60, d_model=128, num_heads=8, num_layers=4)
+    model = transformer.build_model(input_dim=5)
+    
+    # 训练模型
+    history = transformer.train_model(X_train, y_train, X_test, y_test, epochs=50)
+    
+    # 预测
+    predictions = transformer.predict(X_test)
+    
+    # 评估
+    mse = np.mean((predictions.flatten() - y_test) ** 2)
+    mae = np.mean(np.abs(predictions.flatten() - y_test))
+    
+    print(f"测试集MSE: {mse:.6f}")
+    print(f"测试集MAE: {mae:.6f}")
+                                </code></pre>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- GAN模型 -->
+                    <section id="gan-models" class="content-section mb-5">
+                        <h2>🎭 生成对抗网络(GAN)</h2>
+                        <div class="model-card">
+                            <h4>金融数据生成GAN <span class="badge bg-danger complexity-badge">时间复杂度: O(G + D)</span></h4>
+                            <div class="math-formula">
+                                <h5>GAN数学原理</h5>
+                                <p><strong>目标函数：</strong></p>
+                                \[ \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))] \]
+                                <p><strong>生成器损失：</strong></p>
+                                \[ L_G = -\mathbb{E}_{z \sim p_z(z)}[\log D(G(z))] \]
+                                <p><strong>判别器损失：</strong></p>
+                                \[ L_D = -\mathbb{E}_{x \sim p_{data}(x)}[\log D(x)] - \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))] \]
+                            
+<div class="code-example">
+                                <h6>股价数据生成GAN</h6>
+                                <pre><code class="language-python">
+class FinancialGAN:
+    """
+    金融时间序列生成对抗网络
+    用于生成合成的股价数据
+    时间复杂度: O(G + D) - G:生成器复杂度, D:判别器复杂度
+    空间复杂度: O(|θ_G| + |θ_D|) - 模型参数数量
+    """
+    def __init__(self, seq_length=100, latent_dim=100):
+        self.seq_length = seq_length
+        self.latent_dim = latent_dim
+        self.generator = None
+        self.discriminator = None
+        self.gan = None
+    def build_generator(self):
+        """构建生成器"""
+        model = tf.keras.Sequential([
+            tf.keras.layers.Dense(256, input_dim=self.latent_dim),
+            tf.keras.layers.LeakyReLU(alpha=0.2),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Dense(512),
+            tf.keras.layers.LeakyReLU(alpha=0.2),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Dense(1024),
+            tf.keras.layers.LeakyReLU(alpha=0.2),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Dense(self.seq_length, activation='tanh'),
+            tf.keras.layers.Reshape((self.seq_length, 1))
+        ])
+        self.generator = model
+        return model
+    
+    def build_discriminator(self):
+        """构建判别器"""
+        model = tf.keras.Sequential([
+            tf.keras.layers.Flatten(input_shape=(self.seq_length, 1)),
+            tf.keras.layers.Dense(1024),
+            tf.keras.layers.LeakyReLU(alpha=0.2),
+            tf.keras.layers.Dropout(0.3),
+            tf.keras.layers.Dense(512),
+            tf.keras.layers.LeakyReLU(alpha=0.2),
+            tf.keras.layers.Dropout(0.3),
+            tf.keras.layers.Dense(256),
+            tf.keras.layers.LeakyReLU(alpha=0.2),
+            tf.keras.layers.Dropout(0.3),
+            tf.keras.layers.Dense(1, activation='sigmoid')
+        ])
+        self.discriminator = model
+        return model
+    
+    def build_gan(self):
+        """构建完整的GAN模型"""
+        # 构建生成器和判别器
+        self.generator = self.build_generator()
+        self.discriminator = self.build_discriminator()
+        
+        # 编译判别器
+        self.discriminator.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5),
+            loss='binary_crossentropy',
+            metrics=['accuracy']
+        )
+        
+        # 构建GAN模型
+        self.discriminator.trainable = False
+        gan_input = tf.keras.layers.Input(shape=(self.latent_dim,))
+        generated_data = self.generator(gan_input)
+        gan_output = self.discriminator(generated_data)
+        
+        self.gan = tf.keras.Model(gan_input, gan_output)
+        self.gan.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5),
+            loss='binary_crossentropy'
+        )
+        
+        return self.gan
+    
+    def train_gan(self, real_data, epochs=10000, batch_size=32, save_interval=1000):
+        """训练GAN模型"""
+        # 标签
+        real_labels = np.ones((batch_size, 1))
+        fake_labels = np.zeros((batch_size, 1))
+        
+        d_losses = []
+        g_losses = []
+        
+        for epoch in range(epochs):
+            # 训练判别器
+            # 真实数据
+            idx = np.random.randint(0, real_data.shape[0], batch_size)
+            real_batch = real_data[idx]
+            
+            # 生成假数据
+            noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
+            fake_batch = self.generator.predict(noise, verbose=0)
+            
+            # 训练判别器
+            d_loss_real = self.discriminator.train_on_batch(real_batch, real_labels)
+            d_loss_fake = self.discriminator.train_on_batch(fake_batch, fake_labels)
+            d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+            
+            # 训练生成器
+            noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
+            g_loss = self.gan.train_on_batch(noise, real_labels)
+            
+            d_losses.append(d_loss[0])
+            g_losses.append(g_loss)
+            
+            # 打印进度
+            if epoch % save_interval == 0:
+                print(f"Epoch {epoch}, D Loss: {d_loss[0]:.4f}, G Loss: {g_loss:.4f}")
+        
+        return d_losses, g_losses
+    
+    def generate_samples(self, n_samples):
+        """生成样本"""
+        noise = np.random.normal(0, 1, (n_samples, self.latent_dim))
+        generated_data = self.generator.predict(noise, verbose=0)
+        return generated_data
+
+# GAN虚拟数据生成示例
+def generate_gan_training_data(n_samples=5000, seq_length=100):
+    """为GAN训练生成真实股价数据"""
+    import numpy as np
+    
+    np.random.seed(42)
+    
+    # 生成多个股票的价格序列
+    all_sequences = []
+    
+    for stock in range(10):  # 生成10只股票的数据
+        base_price = np.random.uniform(50, 200)
+        prices = [base_price]
+        
+        # 股票特定参数
+        volatility = np.random.uniform(0.01, 0.05)
+        drift = np.random.uniform(-0.001, 0.001)
+        
+        for i in range(n_samples):
+            # 几何布朗运动
+            dt = 1/252  # 日频数据
+            dW = np.random.normal(0, np.sqrt(dt))
+            
+            # 价格变化
+            price_change = drift * dt + volatility * dW
+            new_price = prices[-1] * np.exp(price_change)
+            prices.append(new_price)
+        
+        # 标准化价格序列
+        prices = np.array(prices)
+        normalized_prices = (prices - np.mean(prices)) / np.std(prices)
+        
+        # 创建序列
+        for i in range(len(normalized_prices) - seq_length):
+            sequence = normalized_prices[i:i+seq_length]
+            all_sequences.append(sequence.reshape(-1, 1))
+    
+    return np.array(all_sequences)
+
+# GAN使用示例
+if __name__ == "__main__":
+    # 生成训练数据
+    real_data = generate_gan_training_data(n_samples=1000, seq_length=100)
+    
+    # 创建GAN模型
+    gan = FinancialGAN(seq_length=100, latent_dim=100)
+    gan.build_gan()
+    
+    # 训练GAN
+    d_losses, g_losses = gan.train_gan(real_data, epochs=5000, batch_size=32)
+    
+    # 生成新的股价序列
+    generated_data = gan.generate_samples(100)
+    
+    print(f"生成了 {generated_data.shape[0]} 个长度为 {generated_data.shape[1]} 的股价序列")
+    print(f"判别器最终损失: {d_losses[-1]:.4f}")
+    print(f"生成器最终损失: {g_losses[-1]:.4f}")
+                                </code></pre>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- 强化学习 -->
+                    <section id="reinforcement-learning" class="content-section mb-5">
+                        <h2>🎯 强化学习交易策略</h2>
+                        <div class="model-card">
+                            <h4>深度Q网络(DQN)交易 <span class="badge bg-success complexity-badge">时间复杂度: O(T·A)</span></h4>
+                            <div class="math-formula">
+                                <h5>强化学习数学原理</h5>
+                                <p><strong>Q函数更新：</strong></p>
+                                \[ Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha[r_{t+1} + \gamma \max_a Q(s_{t+1}, a) - Q(s_t, a_t)] \]
+                                <p><strong>策略梯度：</strong></p>
+                                \[ \nabla_\theta J(\theta) = \mathbb{E}[\nabla_\theta \log \pi_\theta(a|s) \cdot A(s,a)] \]
+                                <p><strong>优势函数：</strong></p>
+                                \[ A(s,a) = Q(s,a) - V(s) \]
+                            
+<div class="code-example">
+                                <h6>DQN交易智能体</h6>
+                                <pre><code class="language-python">
+class TradingDQN:
+    """
+    深度Q网络交易智能体
+    时间复杂度: O(T·A·|θ|) - T:时间步, A:动作数, |θ|:网络参数
+    空间复杂度: O(|θ| + |M|) - M:经验回放缓冲区大小
+    """
+    def __init__(self, state_size, action_size, learning_rate=0.001):
+        self.state_size = state_size
+        self.action_size = action_size  # 0: hold, 1: buy, 2: sell
+        self.memory = []
+        self.memory_size = 10000
+        self.epsilon = 1.0  # 探索率
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.995
+        self.learning_rate = learning_rate
+        self.gamma = 0.95  # 折扣因子
+        self.q_network = self.build_model()
+        self.target_network = self.build_model()
+        self.update_target_network()
+        
+    def build_model(self):
+        """构建DQN网络"""
+        model = tf.keras.Sequential([
+            tf.keras.layers.Dense(128, input_dim=self.state_size, activation='relu'),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Dense(32, activation='relu'),
+            tf.keras.layers.Dense(self.action_size, activation='linear')
+        ])
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate),
+            loss='mse'
+        )
+        return model
+    
+    def update_target_network(self):
+        """更新目标网络"""
+        self.target_network.set_weights(self.q_network.get_weights())
+    
+    def remember(self, state, action, reward, next_state, done):
+        """存储经验"""
+        self.memory.append((state, action, reward, next_state, done))
+        if len(self.memory) > self.memory_size:
+            self.memory.pop(0)
+    
+    def act(self, state):
+        """选择动作"""
+        if np.random.random() <= self.epsilon:
+            return np.random.choice(self.action_size)
+        
+        q_values = self.q_network.predict(state.reshape(1, -1), verbose=0)
+        return np.argmax(q_values[0])
+    
+    def replay(self, batch_size=32):
+        """经验回放训练"""
+        if len(self.memory) < batch_size:
+            return
+        
+        batch = random.sample(self.memory, batch_size)
+        states = np.array([e[0] for e in batch])
+        actions = np.array([e[1] for e in batch])
+        rewards = np.array([e[2] for e in batch])
+        next_states = np.array([e[3] for e in batch])
+        dones = np.array([e[4] for e in batch])
+        
+        # 计算目标Q值
+        target_q_values = self.target_network.predict(next_states, verbose=0)
+        max_target_q_values = np.max(target_q_values, axis=1)
+        
+        targets = rewards + (self.gamma * max_target_q_values * (1 - dones))
+        
+        # 当前Q值
+        current_q_values = self.q_network.predict(states, verbose=0)
+        
+        # 更新目标
+        for i in range(batch_size):
+            current_q_values[i][actions[i]] = targets[i]
+        
+        # 训练网络
+        self.q_network.fit(states, current_q_values, epochs=1, verbose=0)
+        
+        # 衰减探索率
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
+
+# 交易环境类
+class TradingEnvironment:
+    """股票交易环境"""
+    def __init__(self, data, initial_balance=10000, transaction_cost=0.001):
+        self.data = data
+        self.initial_balance = initial_balance
+        self.transaction_cost = transaction_cost
+        self.reset()
+    
+    def reset(self):
+        """重置环境"""
+        self.current_step = 0
+        self.balance = self.initial_balance
+        self.shares_held = 0
+        self.net_worth = self.initial_balance
+        self.max_net_worth = self.initial_balance
+        return self._get_state()
+    
+    def _get_state(self):
+        """获取当前状态"""
+        if self.current_step >= len(self.data) - 1:
+            return np.zeros(10)  # 返回零状态
+        
+        # 技术指标状态
+        current_price = self.data.iloc[self.current_step]['close']
+        
+        # 简化的状态特征
+        state = np.array([
+            current_price / 100,  # 标准化价格
+            self.balance / self.initial_balance,  # 余额比例
+            self.shares_held / 100,  # 持股数量
+            self.net_worth / self.initial_balance,  # 净值比例
+            # 添加更多技术指标...
+            0, 0, 0, 0, 0, 0  # 占位符
+        ])
+        return state
+    
+    def step(self, action):
+        """执行动作"""
+        if self.current_step >= len(self.data) - 1:
+            return self._get_state(), 0, True, {}
+        
+        current_price = self.data.iloc[self.current_step]['close']
+        
+        # 执行动作
+        if action == 1:  # 买入
+            shares_to_buy = self.balance // (current_price * (1 + self.transaction_cost))
+            if shares_to_buy > 0:
+                cost = shares_to_buy * current_price * (1 + self.transaction_cost)
+                self.balance -= cost
+                self.shares_held += shares_to_buy
+        
+        elif action == 2:  # 卖出
+            if self.shares_held > 0:
+                revenue = self.shares_held * current_price * (1 - self.transaction_cost)
+                self.balance += revenue
+                self.shares_held = 0
+        
+        # 更新净值
+        self.net_worth = self.balance + self.shares_held * current_price
+        
+        # 计算奖励
+        reward = (self.net_worth - self.initial_balance) / self.initial_balance
+        
+        # 更新最大净值
+        if self.net_worth > self.max_net_worth:
+            self.max_net_worth = self.net_worth
+        
+        self.current_step += 1
+        done = self.current_step >= len(self.data) - 1
+        
+        return self._get_state(), reward, done, {'net_worth': self.net_worth}
+
+# DQN交易示例
+def demo_dqn_trading():
+    """DQN交易演示"""
+    # 生成虚拟股价数据
+    np.random.seed(42)
+    dates = pd.date_range('2020-01-01', periods=1000, freq='D')
+    
+    price = 100
+    prices = []
+    for i in range(1000):
+        # 随机游走 + 趋势
+        change = np.random.normal(0, 0.02) + 0.0001 * np.sin(i * 0.01)
+        price *= (1 + change)
+        prices.append(price)
+    
+    data = pd.DataFrame({
+        'date': dates,
+        'close': prices
+    })
+    
+    # 创建环境和智能体
+    env = TradingEnvironment(data)
+    agent = TradingDQN(state_size=10, action_size=3)
+    
+    # 训练
+    episodes = 100
+    for episode in range(episodes):
+        state = env.reset()
+        total_reward = 0
+        
+        while True:
+            action = agent.act(state)
+            next_state, reward, done, info = env.step(action)
+            agent.remember(state, action, reward, next_state, done)
+            
+            state = next_state
+            total_reward += reward
+            
+            if done:
+                break
+        
+        # 经验回放
+        if len(agent.memory) > 32:
+            agent.replay()
+        
+        # 更新目标网络
+        if episode % 10 == 0:
+            agent.update_target_network()
+        
+        if episode % 20 == 0:
+            print(f"Episode {episode}, Total Reward: {total_reward:.4f}, Net Worth: {info.get('net_worth', 0):.2f}")
+    
+    return agent, env
+
+# 运行DQN交易演示
+if __name__ == "__main__":
+    import random
+    dqn_agent, trading_env = demo_dqn_trading()
+                                </code></pre>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- 自编码器 -->
+                    <section id="autoencoder" class="content-section mb-5">
+                        <h2>🔄 自编码器异常检测</h2>
+                        <div class="model-card">
+                            <h4>变分自编码器(VAE) <span class="badge bg-info complexity-badge">时间复杂度: O(E + D)</span></h4>
+                            <div class="math-formula">
+                                <h5>VAE数学原理</h5>
+                                <p><strong>ELBO损失：</strong></p>
+                                \[ \mathcal{L} = \mathbb{E}_{q(z|x)}[\log p(x|z)] - D_{KL}(q(z|x) || p(z)) \]
+                                <p><strong>重参数化技巧：</strong></p>
+                                \[ z = \mu + \sigma \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0, I) \]
+                                <p><strong>KL散度：</strong></p>
+                                \[ D_{KL} = \frac{1}{2} \sum_{i=1}^{d} (1 + \log(\sigma_i^2) - \mu_i^2 - \sigma_i^2) \]
+                            
+<div class="code-example">
+                                <h6>金融异常检测VAE</h6>
+                                <pre><code class="language-python">
+class FinancialVAE:
+    """
+    金融数据变分自编码器
+    用于异常交易检测和数据降维
+    时间复杂度: O(E + D) - E:编码器, D:解码器
+    空间复杂度: O(|θ_E| + |θ_D| + d) - d:潜在空间维度
+    """
+    def __init__(self, input_dim, latent_dim=20):
+        self.input_dim = input_dim
+        self.latent_dim = latent_dim
+        self.encoder = None
+        self.decoder = None
+        self.vae = None
+    def build_encoder(self):
+        """构建编码器"""
+        inputs = tf.keras.layers.Input(shape=(self.input_dim,))
+        x = tf.keras.layers.Dense(128, activation='relu')(inputs)
+        x = tf.keras.layers.Dense(64, activation='relu')(x)
+        # 潜在空间参数
+        z_mean = tf.keras.layers.Dense(self.latent_dim)(x)
+        z_log_var = tf.keras.layers.Dense(self.latent_dim)(x)
+        self.encoder = tf.keras.Model(inputs, [z_mean, z_log_var])
+        return self.encoder
+    
+    def build_decoder(self):
+        """构建解码器"""
+        latent_inputs = tf.keras.layers.Input(shape=(self.latent_dim,))
+        x = tf.keras.layers.Dense(64, activation='relu')(latent_inputs)
+        x = tf.keras.layers.Dense(128, activation='relu')(x)
+        outputs = tf.keras.layers.Dense(self.input_dim, activation='sigmoid')(x)
+        self.decoder = tf.keras.Model(latent_inputs, outputs)
+        return self.decoder
+    
+    def sampling(self, args):
+        """重参数化采样"""
+        z_mean, z_log_var = args
+        batch = tf.shape(z_mean)[0]
+        dim = tf.shape(z_mean)[1]
+        epsilon = tf.keras.backend.random_normal(shape=(batch, dim))
+        return z_mean + tf.exp(0.5 * z_log_var) * epsilon
+    
+    def build_vae(self):
+        """构建完整VAE模型"""
+        # 构建编码器和解码器
+        self.build_encoder()
+        self.build_decoder()
+        
+        # VAE输入
+        inputs = tf.keras.layers.Input(shape=(self.input_dim,))
+        z_mean, z_log_var = self.encoder(inputs)
+        
+        # 采样层
+        z = tf.keras.layers.Lambda(self.sampling)([z_mean, z_log_var])
+        
+        # 解码器输出
+        outputs = self.decoder(z)
+        
+        # 构建VAE模型
+        self.vae = tf.keras.Model(inputs, outputs)
+        
+        # 自定义损失函数
+        def vae_loss(y_true, y_pred):
+            # 重构损失
+            reconstruction_loss = tf.keras.losses.mse(y_true, y_pred)
+            reconstruction_loss *= self.input_dim
+            
+            # KL散度损失
+            kl_loss = 1 + z_log_var - tf.square(z_mean) - tf.exp(z_log_var)
+            kl_loss = tf.reduce_mean(kl_loss)
+            kl_loss *= -0.5
+            
+            return tf.reduce_mean(reconstruction_loss + kl_loss)
+        
+        self.vae.compile(
+            optimizer='adam',
+            loss=vae_loss
+        )
+        
+        return self.vae
+    
+    def train(self, X_train, epochs=100, batch_size=32):
+        """训练VAE模型"""
+        # 数据标准化
+        from sklearn.preprocessing import MinMaxScaler
+        self.scaler = MinMaxScaler()
+        X_scaled = self.scaler.fit_transform(X_train)
+        
+        # 训练模型
+        history = self.vae.fit(
+            X_scaled, X_scaled,
+            epochs=epochs,
+            batch_size=batch_size,
+            validation_split=0.2,
+            verbose=1
+        )
+        
+        return history
+    
+    def detect_anomalies(self, X_test, threshold_percentile=95):
+        """异常检测"""
+        # 标准化数据
+        X_scaled = self.scaler.transform(X_test)
+        
+        # 重构数据
+        X_reconstructed = self.vae.predict(X_scaled)
+        
+        # 计算重构误差
+        reconstruction_errors = np.mean(np.square(X_scaled - X_reconstructed), axis=1)
+        
+        # 设定阈值
+        threshold = np.percentile(reconstruction_errors, threshold_percentile)
+        
+        # 标记异常
+        anomalies = reconstruction_errors > threshold
+        
+        return anomalies, reconstruction_errors, threshold
+
+# 生成金融异常数据
+def generate_financial_anomaly_data(n_samples=1000, n_features=10):
+    """生成包含异常的金融数据"""
+    np.random.seed(42)
+    
+    # 正常数据
+    normal_data = []
+    for i in range(int(n_samples * 0.9)):
+        sample = []
+        for j in range(n_features):
+            # 模拟正常的金融指标
+            value = 50 + 10 * np.sin(i * 0.1) + np.random.normal(0, 2)
+            sample.append(value)
+        normal_data.append(sample)
+    
+    # 异常数据
+    anomaly_data = []
+    for i in range(int(n_samples * 0.1)):
+        sample = []
+        for j in range(n_features):
+            # 异常值：极端波动
+            if np.random.random() < 0.5:
+                value = np.random.choice([20, 80]) + np.random.normal(0, 5)
+            else:
+                value = 50 + np.random.normal(0, 15)
+            sample.append(value)
+        anomaly_data.append(sample)
+    
+    # 合并并打乱数据
+    all_data = normal_data + anomaly_data
+    labels = [0] * len(normal_data) + [1] * len(anomaly_data)
+    
+    indices = np.random.permutation(len(all_data))
+    data = np.array(all_data)[indices]
+    labels = np.array(labels)[indices]
+    
+    return data, labels
+
+# VAE异常检测演示
+def demo_vae_anomaly_detection():
+    """VAE异常检测演示"""
+    # 生成数据
+    data, true_labels = generate_financial_anomaly_data()
+    
+    # 分割数据
+    split_idx = int(0.8 * len(data))
+    X_train = data[:split_idx]
+    X_test = data[split_idx:]
+    y_test = true_labels[split_idx:]
+    
+    # 创建和训练VAE
+    vae = FinancialVAE(input_dim=10, latent_dim=5)
+    vae.build_vae()
+    
+    print("训练VAE模型...")
+    history = vae.train(X_train, epochs=50)
+    
+    # 异常检测
+    anomalies, errors, threshold = vae.detect_anomalies(X_test)
+    
+    # 评估结果
+    from sklearn.metrics import classification_report
+    print(f"\n检测到 {np.sum(anomalies)} 个异常点")
+    print(f"真实异常点: {np.sum(y_test)} 个")
+    print("\n分类报告:")
+    print(classification_report(y_test, anomalies.astype(int)))
+    
+    return vae, anomalies, errors
+
+# 运行VAE演示
+if __name__ == "__main__":
+    vae_model, detected_anomalies, reconstruction_errors = demo_vae_anomaly_detection()
+                                </code></pre>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- 实际应用案例 -->
+                    <section id="practical-applications" class="content-section mb-5">
+                        <h2>💼 实际应用案例</h2>
+                        
+                        <div class="model-card">
+                            <h5>📈 智能量化交易系统</h5>
+                            <div class="code-example">
+                                <pre><code class="language-python"># 基于深度学习的量化交易系统
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from sklearn.preprocessing import MinMaxScaler
+import yfinance as yf
+from datetime import datetime, timedelta
+
+class DeepTradingSystem:
+    def __init__(self, symbols, lookback_window=60):
+        self.symbols = symbols
+        self.lookback_window = lookback_window
+        self.models = {}
+        self.scalers = {}
+        self.positions = {symbol: 0 for symbol in symbols}
+        self.portfolio_value = 100000  # 初始资金
+        
+    def fetch_data(self, symbol, period="2y"):
+        """获取股票数据"""
+        stock = yf.Ticker(symbol)
+        data = stock.history(period=period)
+        
+        # 计算技术指标
+        data['SMA_20'] = data['Close'].rolling(window=20).mean()
+        data['SMA_50'] = data['Close'].rolling(window=50).mean()
+        data['RSI'] = self.calculate_rsi(data['Close'])
+        data['MACD'] = self.calculate_macd(data['Close'])
+        data['Volatility'] = data['Close'].rolling(window=20).std()
+        
+        return data.dropna()
+    
+    def calculate_rsi(self, prices, window=14):
+        """计算RSI指标"""
+        delta = prices.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+        rs = gain / loss
+        return 100 - (100 / (1 + rs))
+    
+    def calculate_macd(self, prices, fast=12, slow=26):
+        """计算MACD指标"""
+        ema_fast = prices.ewm(span=fast).mean()
+        ema_slow = prices.ewm(span=slow).mean()
+        return ema_fast - ema_slow
+    
+    def prepare_features(self, data):
+        """准备模型特征"""
+        features = ['Close', 'Volume', 'SMA_20', 'SMA_50', 'RSI', 'MACD', 'Volatility']
+        feature_data = data[features].values
+        
+        # 标准化特征
+        scaler = MinMaxScaler()
+        scaled_features = scaler.fit_transform(feature_data)
+        
+        return scaled_features, scaler
+    
+    def create_sequences(self, data, target):
+        """创建时间序列数据"""
+        X, y = [], []
+        for i in range(self.lookback_window, len(data)):
+            X.append(data[i-self.lookback_window:i])
+            y.append(target[i])
+        return np.array(X), np.array(y)
+    
+    def build_model(self, input_shape):
+        """构建LSTM模型"""
+        model = tf.keras.Sequential([
+            tf.keras.layers.LSTM(50, return_sequences=True, input_shape=input_shape),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.LSTM(50, return_sequences=True),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.LSTM(50),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Dense(25),
+            tf.keras.layers.Dense(1, activation='sigmoid')  # 0-1之间的信号强度
+        ])
+        
+        model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+        return model
+    
+    def train_model(self, symbol):
+        """训练单个股票的模型"""
+        print(f"训练 {symbol} 的模型...")
+        
+        # 获取数据
+        data = self.fetch_data(symbol)
+        
+        # 准备特征
+        features, scaler = self.prepare_features(data)
+        self.scalers[symbol] = scaler
+        
+        # 创建目标变量（未来收益率的方向）
+        future_returns = data['Close'].pct_change().shift(-1)
+        target = (future_returns > 0).astype(int).values[:-1]  # 1表示上涨，0表示下跌
+        
+        # 创建序列
+        X, y = self.create_sequences(features[:-1], target)
+        
+        # 分割训练和测试集
+        split_idx = int(len(X) * 0.8)
+        X_train, X_test = X[:split_idx], X[split_idx:]
+        y_train, y_test = y[:split_idx], y[split_idx:]
+        
+        # 构建和训练模型
+        model = self.build_model((self.lookback_window, features.shape[1]))
+        
+        # 早停和模型检查点
+        callbacks = [
+            tf.keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True),
+            tf.keras.callbacks.ReduceLROnPlateau(factor=0.5, patience=5)
+        ]
+        
+        history = model.fit(
+            X_train, y_train,
+            epochs=100,
+            batch_size=32,
+            validation_data=(X_test, y_test),
+            callbacks=callbacks,
+            verbose=0
+        )
+        
+        self.models[symbol] = model
+        
+        # 评估模型
+        test_pred = model.predict(X_test)
+        accuracy = np.mean((test_pred.flatten() > 0.5) == y_test)
+        print(f"{symbol} 模型准确率: {accuracy:.3f}")
+        
+        return history
+    
+    def generate_signal(self, symbol, current_data):
+        """生成交易信号"""
+        if symbol not in self.models:
+            return 0
+        
+        model = self.models[symbol]
+        scaler = self.scalers[symbol]
+        
+        # 准备当前数据
+        features = ['Close', 'Volume', 'SMA_20', 'SMA_50', 'RSI', 'MACD', 'Volatility']
+        feature_data = current_data[features].values
+        scaled_data = scaler.transform(feature_data)
+        
+        # 获取最近的序列
+        if len(scaled_data) >= self.lookback_window:
+            sequence = scaled_data[-self.lookback_window:].reshape(1, self.lookback_window, -1)
+            prediction = model.predict(sequence, verbose=0)[0][0]
+            
+            # 转换为交易信号
+            if prediction > 0.7:  # 强烈看涨
+                return 1
+            elif prediction < 0.3:  # 强烈看跌
+                return -1
+            else:
+                return 0  # 持有
+        
+        return 0
+    
+    def execute_trade(self, symbol, signal, current_price):
+        """执行交易"""
+        position_size = self.portfolio_value * 0.1  # 每次交易使用10%的资金
+        
+        if signal == 1 and self.positions[symbol] <= 0:  # 买入信号
+            shares = position_size / current_price
+            self.positions[symbol] += shares
+            self.portfolio_value -= shares * current_price
+            print(f"买入 {symbol}: {shares:.2f} 股，价格: ${current_price:.2f}")
+            
+        elif signal == -1 and self.positions[symbol] > 0:  # 卖出信号
+            shares = self.positions[symbol]
+            self.positions[symbol] = 0
+            self.portfolio_value += shares * current_price
+            print(f"卖出 {symbol}: {shares:.2f} 股，价格: ${current_price:.2f}")
+    
+    def backtest(self, start_date, end_date):
+        """回测策略"""
+        print(f"\n开始回测: {start_date} 到 {end_date}")
+        
+        portfolio_values = []
+        dates = []
+        
+        # 获取回测期间的数据
+        for symbol in self.symbols:
+            data = self.fetch_data(symbol, period="1y")
+            data = data[start_date:end_date]
+            
+            for date, row in data.iterrows():
+                signal = self.generate_signal(symbol, data.loc[:date])
+                self.execute_trade(symbol, signal, row['Close'])
+                
+                # 计算当前组合价值
+                total_value = self.portfolio_value
+                for sym, pos in self.positions.items():
+                    if pos > 0:
+                        current_data = self.fetch_data(sym, period="1d")
+                        if not current_data.empty:
+                            total_value += pos * current_data['Close'].iloc[-1]
+                
+                portfolio_values.append(total_value)
+                dates.append(date)
+        
+        # 计算回测结果
+        initial_value = 100000
+        final_value = portfolio_values[-1] if portfolio_values else initial_value
+        total_return = (final_value - initial_value) / initial_value
+        
+        print(f"\n回测结果:")
+        print(f"初始资金: ${initial_value:,.2f}")
+        print(f"最终价值: ${final_value:,.2f}")
+        print(f"总收益率: {total_return:.2%}")
+        
+        return portfolio_values, dates
+
+# 使用示例
+if __name__ == "__main__":
+    # 创建交易系统
+    symbols = ['AAPL', 'GOOGL', 'MSFT', 'TSLA']
+    trading_system = DeepTradingSystem(symbols)
+    
+    # 训练模型
+    for symbol in symbols:
+        trading_system.train_model(symbol)
+    
+    # 回测策略
+    start_date = '2023-01-01'
+    end_date = '2023-12-31'
+    portfolio_values, dates = trading_system.backtest(start_date, end_date)
+    
+    print("\n🚀 深度学习量化交易系统部署完成！")
+</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="model-card">
+                                    <h5>🛡️ 智能风险管理系统</h5>
+                                    <div class="code-example">
+                                        <pre><code class="language-python"># 基于深度学习的风险管理系统
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
+import tensorflow as tf
+
+class RiskManagementSystem:
+    def __init__(self):
+        self.anomaly_detector = None
+        self.var_model = None
+        self.stress_test_model = None
+        self.scaler = StandardScaler()
+        
+    def detect_anomalies(self, transaction_data):
+        """异常交易检测"""
+        features = ['amount', 'frequency', 'time_of_day', 'location_risk']
+        X = transaction_data[features]
+        
+        # 标准化特征
+        X_scaled = self.scaler.fit_transform(X)
+        
+        # 使用Isolation Forest检测异常
+        self.anomaly_detector = IsolationForest(
+            contamination=0.1, random_state=42
+        )
+        anomalies = self.anomaly_detector.fit_predict(X_scaled)
+        
+        # 返回异常交易
+        return transaction_data[anomalies == -1]
+    
+    def calculate_var(self, returns, confidence_level=0.05):
+        """计算风险价值(VaR)"""
+        # 使用LSTM预测收益率分布
+        model = tf.keras.Sequential([
+            tf.keras.layers.LSTM(50, input_shape=(30, 1)),
+            tf.keras.layers.Dense(25),
+            tf.keras.layers.Dense(1)
+        ])
+        
+        model.compile(optimizer='adam', loss='mse')
+        
+        # 训练模型预测收益率
+        # ... 训练代码 ...
+        
+        # 计算VaR
+        var = np.percentile(returns, confidence_level * 100)
+        return var
+
+# 使用示例
+risk_system = RiskManagementSystem()
+print("风险管理系统已启动")
+</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="model-card">
+                                    <h5>🔍 反欺诈检测系统</h5>
+                                    <div class="code-example">
+                                        <pre><code class="language-python"># 深度学习反欺诈检测系统
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+
+class FraudDetectionSystem:
+    def __init__(self):
+        self.model = None
+        self.feature_encoders = {}
+        
+    def preprocess_data(self, data):
+        """数据预处理"""
+        # 编码分类特征
+        categorical_features = ['merchant_category', 'card_type', 'location']
+        
+        for feature in categorical_features:
+            if feature in data.columns:
+                le = LabelEncoder()
+                data[feature] = le.fit_transform(data[feature])
+                self.feature_encoders[feature] = le
+        
+        return data
+    
+    def build_model(self, input_dim):
+        """构建深度学习模型"""
+        model = tf.keras.Sequential([
+            tf.keras.layers.Dense(128, activation='relu', input_dim=input_dim),
+            tf.keras.layers.Dropout(0.3),
+            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dropout(0.3),
+            tf.keras.layers.Dense(32, activation='relu'),
+            tf.keras.layers.Dense(1, activation='sigmoid')
+        ])
+        
+        model.compile(
+            optimizer='adam',
+            loss='binary_crossentropy',
+            metrics=['accuracy', 'precision', 'recall']
+        )
+        
+        return model
+    
+    def train(self, transaction_data, labels):
+        """训练模型"""
+        # 预处理数据
+        processed_data = self.preprocess_data(transaction_data)
+        
+        # 分割数据
+        X_train, X_test, y_train, y_test = train_test_split(
+            processed_data, labels, test_size=0.2, random_state=42
+        )
+        
+        # 构建模型
+        self.model = self.build_model(X_train.shape[1])
+        
+        # 训练模型
+        history = self.model.fit(
+            X_train, y_train,
+            epochs=50,
+            batch_size=32,
+            validation_data=(X_test, y_test),
+            verbose=1
+        )
+        
+        return history
+    
+    def predict_fraud(self, transaction):
+        """预测欺诈概率"""
+        if self.model is None:
+            raise ValueError("模型未训练")
+        
+        # 预处理单个交易
+        processed_transaction = self.preprocess_data(transaction)
+        
+        # 预测
+        fraud_probability = self.model.predict(processed_transaction)[0][0]
+        
+        return {
+            'fraud_probability': fraud_probability,
+            'is_fraud': fraud_probability > 0.5,
+            'risk_level': 'High' if fraud_probability > 0.8 else 
+                         'Medium' if fraud_probability > 0.5 else 'Low'
+        }
+
+# 使用示例
+fraud_detector = FraudDetectionSystem()
+print("反欺诈系统已初始化")
+</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="model-card mt-4">
+                            <h5>📊 智能投资组合优化</h5>
+                            <div class="code-example">
+                                <pre><code class="language-python"># 基于深度强化学习的投资组合优化
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras import layers
+import gym
+from collections import deque
+import random
+
+class PortfolioOptimizationAgent:
+    def __init__(self, state_size, action_size, learning_rate=0.001):
+        self.state_size = state_size
+        self.action_size = action_size
+        self.memory = deque(maxlen=2000)
+        self.epsilon = 1.0  # 探索率
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.995
+        self.learning_rate = learning_rate
+        self.model = self._build_model()
+        self.target_model = self._build_model()
+        self.update_target_model()
+        
+    def _build_model(self):
+        """构建深度Q网络"""
+        model = tf.keras.Sequential([
+            layers.Dense(128, activation='relu', input_dim=self.state_size),
+            layers.Dropout(0.2),
+            layers.Dense(64, activation='relu'),
+            layers.Dropout(0.2),
+            layers.Dense(32, activation='relu'),
+            layers.Dense(self.action_size, activation='linear')
+        ])
+        
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(lr=self.learning_rate),
+            loss='mse'
+        )
+        
+        return model
+    
+    def update_target_model(self):
+        """更新目标网络"""
+        self.target_model.set_weights(self.model.get_weights())
+    
+    def remember(self, state, action, reward, next_state, done):
+        """存储经验"""
+        self.memory.append((state, action, reward, next_state, done))
+    
+    def act(self, state):
+        """选择动作"""
+        if np.random.random() <= self.epsilon:
+            return random.randrange(self.action_size)
+        
+        q_values = self.model.predict(state, verbose=0)
+        return np.argmax(q_values[0])
+    
+    def replay(self, batch_size=32):
+        """经验回放训练"""
+        if len(self.memory) < batch_size:
+            return
+        
+        batch = random.sample(self.memory, batch_size)
+        states = np.array([e[0] for e in batch])
+        actions = np.array([e[1] for e in batch])
+        rewards = np.array([e[2] for e in batch])
+        next_states = np.array([e[3] for e in batch])
+        dones = np.array([e[4] for e in batch])
+        
+        states = np.squeeze(states)
+        next_states = np.squeeze(next_states)
+        
+        targets = rewards + 0.95 * np.amax(self.target_model.predict(next_states, verbose=0), axis=1) * (1 - dones)
+        targets_full = self.model.predict(states, verbose=0)
+        
+        ind = np.array([i for i in range(batch_size)])
+        targets_full[[ind], [actions]] = targets
+        
+        self.model.fit(states, targets_full, epochs=1, verbose=0)
+        
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
+
+class PortfolioEnvironment:
+    def __init__(self, data, initial_balance=10000):
+        self.data = data
+        self.initial_balance = initial_balance
+        self.current_step = 0
+        self.balance = initial_balance
+        self.shares_held = np.zeros(len(data.columns))
+        self.net_worth = initial_balance
+        self.max_net_worth = initial_balance
+        
+    def reset(self):
+        """重置环境"""
+        self.current_step = 0
+        self.balance = self.initial_balance
+        self.shares_held = np.zeros(len(self.data.columns))
+        self.net_worth = self.initial_balance
+        self.max_net_worth = self.initial_balance
+        
+        return self._get_observation()
+    
+    def _get_observation(self):
+        """获取当前状态"""
+        frame = np.array([
+            self.balance,
+            self.net_worth,
+            *self.shares_held,
+            *self.data.iloc[self.current_step].values
+        ])
+        
+        return frame
+    
+    def step(self, action):
+        """执行动作"""
+        current_price = self.data.iloc[self.current_step]
+        
+        # 动作映射：0=持有，1=买入，2=卖出
+        if action == 1:  # 买入
+            # 平均分配资金购买所有资产
+            total_possible = self.balance // len(current_price)
+            for i, price in enumerate(current_price):
+                if price > 0:
+                    shares_bought = total_possible // price
+                    self.shares_held[i] += shares_bought
+                    self.balance -= shares_bought * price
+                    
+        elif action == 2:  # 卖出
+            # 卖出所有持仓
+            for i, price in enumerate(current_price):
+                if self.shares_held[i] > 0:
+                    self.balance += self.shares_held[i] * price
+                    self.shares_held[i] = 0
+        
+        # 计算当前净值
+        self.net_worth = self.balance + np.sum(self.shares_held * current_price)
+        
+        # 计算奖励
+        reward = self.net_worth - self.max_net_worth
+        if self.net_worth > self.max_net_worth:
+            self.max_net_worth = self.net_worth
+        
+        # 检查是否结束
+        self.current_step += 1
+        done = self.current_step >= len(self.data) - 1
+        
+        return self._get_observation(), reward, done, {}
+
+# 使用示例
+if __name__ == "__main__":
+    # 创建模拟数据
+    np.random.seed(42)
+    dates = pd.date_range('2020-01-01', periods=1000, freq='D')
+    stock_data = pd.DataFrame({
+        'AAPL': 100 * np.cumprod(1 + np.random.normal(0.001, 0.02, 1000)),
+        'GOOGL': 1000 * np.cumprod(1 + np.random.normal(0.001, 0.025, 1000)),
+        'MSFT': 200 * np.cumprod(1 + np.random.normal(0.001, 0.02, 1000))
+    }, index=dates)
+    
+    # 创建环境和智能体
+    env = PortfolioEnvironment(stock_data)
+    state_size = len(env._get_observation())
+    action_size = 3  # 持有、买入、卖出
+    
+    agent = PortfolioOptimizationAgent(state_size, action_size)
+    
+    # 训练智能体
+    episodes = 100
+    for episode in range(episodes):
+        state = env.reset()
+        state = np.reshape(state, [1, state_size])
+        total_reward = 0
+        
+        for time in range(500):
+            action = agent.act(state)
+            next_state, reward, done, _ = env.step(action)
+            next_state = np.reshape(next_state, [1, state_size])
+            
+            agent.remember(state, action, reward, next_state, done)
+            state = next_state
+            total_reward += reward
+            
+            if done:
+                agent.update_target_model()
+                print(f"Episode: {episode+1}, Total Reward: {total_reward:.2f}, Net Worth: {env.net_worth:.2f}")
+                break
+            
+            if len(agent.memory) > 32:
+                agent.replay(32)
+    
+    print("\n🎯 智能投资组合优化系统训练完成！")
+</code></pre>
+                            </div>
+                        </div>
+                    </section>
+    </main>
+                    <!-- 性能对比 -->
+                    <section id="performance-comparison" class="content-section mb-5">
+                        <h2>📊 深度学习模型性能对比</h2>
+                        
+                        <div class="performance-metrics">
+                            <h5>📈 模型准确率对比</h5>
+                            <div class="code-example">
+                                <pre><code class="language-python"># 不同模型的性能对比
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+
+# 模型性能数据
+performance_data = {
+    '模型': ['线性回归', 'SVM', '随机森林', 'LSTM', 'CNN', 'Transformer'],
+    '准确率': [0.72, 0.78, 0.82, 0.85, 0.87, 0.91],
+    '训练时间(分钟)': [2, 15, 8, 45, 30, 120],
+    '内存使用(GB)': [0.5, 1.2, 2.1, 4.5, 3.8, 8.2],
+    '推理速度(ms)': [1, 5, 3, 15, 12, 25]
+}
+
+df = pd.DataFrame(performance_data)
+print("模型性能对比表：")
+print(df)
+
+# 可视化性能对比
+fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+
+# 准确率对比
+axes[0,0].bar(df['模型'], df['准确率'], color='skyblue')
+axes[0,0].set_title('模型准确率对比')
+axes[0,0].set_ylabel('准确率')
+axes[0,0].tick_params(axis='x', rotation=45)
+
+# 训练时间对比
+axes[0,1].bar(df['模型'], df['训练时间(分钟)'], color='lightcoral')
+axes[0,1].set_title('训练时间对比')
+axes[0,1].set_ylabel('时间(分钟)')
+axes[0,1].tick_params(axis='x', rotation=45)
+
+# 内存使用对比
+axes[1,0].bar(df['模型'], df['内存使用(GB)'], color='lightgreen')
+axes[1,0].set_title('内存使用对比')
+axes[1,0].set_ylabel('内存(GB)')
+axes[1,0].tick_params(axis='x', rotation=45)
+
+# 推理速度对比
+axes[1,1].bar(df['模型'], df['推理速度(ms)'], color='gold')
+axes[1,1].set_title('推理速度对比')
+axes[1,1].set_ylabel('时间(ms)')
+axes[1,1].tick_params(axis='x', rotation=45)
+
+plt.tight_layout()
+plt.show()
+</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="performance-metrics">
+                            <h5>🎯 实际交易策略回测对比</h5>
+                            <div class="code-example">
+                                <pre><code class="language-python"># 不同模型的交易策略回测
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+
+class StrategyBacktest:
+    def __init__(self, model_name, predictions, actual_prices):
+        self.model_name = model_name
+        self.predictions = predictions
+        self.actual_prices = actual_prices
+        self.returns = []
+        self.positions = []
+        
+    def generate_signals(self):
+        """根据预测生成交易信号"""
+        signals = []
+        for i in range(1, len(self.predictions)):
+            if self.predictions[i] > self.predictions[i-1] * 1.02:  # 预测上涨2%以上
+                signals.append(1)  # 买入
+            elif self.predictions[i] < self.predictions[i-1] * 0.98:  # 预测下跌2%以上
+                signals.append(-1)  # 卖出
+            else:
+                signals.append(0)  # 持有
+        return signals
+    
+    def calculate_returns(self):
+        """计算策略收益"""
+        signals = self.generate_signals()
+        portfolio_value = 10000  # 初始资金
+        position = 0
+        
+        for i, signal in enumerate(signals):
+            current_price = self.actual_prices[i+1]
+            prev_price = self.actual_prices[i]
+            
+            if signal == 1 and position == 0:  # 买入
+                position = portfolio_value / current_price
+                portfolio_value = 0
+            elif signal == -1 and position > 0:  # 卖出
+                portfolio_value = position * current_price
+                position = 0
+            
+            # 计算当前组合价值
+            current_value = portfolio_value + position * current_price
+            self.returns.append(current_value)
+            
+        return self.returns
+    
+    def get_metrics(self):
+        """计算性能指标"""
+        returns = self.calculate_returns()
+        if len(returns) == 0:
+            return {}
+            
+        total_return = (returns[-1] - 10000) / 10000
+        daily_returns = np.diff(returns) / returns[:-1]
+        sharpe_ratio = np.mean(daily_returns) / np.std(daily_returns) * np.sqrt(252)
+        max_drawdown = self.calculate_max_drawdown(returns)
+        
+        return {
+            '总收益率': f"{total_return:.2%}",
+            '夏普比率': f"{sharpe_ratio:.2f}",
+            '最大回撤': f"{max_drawdown:.2%}",
+            '胜率': f"{self.calculate_win_rate():.1%}"
+        }
+    
+    def calculate_max_drawdown(self, returns):
+        """计算最大回撤"""
+        peak = returns[0]
+        max_dd = 0
+        for value in returns:
+            if value > peak:
+                peak = value
+            dd = (peak - value) / peak
+            if dd > max_dd:
+                max_dd = dd
+        return max_dd
+    
+    def calculate_win_rate(self):
+        """计算胜率"""
+        signals = self.generate_signals()
+        wins = 0
+        total_trades = 0
+        
+        for i, signal in enumerate(signals):
+            if signal != 0:
+                total_trades += 1
+                if i < len(self.actual_prices) - 2:
+                    future_return = (self.actual_prices[i+2] - self.actual_prices[i+1]) / self.actual_prices[i+1]
+                    if (signal == 1 and future_return > 0) or (signal == -1 and future_return < 0):
+                        wins += 1
+        
+        return wins / total_trades if total_trades > 0 else 0
+
+# 模拟不同模型的预测结果
+np.random.seed(42)
+days = 252  # 一年交易日
+actual_prices = 100 * np.cumprod(1 + np.random.normal(0.001, 0.02, days))
+
+# 不同模型的预测准确性
+models = {
+    'LSTM': np.random.normal(0.85, 0.1, days),
+    'CNN': np.random.normal(0.82, 0.12, days),
+    'Transformer': np.random.normal(0.88, 0.08, days),
+    '随机森林': np.random.normal(0.75, 0.15, days)
+}
+
+# 生成预测价格（基于准确性）
+results = {}
+for model_name, accuracy in models.items():
+    # 根据准确性生成预测
+    noise = np.random.normal(0, 0.05, days)
+    predictions = actual_prices * (1 + noise * (1 - accuracy))
+    
+    # 回测策略
+    backtest = StrategyBacktest(model_name, predictions, actual_prices)
+    metrics = backtest.get_metrics()
+    results[model_name] = metrics
+
+# 显示结果
+print("\n📊 不同模型交易策略性能对比：")
+print("=" * 60)
+for model, metrics in results.items():
+    print(f"\n🤖 {model}:")
+    for metric, value in metrics.items():
+        print(f"  {metric}: {value}")
+</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="model-card">
+                                    <h6>⚡ 计算效率对比</h6>
+                                    <ul>
+                                        <li><strong>线性模型</strong>: 训练快，推理快，内存小</li>
+                                        <li><strong>树模型</strong>: 训练中等，推理快，解释性好</li>
+                                        <li><strong>神经网络</strong>: 训练慢，推理中等，精度高</li>
+                                        <li><strong>深度学习</strong>: 训练很慢，推理慢，精度最高</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="model-card">
+                                    <h6>🎯 应用场景建议</h6>
+                                    <ul>
+                                        <li><strong>高频交易</strong>: 选择推理速度快的模型</li>
+                                        <li><strong>风险管理</strong>: 选择稳定性好的模型</li>
+                                        <li><strong>长期投资</strong>: 选择准确率高的模型</li>
+                                        <li><strong>实时决策</strong>: 平衡精度和速度</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                        </div>
+                    </section>
+    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 移动端菜单按钮 -->
+    
+    
+    <!-- JavaScript -->
+    <script>
+        // 顶部导航功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            // 默认显示第一个章节
+            if (contentSections.length > 0) {
+                contentSections[0].classList.add('active');
+            }
+            if (navButtons.length > 0) {
+                navButtons[0].classList.add('active');
+            }
+            
+            // 导航按钮点击事件
+            navButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 移除所有活动状态
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    contentSections.forEach(section => section.classList.remove('active'));
+                    
+                    // 添加当前活动状态
+                    this.classList.add('active');
+                    
+                    // 显示对应的内容章节
+                    const targetSection = this.getAttribute('data-section');
+                    const targetElement = document.getElementById(targetSection);
+                    if (targetElement) {
+                        targetElement.classList.add('active');
+                        
+                        // 滚动到内容区域
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // 键盘导航支持
+            document.addEventListener('keydown', function(e) {
+                const activeIndex = Array.from(navButtons).findIndex(button => 
+                    button.classList.contains('active'));
+                
+                if (e.key === 'ArrowRight' && activeIndex < navButtons.length - 1) {
+                    e.preventDefault();
+                    navButtons[activeIndex + 1].click();
+                } else if (e.key === 'ArrowLeft' && activeIndex > 0) {
+                    e.preventDefault();
+                    navButtons[activeIndex - 1].click();
+                }
+            });
+        });
+        
+        // 添加进度指示器
+        function updateProgress() {
+            const activeIndex = Array.from(document.querySelectorAll('.nav-btn'))
+                .findIndex(button => button.classList.contains('active'));
+            const totalSections = document.querySelectorAll('.nav-btn').length;
+            const progress = ((activeIndex + 1) / totalSections) * 100;
+            
+            console.log(`学习进度: ${Math.round(progress)}%`);
+        }
+    </script>
+</body>
+</html>
