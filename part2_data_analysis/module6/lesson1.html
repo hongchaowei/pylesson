@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程1: Pandas基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    
+    /* 交互式演示样式 */
+    .interactive-demo {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        margin: 25px 0;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+    }
+    
+    .demo-controls {
+        display: flex;
+        gap: 15px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+    }
+    
+    .demo-button {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .demo-button:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .data-table {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        overflow-x: auto;
+    }
+    
+    .data-table table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9em;
+    }
+    
+    .data-table th, .data-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+        color: #333;
+    }
+    
+    .data-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .tooltip {
+        position: absolute;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>什么是Pandas？</h2>
+            <p>Pandas是Python中最流行的数据分析库，专门设计用于处理表格数据和时间序列。它构建在NumPy之上，提供了更高级的数据结构和操作，特别适合金融数据分析。</p>
+            <h3>Pandas的主要特点</h3>
+            <ul>
+                <li><strong>两种核心数据结构</strong>：Series（一维）和DataFrame（二维）</li>
+                <li><strong>数据对齐</strong>：自动处理不同数据源的数据对齐问题</li>
+                <li><strong>处理缺失数据</strong>：提供灵活的方法处理NaN值</li>
+                <li><strong>强大的IO工具</strong>：支持从CSV、Excel、SQL等多种数据源加载数据</li>
+                <li><strong>时间序列功能</strong>：专门为金融时间序列分析设计的功能</li>
+            </ul>
+            <h3>Pandas在金融中的应用</h3>
+            <ul>
+                <li>金融数据清洗和预处理</li>
+                <li>时间序列分析和处理</li>
+                <li>收益率计算和风险分析</li>
+                <li>投资组合构建和评估</li>
+                <li>量化交易策略回测</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>安装Pandas</h2>
+            <p>在开始使用Pandas之前，我们需要先安装它。Pandas可以通过pip或conda安装。</p>
+            <h3>使用pip安装</h3>
+            <pre><code>pip install pandas</code></pre>
+            <h3>使用conda安装</h3>
+            <pre><code>conda install pandas</code></pre>
+            <h3>验证安装</h3>
+            <p>在Python交互式环境中运行以下代码验证Pandas是否安装成功：</p>
+            <pre><code>import pandas as pd
+print(pd.__version__)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>Pandas数据结构</h2>
+            <p>Pandas提供了两种主要的数据结构：Series和DataFrame。</p>
+            <h3>Series</h3>
+            <p>Series是一维带标签的数组，可以存储任何数据类型。</p>
+            <pre><code>import pandas as pd
+# 创建Series
+s = pd.Series([1, 3, 5, np.nan, 6, 8])
+print(s)
+# 创建带索引的Series
+s = pd.Series([10, 20, 30], index=['a', 'b', 'c'])
+print(s)
+#<pre><code># 从字典创建Series
+data = {'AAPL': 150.0, 'MSFT': 250.0, 'GOOG': 1800.0}
+stocks = pd.Series(data)
+print(stocks)</code></pre>
+            
+            <div class="interactive-demo">
+                <h4>🎯 交互式Series演示</h4>
+                <p>点击按钮查看不同的Series创建方式和操作效果</p>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="showBasicSeries()">基础Series</button>
+                    <button class="demo-button" onclick="showIndexedSeries()">带索引Series</button>
+                    <button class="demo-button" onclick="showStockSeries()">股票价格Series</button>
+                    <button class="demo-button" onclick="showSeriesOperations()">Series运算</button>
+                </div>
+                <div class="chart-container">
+                    <div id="seriesChart"></div>
+                </div>
+                <div class="data-table" id="seriesTable"></div>
+            </div>
+            <h3>DataFrame</h3>
+            <p>DataFrame是二维的、大小可变的、可以包含异构列的表格数据结构。</p>
+            <pre><code># 创建DataFrame
+data = {
+    '股票代码': ['AAPL', 'MSFT', 'GOOG', 'AMZN'],
+    '价格': [150.0, 250.0, 1800.0, 3200.0],
+    '成交量': [1000000, 800000, 500000, 300000]
+}
+df = pd.DataFrame(data)
+print(df)
+# 指定列顺序
+df = pd.DataFrame(data, columns=['股票代码', '成交量', '价格'])
+print(df)
+# 从NumPy数组创建DataFrame
+dates = pd.date_range('20230101', periods=6)
+df = pd.DataFrame(np.random.randn(6, 4), index=dates, columns=list('ABCD'))
+print(df)</code></pre>
+            
+            <div class="interactive-demo">
+                <h4>📊 交互式DataFrame演示</h4>
+                <p>探索DataFrame的创建、操作和数据分析功能</p>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="showBasicDataFrame()">基础DataFrame</button>
+                    <button class="demo-button" onclick="showStockDataFrame()">股票数据</button>
+                    <button class="demo-button" onclick="showDataFrameStats()">统计信息</button>
+                    <button class="demo-button" onclick="showDataFrameFilter()">数据筛选</button>
+                </div>
+                <div class="chart-container">
+                    <div id="dataframeChart"></div>
+                </div>
+                <div class="data-table" id="dataframeTable"></div>
+            </div>
+        </section>
+        
+        <section class="lesson-content">
+            <h2>数据操作可视化</h2>
+            <div class="interactive-demo">
+                <h4>🔄 Pandas数据操作实时演示</h4>
+                <p>观察不同Pandas操作对数据的影响</p>
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="showGroupBy()">分组聚合</button>
+                    <button class="demo-button" onclick="showPivotTable()">透视表</button>
+                    <button class="demo-button" onclick="showMergeJoin()">数据合并</button>
+                    <button class="demo-button" onclick="showTimeSeriesResample()">时间序列重采样</button>
+                </div>
+                <div class="chart-container">
+                    <div id="operationsChart"></div>
+                </div>
+                <div class="data-table" id="operationsTable"></div>
+            </div>
+        </section>
+        
+        <script>
+        // 创建tooltip
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip");
+        
+        // Series演示数据
+        const seriesData = {
+            basic: [1, 3, 5, 7, 9],
+            indexed: [{index: 'A', value: 10}, {index: 'B', value: 20}, {index: 'C', value: 30}],
+            stocks: [{stock: 'AAPL', price: 150}, {stock: 'MSFT', price: 250}, {stock: 'GOOG', price: 1800}, {stock: 'AMZN', price: 3200}],
+            operations: [{stock: 'AAPL', original: 150, doubled: 300}, {stock: 'MSFT', original: 250, doubled: 500}]
+        };
+        
+        // DataFrame演示数据
+        const dataframeData = {
+            basic: [
+                {股票代码: 'AAPL', 价格: 150, 成交量: 1000000},
+                {股票代码: 'MSFT', 价格: 250, 成交量: 800000},
+                {股票代码: 'GOOG', 价格: 1800, 成交量: 500000},
+                {股票代码: 'AMZN', 价格: 3200, 成交量: 300000}
+            ],
+            stats: [
+                {指标: '平均价格', 值: 1350},
+                {指标: '最高价格', 值: 3200},
+                {指标: '最低价格', 值: 150},
+                {指标: '标准差', 值: 1425.2}
+            ]
+        };
+        
+        function showBasicSeries() {
+            const container = d3.select("#seriesChart");
+            container.selectAll("*").remove();
+            
+            const svg = container.append("svg")
+                .attr("width", 500)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 40};
+            const width = 500 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const xScale = d3.scaleBand()
+                .domain(d3.range(seriesData.basic.length))
+                .range([0, width])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(seriesData.basic)])
+                .range([height, 0]);
+            
+            g.selectAll(".bar")
+                .data(seriesData.basic)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", (d, i) => xScale(i))
+                .attr("y", d => yScale(d))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d))
+                .attr("fill", "#667eea")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`值: ${d}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale));
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            // 显示表格
+            showSeriesTable(seriesData.basic.map((d, i) => ({索引: i, 值: d})));
+        }
+        
+        function showIndexedSeries() {
+            const container = d3.select("#seriesChart");
+            container.selectAll("*").remove();
+            
+            const svg = container.append("svg")
+                .attr("width", 500)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 40};
+            const width = 500 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const xScale = d3.scaleBand()
+                .domain(seriesData.indexed.map(d => d.index))
+                .range([0, width])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(seriesData.indexed, d => d.value)])
+                .range([height, 0]);
+            
+            g.selectAll(".bar")
+                .data(seriesData.indexed)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.index))
+                .attr("y", d => yScale(d.value))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d.value))
+                .attr("fill", "#764ba2")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.index}: ${d.value}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale));
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            showSeriesTable(seriesData.indexed.map(d => ({索引: d.index, 值: d.value})));
+        }
+        
+        function showStockSeries() {
+            const container = d3.select("#seriesChart");
+            container.selectAll("*").remove();
+            
+            const svg = container.append("svg")
+                .attr("width", 500)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 60};
+            const width = 500 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const xScale = d3.scaleBand()
+                .domain(seriesData.stocks.map(d => d.stock))
+                .range([0, width])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(seriesData.stocks, d => d.price)])
+                .range([height, 0]);
+            
+            const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+            
+            g.selectAll(".bar")
+                .data(seriesData.stocks)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.stock))
+                .attr("y", d => yScale(d.price))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d.price))
+                .attr("fill", (d, i) => colorScale(i))
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.stock}: $${d.price}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale));
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            showSeriesTable(seriesData.stocks.map(d => ({股票代码: d.stock, 价格: `$${d.price}`})));
+        }
+        
+        function showSeriesOperations() {
+            const container = d3.select("#seriesChart");
+            container.selectAll("*").remove();
+            
+            const svg = container.append("svg")
+                .attr("width", 500)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 60};
+            const width = 500 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const stocks = seriesData.operations.map(d => d.stock);
+            const x0 = d3.scaleBand().domain(stocks).range([0, width]).padding(0.1);
+            const x1 = d3.scaleBand().domain(['original', 'doubled']).range([0, x0.bandwidth()]).padding(0.05);
+            const y = d3.scaleLinear().domain([0, 600]).range([height, 0]);
+            
+            const color = d3.scaleOrdinal().domain(['original', 'doubled']).range(['#667eea', '#764ba2']);
+            
+            const stockGroups = g.selectAll(".stock")
+                .data(seriesData.operations)
+                .enter().append("g")
+                .attr("class", "stock")
+                .attr("transform", d => `translate(${x0(d.stock)},0)`);
+            
+            stockGroups.selectAll("rect")
+                .data(d => [{ key: 'original', value: d.original }, { key: 'doubled', value: d.doubled }])
+                .enter().append("rect")
+                .attr("x", d => x1(d.key))
+                .attr("y", d => y(d.value))
+                .attr("width", x1.bandwidth())
+                .attr("height", d => height - y(d.value))
+                .attr("fill", d => color(d.key))
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.key}: $${d.value}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x0));
+            
+            g.append("g")
+                .call(d3.axisLeft(y));
+            
+            // 添加图例
+            const legend = g.append("g")
+                .attr("transform", `translate(${width - 100}, 20)`);
+            
+            legend.selectAll(".legend")
+                .data(['original', 'doubled'])
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => `translate(0, ${i * 20})`)
+                .each(function(d) {
+                    const g = d3.select(this);
+                    g.append("rect")
+                        .attr("width", 15)
+                        .attr("height", 15)
+                        .attr("fill", color(d));
+                    g.append("text")
+                        .attr("x", 20)
+                        .attr("y", 12)
+                        .text(d === 'original' ? '原始值' : '翻倍值')
+                        .style("font-size", "12px")
+                        .style("fill", "#333");
+                });
+            
+            showSeriesTable(seriesData.operations.map(d => ({
+                股票代码: d.stock,
+                原始价格: `$${d.original}`,
+                翻倍价格: `$${d.doubled}`
+            })));
+        }
+        
+        function showBasicDataFrame() {
+            const container = d3.select("#dataframeChart");
+            container.selectAll("*").remove();
+            
+            const svg = container.append("svg")
+                .attr("width", 600)
+                .attr("height", 400);
+            
+            const margin = {top: 20, right: 30, bottom: 60, left: 80};
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // 创建散点图：价格 vs 成交量
+            const xScale = d3.scaleLinear()
+                .domain([0, d3.max(dataframeData.basic, d => d.成交量)])
+                .range([0, width]);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(dataframeData.basic, d => d.价格)])
+                .range([height, 0]);
+            
+            const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+            
+            g.selectAll(".dot")
+                .data(dataframeData.basic)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("cx", d => xScale(d.成交量))
+                .attr("cy", d => yScale(d.价格))
+                .attr("r", 8)
+                .attr("fill", (d, i) => colorScale(i))
+                .attr("stroke", "white")
+                .attr("stroke-width", 2)
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.股票代码}<br/>价格: $${d.价格}<br/>成交量: ${d.成交量.toLocaleString()}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            // 添加标签
+            g.selectAll(".label")
+                .data(dataframeData.basic)
+                .enter().append("text")
+                .attr("class", "label")
+                .attr("x", d => xScale(d.成交量) + 12)
+                .attr("y", d => yScale(d.价格) + 4)
+                .text(d => d.股票代码)
+                .style("font-size", "12px")
+                .style("fill", "#333");
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale).tickFormat(d => d.toLocaleString()))
+                .append("text")
+                .attr("x", width / 2)
+                .attr("y", 40)
+                .style("text-anchor", "middle")
+                .style("fill", "#333")
+                .text("成交量");
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -60)
+                .attr("x", -height / 2)
+                .style("text-anchor", "middle")
+                .style("fill", "#333")
+                .text("价格 ($)");
+            
+            showDataFrameTable(dataframeData.basic);
+        }
+        
+        function showStockDataFrame() {
+            showBasicDataFrame(); // 重用基础DataFrame显示
+        }
+        
+        function showDataFrameStats() {
+            const container = d3.select("#dataframeChart");
+            container.selectAll("*").remove();
+            
+            const svg = container.append("svg")
+                .attr("width", 500)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 80};
+            const width = 500 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const xScale = d3.scaleBand()
+                .domain(dataframeData.stats.map(d => d.指标))
+                .range([0, width])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(dataframeData.stats, d => d.值)])
+                .range([height, 0]);
+            
+            g.selectAll(".bar")
+                .data(dataframeData.stats)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.指标))
+                .attr("y", d => yScale(d.值))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d.值))
+                .attr("fill", "#667eea")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.指标}: ${d.值}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale));
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            showDataFrameTable(dataframeData.stats);
+        }
+        
+        function showDataFrameFilter() {
+            const filteredData = dataframeData.basic.filter(d => d.价格 > 200);
+            
+            const container = d3.select("#dataframeChart");
+            container.selectAll("*").remove();
+            
+            const svg = container.append("svg")
+                .attr("width", 500)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 60};
+            const width = 500 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const xScale = d3.scaleBand()
+                .domain(filteredData.map(d => d.股票代码))
+                .range([0, width])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(filteredData, d => d.价格)])
+                .range([height, 0]);
+            
+            g.selectAll(".bar")
+                .data(filteredData)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.股票代码))
+                .attr("y", d => yScale(d.价格))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d.价格))
+                .attr("fill", "#28a745")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.股票代码}: $${d.价格}<br/>筛选条件: 价格 > $200`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale));
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            // 添加筛选说明
+            g.append("text")
+                .attr("x", width / 2)
+                .attr("y", -5)
+                .style("text-anchor", "middle")
+                .style("font-size", "14px")
+                .style("fill", "#333")
+                .text("筛选结果: 价格 > $200");
+            
+            showDataFrameTable(filteredData.map(d => ({
+                ...d,
+                筛选条件: '价格 > $200'
+            })));
+        }
+        
+        function showGroupBy() {
+            const container = d3.select("#operationsChart");
+            container.selectAll("*").remove();
+            
+            // 模拟分组数据
+            const groupedData = [
+                {行业: '科技', 平均价格: 1400, 股票数量: 3},
+                {行业: '电商', 平均价格: 3200, 股票数量: 1}
+            ];
+            
+            const svg = container.append("svg")
+                .attr("width", 500)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 80};
+            const width = 500 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const xScale = d3.scaleBand()
+                .domain(groupedData.map(d => d.行业))
+                .range([0, width])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(groupedData, d => d.平均价格)])
+                .range([height, 0]);
+            
+            g.selectAll(".bar")
+                .data(groupedData)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.行业))
+                .attr("y", d => yScale(d.平均价格))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d.平均价格))
+                .attr("fill", "#17a2b8")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.行业}<br/>平均价格: $${d.平均价格}<br/>股票数量: ${d.股票数量}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale));
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            showOperationsTable(groupedData);
+        }
+        
+        function showPivotTable() {
+            const container = d3.select("#operationsChart");
+            container.selectAll("*").remove();
+            
+            // 模拟透视表数据
+            const pivotData = [
+                {月份: '1月', 科技股: 1350, 电商股: 3200},
+                {月份: '2月', 科技股: 1420, 电商股: 3150},
+                {月份: '3月', 科技股: 1380, 电商股: 3300}
+            ];
+            
+            const svg = container.append("svg")
+                .attr("width", 600)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 100, bottom: 40, left: 60};
+            const width = 600 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const months = pivotData.map(d => d.月份);
+            const categories = ['科技股', '电商股'];
+            
+            const x0 = d3.scaleBand().domain(months).range([0, width]).padding(0.1);
+            const x1 = d3.scaleBand().domain(categories).range([0, x0.bandwidth()]).padding(0.05);
+            const y = d3.scaleLinear().domain([0, 3500]).range([height, 0]);
+            const color = d3.scaleOrdinal().domain(categories).range(['#667eea', '#764ba2']);
+            
+            const monthGroups = g.selectAll(".month")
+                .data(pivotData)
+                .enter().append("g")
+                .attr("class", "month")
+                .attr("transform", d => `translate(${x0(d.月份)},0)`);
+            
+            monthGroups.selectAll("rect")
+                .data(d => categories.map(cat => ({ category: cat, value: d[cat] })))
+                .enter().append("rect")
+                .attr("x", d => x1(d.category))
+                .attr("y", d => y(d.value))
+                .attr("width", x1.bandwidth())
+                .attr("height", d => height - y(d.value))
+                .attr("fill", d => color(d.category))
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.category}: $${d.value}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x0));
+            
+            g.append("g")
+                .call(d3.axisLeft(y));
+            
+            // 添加图例
+            const legend = g.append("g")
+                .attr("transform", `translate(${width + 20}, 20)`);
+            
+            legend.selectAll(".legend")
+                .data(categories)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => `translate(0, ${i * 20})`)
+                .each(function(d) {
+                    const g = d3.select(this);
+                    g.append("rect")
+                        .attr("width", 15)
+                        .attr("height", 15)
+                        .attr("fill", color(d));
+                    g.append("text")
+                        .attr("x", 20)
+                        .attr("y", 12)
+                        .text(d)
+                        .style("font-size", "12px")
+                        .style("fill", "#333");
+                });
+            
+            showOperationsTable(pivotData);
+        }
+        
+        function showMergeJoin() {
+            const container = d3.select("#operationsChart");
+            container.selectAll("*").remove();
+            
+            // 模拟合并后的数据
+            const mergedData = [
+                {股票代码: 'AAPL', 价格: 150, 行业: '科技', 市值: '2.5T'},
+                {股票代码: 'MSFT', 价格: 250, 行业: '科技', 市值: '2.0T'},
+                {股票代码: 'GOOG', 价格: 1800, 行业: '科技', 市值: '1.5T'}
+            ];
+            
+            const svg = container.append("svg")
+                .attr("width", 600)
+                .attr("height", 400);
+            
+            const margin = {top: 20, right: 30, bottom: 60, left: 80};
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // 创建气泡图
+            const xScale = d3.scaleLinear()
+                .domain([0, 2000])
+                .range([0, width]);
+            
+            const yScale = d3.scaleLinear()
+                .domain([0, 3])
+                .range([height, 0]);
+            
+            const sizeScale = d3.scaleSqrt()
+                .domain([1, 3])
+                .range([20, 60]);
+            
+            const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+            
+            g.selectAll(".bubble")
+                .data(mergedData)
+                .enter().append("circle")
+                .attr("class", "bubble")
+                .attr("cx", d => xScale(d.价格))
+                .attr("cy", d => yScale(parseFloat(d.市值)))
+                .attr("r", (d, i) => sizeScale(i + 1))
+                .attr("fill", (d, i) => colorScale(i))
+                .attr("opacity", 0.7)
+                .attr("stroke", "white")
+                .attr("stroke-width", 2)
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.股票代码}<br/>价格: $${d.价格}<br/>行业: ${d.行业}<br/>市值: ${d.市值}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            // 添加标签
+            g.selectAll(".label")
+                .data(mergedData)
+                .enter().append("text")
+                .attr("class", "label")
+                .attr("x", d => xScale(d.价格))
+                .attr("y", d => yScale(parseFloat(d.市值)) - 5)
+                .text(d => d.股票代码)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("fill", "#333")
+                .style("font-weight", "bold");
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale))
+                .append("text")
+                .attr("x", width / 2)
+                .attr("y", 40)
+                .style("text-anchor", "middle")
+                .style("fill", "#333")
+                .text("股票价格 ($)");
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -60)
+                .attr("x", -height / 2)
+                .style("text-anchor", "middle")
+                .style("fill", "#333")
+                .text("市值 (万亿)");
+            
+            showOperationsTable(mergedData);
+        }
+        
+        function showTimeSeriesResample() {
+            const container = d3.select("#operationsChart");
+            container.selectAll("*").remove();
+            
+            // 模拟时间序列重采样数据
+            const originalData = [
+                {日期: '2023-01-01', 价格: 150},
+                {日期: '2023-01-02', 价格: 152},
+                {日期: '2023-01-03', 价格: 148},
+                {日期: '2023-01-04', 价格: 155},
+                {日期: '2023-01-05', 价格: 153}
+            ];
+            
+            const resampledData = [
+                {周: '第1周', 平均价格: 151.6, 最高价格: 155, 最低价格: 148}
+            ];
+            
+            const svg = container.append("svg")
+                .attr("width", 600)
+                .attr("height", 300);
+            
+            const margin = {top: 20, right: 30, bottom: 60, left: 60};
+            const width = 600 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // 绘制原始数据线图
+            const parseDate = d3.timeParse("%Y-%m-%d");
+            const formatDate = d3.timeFormat("%m-%d");
+            
+            const xScale = d3.scaleTime()
+                .domain(d3.extent(originalData, d => parseDate(d.日期)))
+                .range([0, width]);
+            
+            const yScale = d3.scaleLinear()
+                .domain(d3.extent(originalData, d => d.价格))
+                .range([height, 0]);
+            
+            const line = d3.line()
+                .x(d => xScale(parseDate(d.日期)))
+                .y(d => yScale(d.价格))
+                .curve(d3.curveMonotoneX);
+            
+            g.append("path")
+                .datum(originalData)
+                .attr("fill", "none")
+                .attr("stroke", "#667eea")
+                .attr("stroke-width", 2)
+                .attr("d", line);
+            
+            g.selectAll(".dot")
+                .data(originalData)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("cx", d => xScale(parseDate(d.日期)))
+                .attr("cy", d => yScale(d.价格))
+                .attr("r", 4)
+                .attr("fill", "#667eea")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.日期}<br/>价格: $${d.价格}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            // 添加重采样结果
+            const avgY = yScale(resampledData[0].平均价格);
+            g.append("line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", avgY)
+                .attr("y2", avgY)
+                .attr("stroke", "#dc3545")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "5,5");
+            
+            g.append("text")
+                .attr("x", width - 10)
+                .attr("y", avgY - 5)
+                .style("text-anchor", "end")
+                .style("font-size", "12px")
+                .style("fill", "#dc3545")
+                .text(`周平均: $${resampledData[0].平均价格}`);
+            
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale).tickFormat(formatDate));
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            showOperationsTable(resampledData);
+        }
+        
+        function showSeriesTable(data) {
+            const table = d3.select("#seriesTable");
+            table.selectAll("*").remove();
+            
+            const tableElement = table.append("table");
+            const thead = tableElement.append("thead");
+            const tbody = tableElement.append("tbody");
+            
+            const columns = Object.keys(data[0]);
+            
+            thead.append("tr")
+                .selectAll("th")
+                .data(columns)
+                .enter()
+                .append("th")
+                .text(d => d);
+            
+            const rows = tbody.selectAll("tr")
+                .data(data)
+                .enter()
+                .append("tr");
+            
+            rows.selectAll("td")
+                .data(d => columns.map(col => d[col]))
+                .enter()
+                .append("td")
+                .text(d => d);
+        }
+        
+        function showDataFrameTable(data) {
+            const table = d3.select("#dataframeTable");
+            table.selectAll("*").remove();
+            
+            const tableElement = table.append("table");
+            const thead = tableElement.append("thead");
+            const tbody = tableElement.append("tbody");
+            
+            const columns = Object.keys(data[0]);
+            
+            thead.append("tr")
+                .selectAll("th")
+                .data(columns)
+                .enter()
+                .append("th")
+                .text(d => d);
+            
+            const rows = tbody.selectAll("tr")
+                .data(data)
+                .enter()
+                .append("tr");
+            
+            rows.selectAll("td")
+                .data(d => columns.map(col => d[col]))
+                .enter()
+                .append("td")
+                .text(d => d);
+        }
+        
+        function showOperationsTable(data) {
+            const table = d3.select("#operationsTable");
+            table.selectAll("*").remove();
+            
+            const tableElement = table.append("table");
+            const thead = tableElement.append("thead");
+            const tbody = tableElement.append("tbody");
+            
+            const columns = Object.keys(data[0]);
+            
+            thead.append("tr")
+                .selectAll("th")
+                .data(columns)
+                .enter()
+                .append("th")
+                .text(d => d);
+            
+            const rows = tbody.selectAll("tr")
+                .data(data)
+                .enter()
+                .append("tr");
+            
+            rows.selectAll("td")
+                .data(d => columns.map(col => d[col]))
+                .enter()
+                .append("td")
+                .text(d => d);
+        }
+        
+        // 页面加载时显示默认内容
+        document.addEventListener('DOMContentLoaded', function() {
+            showBasicSeries();
+            showBasicDataFrame();
+            showGroupBy();
+        });
+        </script>
+        <section class="lesson-content">
+            <h2>查看和检查数据</h2>
+            <p>Pandas提供了多种方法来查看和检查DataFrame中的数据。</p>
+            <pre><code># 查看前几行
+print(df.head())
+# 查看后几行
+print(df.tail(3))
+# 查看索引
+print(df.index)
+# 查看列名
+print(df.columns)
+# 查看数据概览
+print(df.describe())
+# 转置数据
+print(df.T)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>数据选择和操作</h2>
+            <p>Pandas提供了灵活的数据选择方法。</p>
+            <h3>按列选择</h3>
+            <pre><code># 选择单列（返回Series）
+print(df['A'])
+# 选择多列（返回DataFrame）
+print(df[['A', 'B']])</code></pre>
+            <h3>按行选择</h3>
+            <pre><code># 通过标签选择行
+print(df.loc['20230102'])
+# 通过位置选择行
+print(df.iloc[3])
+# 切片选择
+print(df[0:3])</code></pre>
+            <h3>布尔索引</h3>
+            <pre><code># 选择A列大于0的行
+print(df[df['A'] > 0])
+# 多条件选择
+print(df[(df['A'] > 0) & (df['B'] < 1)])</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>处理缺失数据</h2>
+            <p>金融数据中经常存在缺失值，Pandas提供了处理缺失数据的方法。</p>
+            <pre><code># 创建包含缺失值的DataFrame
+df = pd.DataFrame(np.random.randn(5, 3), index=['a', 'c', 'e', 'f', 'h'],
+                  columns=['one', 'two', 'three'])
+df = df.reindex(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+print(df)
+# 检查缺失值
+print(df.isna())
+# 删除包含缺失值的行
+print(df.dropna())
+# 填充缺失值
+print(df.fillna(0))
+# 前向填充
+print(df.fillna(method='ffill'))
+# 计算每列的平均值并填充
+print(df.fillna(df.mean()))</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用示例</h2>
+            <p>让我们看一个简单的金融应用示例，加载和分析股票数据。</p>
+            <pre><code>import pandas as pd
+import numpy as np
+# 创建模拟股票数据
+dates = pd.date_range('2023-01-01', periods=10)
+prices = np.array([100, 102, 101, 105, 107, 106, 110, 108, 112, 115])
+volumes = np.random.randint(100000, 1000000, size=10)
+# 创建DataFrame
+df = pd.DataFrame({
+    '收盘价': prices,
+    '成交量': volumes
+}, index=dates)
+print("原始数据:")
+print(df)
+# 计算日收益率
+df['收益率'] = df['收盘价'].pct_change()
+print("\n包含收益率的数据:")
+print(df)
+# 计算移动平均
+df['5日移动平均'] = df['收盘价'].rolling(5).mean()
+print("\n包含移动平均的数据:")
+print(df)
+# 计算波动率
+df['收益率波动率'] = df['收益率'].rolling(5).std() * np.sqrt(252)
+print("\n包含波动率的数据:")
+print(df)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>了解了Pandas的基本概念和在金融中的应用</li>
+                <li>学习了如何安装Pandas</li>
+                <li>探索了Pandas的两种核心数据结构：Series和DataFrame</li>
+                <li>掌握了查看和检查数据的方法</li>
+                <li>学习了数据选择和操作的基本技巧</li>
+                <li>了解了如何处理缺失数据</li>
+                <li>应用Pandas进行了简单的股票数据分析</li>
+            </ul>
+            <p>这些基础知识将为您后续的金融数据分析打下坚实基础。在下一课中，我们将深入学习数据清洗与转换技术。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请确保您已经：</p>
+                <ul>
+                    <li>成功安装了Pandas</li>
+                    <li>尝试运行了本课的所有示例代码</li>
+                    <li>理解了Series和DataFrame的基本操作</li>
+                </ul>
+                <a href="lesson2.html" class="btn btn-large">继续学习：数据清洗与转换</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="../../index.html" class="btn">« 返回模块6概览</a>
+            </div>
+            <div>
+                <a href="lesson2.html" class="btn">下一课：数据清洗与转换 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

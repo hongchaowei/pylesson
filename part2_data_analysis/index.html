@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据分析 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="hero">
+            <h2>📊 数据分析课程</h2>
+            <p>本部分将教您使用Python进行数据分析，包括NumPy数值计算、Pandas数据处理、Matplotlib数据可视化等核心技能。您将学会处理真实的金融数据，为后续的金融建模打下基础。</p>
+            <div class="course-overview">
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <h4>🎯 学习目标</h4>
+                        <ul>
+                            <li>掌握NumPy高效数值计算技能</li>
+                            <li>熟练使用Pandas进行数据处理</li>
+                            <li>学会多种数据可视化技术</li>
+                            <li>具备处理金融数据的实战能力</li>
+                        </ul>
+                    </div>
+                    <div class="overview-item">
+                        <h4>📋 先修要求</h4>
+                        <ul>
+                            <li>完成Python基础部分学习</li>
+                            <li>熟悉Python基本语法和数据结构</li>
+                            <li>具备基本的数学统计知识</li>
+                            <li>了解金融市场基本概念</li>
+                        </ul>
+                    </div>
+                    <div class="overview-item">
+                        <h4>⏰ 时间安排</h4>
+                        <ul>
+                            <li>总学时：约50-60小时</li>
+                            <li>建议学习周期：5-7周</li>
+                            <li>每周学习时间：8-12小时</li>
+                            <li>实践项目时间：15-20小时</li>
+                        </ul>
+                    </div>
+                    <div class="overview-item">
+                        <h4>🏆 技能收获</h4>
+                        <ul>
+                            <li>专业数据分析和处理能力</li>
+                            <li>金融数据可视化技能</li>
+                            <li>大数据处理和优化技巧</li>
+                            <li>为量化分析奠定技术基础</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="course-parts">
+            <h2>📊 课程模块</h2>
+            <div class="part-grid">
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>🔢 模块5: NumPy数值计算</h3>
+                        <span class="lesson-count">4个课程 • 预计12-15小时</span>
+                    </div>
+                    <p class="part-description">NumPy基础、数组操作、数学函数和线性代数</p>
+                    <div class="module-details">
+                        <h5>📖 详细内容：</h5>
+                        <ul class="detailed-topics">
+                            <li><strong>NumPy核心概念</strong> - 数组对象、数据类型、内存布局优化</li>
+                            <li><strong>数组创建与操作</strong> - 数组生成、索引、切片、形状变换</li>
+                            <li><strong>数学运算函数</strong> - 通用函数、广播机制、聚合操作</li>
+                            <li><strong>线性代数应用</strong> - 矩阵运算、特征值、奇异值分解</li>
+                            <li><strong>随机数生成</strong> - 概率分布、蒙特卡洛模拟基础</li>
+                            <li><strong>性能优化技巧</strong> - 向量化计算、内存管理、并行处理</li>
+                        </ul>
+                        <div class="learning-outcomes">
+                            <h6>🎯 学习成果：</h6>
+                            <p>掌握高效的数值计算技能，能够处理大规模数据集，为金融建模和量化分析提供计算基础。</p>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li><a href="module5/lesson1.html">课程1: NumPy基础</a></li>
+                        <li><a href="module5/lesson2.html">课程2: NumPy数组操作</a></li>
+                        <li><a href="module5/lesson3.html">课程3: NumPy数学函数</a></li>
+                        <li><a href="module5/lesson4.html">课程4: NumPy线性代数</a></li>
+                    </ul>
+                    <div class="part-actions">
+                        <a href="module5/lesson1.html" class="btn btn-primary">开始学习</a>
+                        <a href="module5/exercises.html" class="btn btn-secondary">练习题</a>
+                        <a href="module5/project.html" class="btn btn-accent">项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>🐼 模块6: Pandas数据处理</h3>
+                        <span class="lesson-count">4个课程 • 预计15-18小时</span>
+                    </div>
+                    <p class="part-description">Pandas基础、数据操作、数据清洗和数据分析</p>
+                    <div class="module-details">
+                        <h5>📖 详细内容：</h5>
+                        <ul class="detailed-topics">
+                            <li><strong>Pandas数据结构</strong> - Series、DataFrame创建和基本操作</li>
+                            <li><strong>数据读取与输出</strong> - CSV、Excel、JSON、数据库连接</li>
+                            <li><strong>数据选择与过滤</strong> - 索引、条件筛选、数据切片</li>
+                            <li><strong>数据清洗技术</strong> - 缺失值处理、重复数据、异常值检测</li>
+                            <li><strong>数据变换与合并</strong> - 分组聚合、数据透视、表连接</li>
+                            <li><strong>时间序列分析</strong> - 日期时间处理、重采样、滚动窗口</li>
+                        </ul>
+                        <div class="learning-outcomes">
+                            <h6>🎯 学习成果：</h6>
+                            <p>成为数据处理专家，能够高效清洗和分析各种格式的金融数据，掌握时间序列分析技能。</p>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li><a href="module6/lesson1.html">课程1: Pandas基础</a></li>
+                        <li><a href="module6/lesson2.html">课程2: Pandas数据操作</a></li>
+                        <li><a href="module6/lesson3.html">课程3: Pandas数据清洗</a></li>
+                        <li><a href="module6/lesson4.html">课程4: Pandas数据分析</a></li>
+                    </ul>
+                    <div class="part-actions">
+                        <a href="module6/lesson1.html" class="btn btn-primary">开始学习</a>
+                        <a href="module6/exercises.html" class="btn btn-secondary">练习题</a>
+                        <a href="module6/project.html" class="btn btn-accent">项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>📈 模块7: 数据可视化</h3>
+                        <span class="lesson-count">4个课程 • 预计12-15小时</span>
+                    </div>
+                    <p class="part-description">Matplotlib、Seaborn和Plotly数据可视化技术</p>
+                    <div class="module-details">
+                        <h5>📖 详细内容：</h5>
+                        <ul class="detailed-topics">
+                            <li><strong>Matplotlib绘图基础</strong> - 图形对象、坐标轴、图例、标注</li>
+                            <li><strong>高级绘图技巧</strong> - 子图布局、样式定制、动画制作</li>
+                            <li><strong>Seaborn统计绘图</strong> - 分布图、关系图、分类图、矩阵图</li>
+                            <li><strong>Plotly交互可视化</strong> - 动态图表、仪表板、3D可视化</li>
+                            <li><strong>金融图表专题</strong> - K线图、技术指标图、风险图表</li>
+                            <li><strong>可视化最佳实践</strong> - 色彩搭配、图表选择、信息传达</li>
+                        </ul>
+                        <div class="learning-outcomes">
+                            <h6>🎯 学习成果：</h6>
+                            <p>掌握专业的数据可视化技能，能够创建美观且信息丰富的金融图表，提升数据洞察和展示能力。</p>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li><a href="module7/lesson1.html">课程1: Matplotlib基础</a></li>
+                        <li><a href="module7/lesson2.html">课程2: Matplotlib高级绘图</a></li>
+                        <li><a href="module7/lesson3.html">课程3: Seaborn数据可视化</a></li>
+                        <li><a href="module7/lesson4.html">课程4: Plotly交互式图表</a></li>
+                    </ul>
+                    <div class="part-actions">
+                        <a href="module7/lesson1.html" class="btn btn-primary">开始学习</a>
+                        <a href="module7/exercises.html" class="btn btn-secondary">练习题</a>
+                        <a href="module7/project.html" class="btn btn-accent">项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>💹 模块8: 金融数据分析</h3>
+                        <span class="lesson-count">4个课程 • 预计15-20小时</span>
+                    </div>
+                    <p class="part-description">金融数据获取、股票分析、技术指标和数据可视化</p>
+                    <div class="module-details">
+                        <h5>📖 详细内容：</h5>
+                        <ul class="detailed-topics">
+                            <li><strong>金融数据源接入</strong> - API使用、数据下载、实时数据流</li>
+                            <li><strong>股票数据分析</strong> - 价格分析、收益率计算、波动率分析</li>
+                            <li><strong>技术指标实现</strong> - 移动平均、RSI、MACD、布林带</li>
+                            <li><strong>量化分析基础</strong> - 回测框架、策略评估、风险指标</li>
+                            <li><strong>金融图表制作</strong> - K线图、技术分析图、组合图表</li>
+                            <li><strong>数据管道构建</strong> - 数据清洗、存储、自动化处理</li>
+                        </ul>
+                        <div class="learning-outcomes">
+                            <h6>🎯 学习成果：</h6>
+                            <p>具备完整的金融数据分析能力，能够独立构建数据分析流程，为量化投资和风险管理提供数据支持。</p>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li><a href="module8/lesson1.html">课程1: 金融数据获取</a></li>
+                        <li><a href="module8/lesson2.html">课程2: 股票数据分析</a></li>
+                        <li><a href="module8/lesson3.html">课程3: 技术指标计算</a></li>
+                        <li><a href="module8/lesson4.html">课程4: 金融数据可视化</a></li>
+                    </ul>
+                    <div class="part-actions">
+                        <a href="module8/lesson1.html" class="btn btn-primary">开始学习</a>
+                        <a href="module8/exercises.html" class="btn btn-secondary">练习题</a>
+                        <a href="module8/project.html" class="btn btn-accent">项目实战</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="learning-path">
+            <h2>📈 学习路径建议</h2>
+            <div class="path-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>数值计算基础</h4>
+                        <p>从模块5开始，掌握NumPy数值计算基础</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>数据处理技能</h4>
+                        <p>学习模块6，熟练使用Pandas进行数据处理</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>可视化技术</h4>
+                        <p>掌握模块7，学会用图表展示数据洞察</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>金融应用</h4>
+                        <p>完成模块8，将技能应用到金融数据分析</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="navigation-section">
+            <div class="nav-buttons">
+                <a href="../part1_python_basics/index.html" class="btn btn-outline">← 上一部分: Python基础</a>
+                <a href="../part3_finance_applications/index.html" class="btn btn-primary">下一部分: 金融应用 →</a>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

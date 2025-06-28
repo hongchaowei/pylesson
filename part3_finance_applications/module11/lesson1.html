@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第1课: 风险价值(VaR)模型 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    
+    /* VaR交互演示样式 */
+    .var-demo {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin: 30px 0;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .demo-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .control-group {
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .control-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .control-group input[type="range"] {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .control-group input[type="number"] {
+        width: 80px;
+        padding: 5px 8px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 5px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        font-size: 14px;
+    }
+    
+    .var-chart {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+        min-height: 400px;
+    }
+    
+    .metrics-display {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .metric-card {
+        background: rgba(255,255,255,0.15);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 5px 0;
+    }
+    
+    .metric-label {
+        font-size: 12px;
+        opacity: 0.9;
+    }
+    
+    .demo-button {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        padding: 12px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        margin: 5px;
+    }
+    
+    .demo-button:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    .demo-button.active {
+        background: rgba(255,255,255,0.4);
+        border-color: rgba(255,255,255,0.6);
+    }
+    
+    .tooltip {
+        position: absolute;
+        background: rgba(0,0,0,0.9);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 13px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 1000;
+        max-width: 200px;
+    }
+    
+    .method-comparison {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .method-card {
+        background: rgba(255,255,255,0.1);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .method-card h4 {
+        margin-top: 0;
+        color: #ffd700;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>风险价值(VaR)概述</h2>
+            <p>风险价值(Value at Risk, VaR)是在正常市场条件下，某一特定时间段和置信水平下，投资组合可能遭受的最大损失。</p>
+            <div class="math-theory">
+                <h3>数学理论基础</h3>
+                <h4>1. VaR的数学定义</h4>
+                <p>对于投资组合的损失分布 \(L\)，在置信水平 \(\alpha\) 下的VaR定义为：</p>
+                <div class="formula">
+                    \[VaR_\alpha = \inf\{l \in \mathbb{R} : P(L > l) \leq 1-\alpha\}\]
+                </div>
+                <p>即满足 \(P(L \leq VaR_\alpha) = \alpha\) 的分位数。</p>
+                <h4>2. 参数法VaR（正态分布假设）</h4>
+                <p>假设收益率服从正态分布 \(R \sim N(\mu, \sigma^2)\)，则：</p>
+                <div class="formula">
+                    \[VaR_\alpha = -(\mu + \sigma \cdot \Phi^{-1}(1-\alpha)) \cdot V_0\]
+                </div>
+                <p>其中：</p>
+                <ul>
+                    <li>\(\mu\) 为期望收益率</li>
+                    <li>\(\sigma\) 为收益率标准差</li>
+                    <li>\(\Phi^{-1}\) 为标准正态分布的逆累积分布函数</li>
+                    <li>\(V_0\) 为投资组合初始价值</li>
+                </ul>
+                <h4>3. 历史模拟法</h4>
+                <p>基于历史收益率数据 \(\{r_1, r_2, ..., r_n\}\)，VaR为：</p>
+                <div class="formula">
+                    \[VaR_\alpha = -r_{(k)} \cdot V_0\]
+                </div>
+                <p>其中 \(r_{(k)}\) 是第 \(k\) 个顺序统计量，\(k = \lfloor n(1-\alpha) \rfloor\)。</p>
+                <h4>4. 蒙特卡洛模拟法</h4>
+                <p>通过模拟 \(N\) 次路径，得到损失分布的样本 \(\{L_1, L_2, ..., L_N\}\)：</p>
+                <div class="formula">
+                    \[VaR_\alpha \approx L_{(k)}\]
+                </div>
+                <p>其中 \(L_{(k)}\) 是第 \(k\) 个顺序统计量，\(k = \lfloor N(1-\alpha) \rfloor\)。</p>
+                <h4>5. 条件风险价值(CVaR)</h4>
+                <p>CVaR（也称为期望损失ES）定义为超过VaR的条件期望损失：</p>
+                <div class="formula">
+                    \[CVaR_\alpha = E[L | L > VaR_\alpha] = \frac{1}{1-\alpha} \int_{VaR_\alpha}^{\infty} l \cdot f_L(l) dl\]
+                </div>
+                <h4>6. 投资组合VaR</h4>
+                <p>对于多资产投资组合，权重向量为 \(\mathbf{w}\)，协方差矩阵为 \(\mathbf{\Sigma}\)：</p>
+                <div class="formula">
+                    \[\sigma_p = \sqrt{\mathbf{w}^T \mathbf{\Sigma} \mathbf{w}}\]
+                </div>
+                <div class="formula">
+                    \[VaR_\alpha = -(\mu_p + \sigma_p \cdot \Phi^{-1}(1-\alpha)) \cdot V_0\]
+                </div>
+                <p>其中 \(\mu_p = \mathbf{w}^T \boldsymbol{\mu}\) 为投资组合期望收益率。</p>
+            </div>
+            <h3>1. VaR的基本概念</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+from scipy.stats import norm
+def calculate_var(returns, confidence_level=0.95):
+    """计算在险价值(VaR)"""
+    if isinstance(returns, pd.DataFrame):
+        return returns.aggregate(calculate_var, confidence_level=confidence_level)
+    elif isinstance(returns, pd.Series):
+        return -np.percentile(returns, 100 * (1 - confidence_level))
+    else:
+        raise TypeError("输入应为Pandas Series或DataFrame")
+# 示例收益率数据
+returns = pd.Series([0.01, -0.02, 0.03, -0.01, 0.02, -0.03, 0.01, -0.02])
+var_95 = calculate_var(returns)
+print(f"95%置信水平的VaR: {var_95:.4f}")</code></pre>
+            
+            <div class="var-demo">
+                <h4>🎯 VaR计算方法比较</h4>
+                <p>比较不同VaR计算方法的结果，理解各种方法的优缺点</p>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>置信水平 (%)</label>
+                        <input type="range" id="confidenceLevel" min="90" max="99" value="95" step="1" oninput="updateVaRCalculation()">
+                        <input type="number" id="confidenceLevelNum" min="90" max="99" value="95" onchange="updateVaRCalculation()">
+                    </div>
+                    <div class="control-group">
+                        <label>数据点数量</label>
+                        <input type="range" id="dataPoints" min="100" max="1000" value="252" oninput="updateVaRCalculation()">
+                        <input type="number" id="dataPointsNum" min="100" max="1000" value="252" onchange="updateVaRCalculation()">
+                    </div>
+                    <div class="control-group">
+                        <label>波动率 (%)</label>
+                        <input type="range" id="volatility" min="10" max="50" value="20" oninput="updateVaRCalculation()">
+                        <input type="number" id="volatilityNum" min="10" max="50" value="20" onchange="updateVaRCalculation()">
+                    </div>
+                    <div class="control-group">
+                        <button class="demo-button" onclick="generateNewData()">生成新数据</button>
+                        <button class="demo-button" onclick="toggleDistribution()">切换分布</button>
+                    </div>
+                </div>
+                
+                <div class="var-chart">
+                    <div id="varComparison"></div>
+                </div>
+                
+                <div class="method-comparison">
+                    <div class="method-card">
+                        <h4>📊 参数法VaR</h4>
+                        <div class="metric-value" id="parametricVaR">--</div>
+                        <p>假设收益率服从正态分布</p>
+                    </div>
+                    <div class="method-card">
+                        <h4>📈 历史模拟法VaR</h4>
+                        <div class="metric-value" id="historicalVaR">--</div>
+                        <p>基于历史数据分位数</p>
+                    </div>
+                    <div class="method-card">
+                        <h4>🎲 蒙特卡洛VaR</h4>
+                        <div class="metric-value" id="monteCarloVaR">--</div>
+                        <p>通过随机模拟计算</p>
+                    </div>
+                </div>
+                
+                <div class="metrics-display">
+                    <div class="metric-card">
+                        <div class="metric-value" id="cvar">--</div>
+                        <div class="metric-label">条件VaR (CVaR)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="maxLoss">--</div>
+                        <div class="metric-label">最大损失</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="avgReturn">--</div>
+                        <div class="metric-label">平均收益率 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="stdDev">--</div>
+                        <div class="metric-label">标准差 (%)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="var-demo">
+                <h4>📊 VaR回测分析</h4>
+                <p>验证VaR模型的准确性，分析违约次数和聚集性</p>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>回测期间（天）</label>
+                        <input type="range" id="backtestDays" min="100" max="500" value="252" oninput="updateBacktest()">
+                        <input type="number" id="backtestDaysNum" min="100" max="500" value="252" onchange="updateBacktest()">
+                    </div>
+                    <div class="control-group">
+                        <label>VaR方法</label>
+                        <select id="varMethod" onchange="updateBacktest()" style="width: 100%; padding: 8px; border-radius: 5px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                            <option value="parametric">参数法</option>
+                            <option value="historical">历史模拟法</option>
+                            <option value="montecarlo">蒙特卡洛法</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <button class="demo-button" onclick="runBacktest()">运行回测</button>
+                        <button class="demo-button" onclick="resetBacktest()">重置</button>
+                    </div>
+                </div>
+                
+                <div class="var-chart">
+                    <div id="backtestChart"></div>
+                </div>
+                
+                <div class="metrics-display">
+                    <div class="metric-card">
+                        <div class="metric-value" id="violationRate">--</div>
+                        <div class="metric-label">违约率 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="expectedViolations">--</div>
+                        <div class="metric-label">预期违约次数</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="actualViolations">--</div>
+                        <div class="metric-label">实际违约次数</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="kupiecTest">--</div>
+                        <div class="metric-label">Kupiec检验p值</div>
+                    </div>
+                </div>
+            </div>
+            <h3>2. VaR的参数选择</h3>
+            <pre><code class="language-python"># 不同置信水平的VaR比较
+confidence_levels = [0.90, 0.95, 0.99]
+var_results = {cl: calculate_var(returns, cl) for cl in confidence_levels}
+print("\n不同置信水平的VaR:")
+for cl, var in var_results.items():
+    print(f"{int(cl*100)}% VaR: {var:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>历史模拟法</h2>
+            <p>历史模拟法使用历史收益率分布直接计算VaR，无需对收益率分布做任何假设。</p>
+            <h3>1. 基本历史模拟法</h3>
+            <pre><code class="language-python">def historical_var(returns, confidence_level=0.95, window=252):
+    """历史模拟法计算VaR"""
+    if len(returns) < window:
+        raise ValueError("收益率数据长度小于窗口大小")
+    # 计算滚动窗口VaR
+    var_series = returns.rolling(window).apply(
+        lambda x: -np.percentile(x, 100 * (1 - confidence_level))
+    )
+    return var_series.dropna()
+# 生成更长的收益率序列用于演示
+np.random.seed(42)
+long_returns = pd.Series(np.random.normal(0.001, 0.02, 1000))
+# 计算滚动VaR
+rolling_var = historical_var(long_returns)
+print("\n滚动历史VaR的最后5个值:\n", rolling_var.tail())</code></pre>
+            <h3>2. 加权历史模拟法</h3>
+            <pre><code class="language-python">def weighted_historical_var(returns, confidence_level=0.95, decay=0.99):
+    """加权历史模拟法计算VaR"""
+    weights = np.array([decay ** i for i in range(len(returns))][::-1])
+    weights = weights / weights.sum()
+    sorted_returns = np.sort(returns)
+    cum_weights = np.cumsum(weights)
+    # 找到第一个超过(1-confidence_level)的权重位置
+    idx = np.argmax(cum_weights >= (1 - confidence_level))
+    return -sorted_returns[idx]
+weighted_var = weighted_historical_var(returns)
+print(f"\n加权历史VaR: {weighted_var:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>方差-协方差法</h2>
+            <p>方差-协方差法假设收益率服从正态分布，利用均值和方差计算VaR。</p>
+            <h3>1. 单资产VaR计算</h3>
+            <pre><code class="language-python">def parametric_var(returns, confidence_level=0.95, mean_adjust=True):
+    """方差-协方差法计算VaR"""
+    if mean_adjust:
+        mu = returns.mean()
+    else:
+        mu = 0
+    sigma = returns.std()
+    alpha = norm.ppf(1 - confidence_level)
+    return -(mu + alpha * sigma)
+parametric_var_95 = parametric_var(returns)
+print(f"\n方差-协方差法95% VaR: {parametric_var_95:.4f}")</code></pre>
+            <h3>2. 投资组合VaR计算</h3>
+            <pre><code class="language-python">def portfolio_parametric_var(weights, expected_returns, cov_matrix,
+                           confidence_level=0.95, portfolio_value=1):
+    """投资组合的方差-协方差法VaR"""
+    port_return = np.dot(weights, expected_returns)
+    port_volatility = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+    alpha = norm.ppf(1 - confidence_level)
+    return -(port_return + alpha * port_volatility) * portfolio_value
+# 示例投资组合
+weights = np.array([0.4, 0.3, 0.3])
+expected_returns = np.array([0.01, 0.015, 0.02])
+cov_matrix = np.array([
+    [0.04, 0.002, 0.001],
+    [0.002, 0.09, 0.003],
+    [0.001, 0.003, 0.16]
+])
+port_var = portfolio_parametric_var(weights, expected_returns, cov_matrix)
+print(f"\n投资组合95% VaR: {port_var:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>蒙特卡洛模拟法</h2>
+            <p>蒙特卡洛模拟法通过模拟大量可能的未来情景来计算VaR。</p>
+            <h3>1. 单资产蒙特卡洛VaR</h3>
+            <pre><code class="language-python">def monte_carlo_var(returns, confidence_level=0.95, n_simulations=10000,
+                   n_days=1, random_seed=None):
+    """蒙特卡洛模拟法计算VaR"""
+    if random_seed is not None:
+        np.random.seed(random_seed)
+    mu = returns.mean()
+    sigma = returns.std()
+    # 模拟未来收益率
+    simulated_returns = np.random.normal(mu, sigma, (n_simulations, n_days))
+    portfolio_paths = (1 + simulated_returns).cumprod(axis=1)
+    # 计算最终价值分布
+    final_values = portfolio_paths[:, -1]
+    var = -np.percentile(final_values - 1, 100 * (1 - confidence_level))
+    return var
+mc_var = monte_carlo_var(returns, random_seed=42)
+print(f"\n蒙特卡洛模拟95% VaR: {mc_var:.4f}")</code></pre>
+            <h3>2. 多资产投资组合蒙特卡洛VaR</h3>
+            <pre><code class="language-python">def portfolio_monte_carlo_var(weights, expected_returns, cov_matrix,
+                            confidence_level=0.95, n_simulations=10000,
+                            n_days=1, portfolio_value=1, random_seed=None):
+    """投资组合的蒙特卡洛VaR"""
+    if random_seed is not None:
+        np.random.seed(random_seed)
+    n_assets = len(weights)
+    # 生成相关随机数
+    L = np.linalg.cholesky(cov_matrix)
+    uncorrelated = np.random.normal(size=(n_simulations, n_days, n_assets))
+    correlated = np.dot(uncorrelated, L.T)
+    # 添加漂移项
+    drift = expected_returns - 0.5 * np.diag(cov_matrix)
+    paths = np.exp(drift + correlated).cumprod(axis=1)
+    # 计算组合价值
+    portfolio_paths = np.dot(paths, weights) * portfolio_value
+    final_values = portfolio_paths[:, -1]
+    # 计算VaR
+    var = -np.percentile(final_values - portfolio_value, 100 * (1 - confidence_level))
+    return var
+port_mc_var = portfolio_monte_carlo_var(weights, expected_returns, cov_matrix, random_seed=42)
+print(f"投资组合蒙特卡洛95% VaR: {port_mc_var:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>VaR模型的验证与应用</h2>
+            <p>VaR模型的验证和实际应用中的注意事项。</p>
+            <h3>1. 返回测试(Backtesting)</h3>
+            <pre><code class="language-python">def var_backtest(returns, var_series, confidence_level=0.95):
+    """VaR模型返回测试"""
+    exceptions = returns < -var_series
+    n_exceptions = exceptions.sum()
+    n_observations = len(returns)
+    expected_exceptions = (1 - confidence_level) * n_observations
+    print(f"\n返回测试结果:")
+    print(f"观察期数: {n_observations}")
+    print(f"预期例外数: {expected_exceptions:.1f}")
+    print(f"实际例外数: {n_exceptions}")
+    print(f"例外比例: {n_exceptions/n_observations:.4f}")
+    return exceptions
+# 使用之前计算的滚动VaR进行测试
+exceptions = var_backtest(long_returns[-len(rolling_var):], rolling_var)</code></pre>
+            <h3>2. VaR的优缺点</h3>
+            <pre><code class="language-python"># VaR的优点和缺点总结
+var_pros_cons = {
+    '优点': [
+        '直观易懂的风险度量',
+        '适用于不同资产类别',
+        '便于比较不同投资组合风险',
+        '可用于风险限额管理'
+    ],
+    '缺点': [
+        '不满足次可加性(非一致性风险度量)',
+        '对尾部风险描述不足',
+        '依赖历史数据和分布假设',
+        '不同计算方法结果差异大'
+    ]
+}
+print("\nVaR模型的优缺点:")
+for category, items in var_pros_cons.items():
+    print(f"\n{category}:")
+    for item in items:
+        print(f"- {item}")</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="../../index.html" class="btn">« 返回模块概览</a>
+            <a href="lesson2.html" class="btn">下一课: 条件风险价值(CVaR) »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+    
+    <script>
+    // VaR演示相关变量
+    let currentData = [];
+    let currentDistribution = 'normal';
+    let backtestData = [];
+    let varValues = [];
+    
+    // 生成随机数据
+    function generateRandomData(n, volatility, distribution = 'normal') {
+        const data = [];
+        const vol = volatility / 100;
+        
+        for (let i = 0; i < n; i++) {
+            let value;
+            if (distribution === 'normal') {
+                value = d3.randomNormal(0, vol)();
+            } else {
+                // t分布（更厚尾）
+                value = d3.randomNormal(0, vol)() * Math.sqrt(5/3);
+                if (Math.random() < 0.1) {
+                    value *= 2; // 增加极端值概率
+                }
+            }
+            data.push(value);
+        }
+        return data;
+    }
+    
+    // 计算参数法VaR
+    function calculateParametricVaR(data, confidence) {
+        const mean = d3.mean(data);
+        const std = d3.deviation(data);
+        const z = getZScore(confidence);
+        return -(mean + z * std);
+    }
+    
+    // 计算历史模拟法VaR
+    function calculateHistoricalVaR(data, confidence) {
+        const sorted = [...data].sort((a, b) => a - b);
+        const index = Math.floor((1 - confidence / 100) * sorted.length);
+        return -sorted[index];
+    }
+    
+    // 计算蒙特卡洛VaR
+    function calculateMonteCarloVaR(data, confidence, simulations = 10000) {
+        const mean = d3.mean(data);
+        const std = d3.deviation(data);
+        const simulated = [];
+        
+        for (let i = 0; i < simulations; i++) {
+            simulated.push(d3.randomNormal(mean, std)());
+        }
+        
+        return calculateHistoricalVaR(simulated, confidence);
+    }
+    
+    // 计算CVaR
+    function calculateCVaR(data, confidence) {
+        const sorted = [...data].sort((a, b) => a - b);
+        const cutoff = Math.floor((1 - confidence / 100) * sorted.length);
+        const tailLosses = sorted.slice(0, cutoff);
+        return -d3.mean(tailLosses);
+    }
+    
+    // 获取Z分数
+    function getZScore(confidence) {
+        const p = confidence / 100;
+        // 近似正态分布分位数
+        if (p === 0.95) return 1.645;
+        if (p === 0.99) return 2.326;
+        if (p === 0.975) return 1.96;
+        if (p === 0.90) return 1.282;
+        // 简化近似
+        return Math.sqrt(2) * Math.sqrt(-Math.log(2 * (1 - p)));
+    }
+    
+    // 绘制VaR比较图表
+    function drawVaRComparison() {
+        const container = d3.select('#varComparison');
+        container.selectAll('*').remove();
+        
+        const margin = {top: 20, right: 30, bottom: 40, left: 50};
+        const width = 800 - margin.left - margin.right;
+        const height = 400 - margin.bottom - margin.top;
+        
+        const svg = container.append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.bottom + margin.top);
+            
+        const g = svg.append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+        
+        // 创建直方图
+        const x = d3.scaleLinear()
+            .domain(d3.extent(currentData))
+            .range([0, width]);
+            
+        const histogram = d3.histogram()
+            .value(d => d)
+            .domain(x.domain())
+            .thresholds(x.ticks(30));
+            
+        const bins = histogram(currentData);
+        
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(bins, d => d.length)])
+            .range([height, 0]);
+        
+        // 绘制直方图
+        g.selectAll('.bar')
+            .data(bins)
+            .enter().append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => x(d.x0))
+            .attr('width', d => x(d.x1) - x(d.x0) - 1)
+            .attr('y', d => y(d.length))
+            .attr('height', d => height - y(d.length))
+            .attr('fill', '#69b3a2')
+            .attr('opacity', 0.7);
+        
+        // 计算VaR值
+        const confidence = +document.getElementById('confidenceLevel').value;
+        const parametricVaR = calculateParametricVaR(currentData, confidence);
+        const historicalVaR = calculateHistoricalVaR(currentData, confidence);
+        const monteCarloVaR = calculateMonteCarloVaR(currentData, confidence);
+        
+        // 绘制VaR线
+        const varLines = [
+            {value: parametricVaR, color: '#ff6b6b', label: '参数法'},
+            {value: historicalVaR, color: '#4ecdc4', label: '历史模拟法'},
+            {value: monteCarloVaR, color: '#45b7d1', label: '蒙特卡洛法'}
+        ];
+        
+        varLines.forEach((line, i) => {
+            g.append('line')
+                .attr('x1', x(-line.value))
+                .attr('x2', x(-line.value))
+                .attr('y1', 0)
+                .attr('y2', height)
+                .attr('stroke', line.color)
+                .attr('stroke-width', 3)
+                .attr('stroke-dasharray', '5,5');
+                
+            g.append('text')
+                .attr('x', x(-line.value))
+                .attr('y', -5 + i * 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', line.color)
+                .attr('font-size', '12px')
+                .attr('font-weight', 'bold')
+                .text(`${line.label}: ${(line.value * 100).toFixed(2)}%`);
+        });
+        
+        // 添加坐标轴
+        g.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x).tickFormat(d => `${(d * 100).toFixed(1)}%`));
+            
+        g.append('g')
+            .call(d3.axisLeft(y));
+        
+        // 更新指标显示
+        document.getElementById('parametricVaR').textContent = `${(parametricVaR * 100).toFixed(2)}%`;
+        document.getElementById('historicalVaR').textContent = `${(historicalVaR * 100).toFixed(2)}%`;
+        document.getElementById('monteCarloVaR').textContent = `${(monteCarloVaR * 100).toFixed(2)}%`;
+        
+        const cvar = calculateCVaR(currentData, confidence);
+        document.getElementById('cvar').textContent = `${(cvar * 100).toFixed(2)}%`;
+        document.getElementById('maxLoss').textContent = `${(Math.min(...currentData) * 100).toFixed(2)}%`;
+        document.getElementById('avgReturn').textContent = `${(d3.mean(currentData) * 100).toFixed(2)}%`;
+        document.getElementById('stdDev').textContent = `${(d3.deviation(currentData) * 100).toFixed(2)}%`;
+    }
+    
+    // 绘制回测图表
+    function drawBacktestChart() {
+        const container = d3.select('#backtestChart');
+        container.selectAll('*').remove();
+        
+        if (backtestData.length === 0) {
+            container.append('div')
+                .style('text-align', 'center')
+                .style('padding', '50px')
+                .style('color', '#666')
+                .text('点击"运行回测"开始分析');
+            return;
+        }
+        
+        const margin = {top: 20, right: 30, bottom: 40, left: 50};
+        const width = 800 - margin.left - margin.right;
+        const height = 400 - margin.bottom - margin.top;
+        
+        const svg = container.append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.bottom + margin.top);
+            
+        const g = svg.append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+        
+        const x = d3.scaleLinear()
+            .domain([0, backtestData.length - 1])
+            .range([0, width]);
+            
+        const y = d3.scaleLinear()
+            .domain(d3.extent([...backtestData, ...varValues]))
+            .range([height, 0]);
+        
+        // 绘制收益率线
+        const line = d3.line()
+            .x((d, i) => x(i))
+            .y(d => y(d));
+            
+        g.append('path')
+            .datum(backtestData)
+            .attr('fill', 'none')
+            .attr('stroke', '#69b3a2')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制VaR线
+        g.append('path')
+            .datum(varValues)
+            .attr('fill', 'none')
+            .attr('stroke', '#ff6b6b')
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '5,5')
+            .attr('d', line);
+        
+        // 标记违约点
+        const violations = backtestData.map((d, i) => d < -varValues[i] ? i : null).filter(d => d !== null);
+        
+        g.selectAll('.violation')
+            .data(violations)
+            .enter().append('circle')
+            .attr('class', 'violation')
+            .attr('cx', d => x(d))
+            .attr('cy', d => y(backtestData[d]))
+            .attr('r', 4)
+            .attr('fill', '#e74c3c');
+        
+        // 添加坐标轴
+        g.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+            
+        g.append('g')
+            .call(d3.axisLeft(y).tickFormat(d => `${(d * 100).toFixed(1)}%`));
+        
+        // 添加图例
+        const legend = g.append('g')
+            .attr('transform', `translate(${width - 150}, 20)`);
+            
+        legend.append('line')
+            .attr('x1', 0).attr('x2', 20)
+            .attr('y1', 0).attr('y2', 0)
+            .attr('stroke', '#69b3a2')
+            .attr('stroke-width', 2);
+            
+        legend.append('text')
+            .attr('x', 25).attr('y', 5)
+            .text('实际收益率');
+            
+        legend.append('line')
+            .attr('x1', 0).attr('x2', 20)
+            .attr('y1', 20).attr('y2', 20)
+            .attr('stroke', '#ff6b6b')
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '5,5');
+            
+        legend.append('text')
+            .attr('x', 25).attr('y', 25)
+            .text('VaR阈值');
+            
+        legend.append('circle')
+            .attr('cx', 10).attr('cy', 40)
+            .attr('r', 4)
+            .attr('fill', '#e74c3c');
+            
+        legend.append('text')
+            .attr('x', 25).attr('y', 45)
+            .text('违约点');
+    }
+    
+    // 更新VaR计算
+    function updateVaRCalculation() {
+        const confidence = +document.getElementById('confidenceLevel').value;
+        const dataPoints = +document.getElementById('dataPoints').value;
+        const volatility = +document.getElementById('volatility').value;
+        
+        document.getElementById('confidenceLevelNum').value = confidence;
+        document.getElementById('dataPointsNum').value = dataPoints;
+        document.getElementById('volatilityNum').value = volatility;
+        
+        currentData = generateRandomData(dataPoints, volatility, currentDistribution);
+        drawVaRComparison();
+    }
+    
+    // 生成新数据
+    function generateNewData() {
+        updateVaRCalculation();
+    }
+    
+    // 切换分布
+    function toggleDistribution() {
+        currentDistribution = currentDistribution === 'normal' ? 'heavy-tail' : 'normal';
+        const button = event.target;
+        button.textContent = currentDistribution === 'normal' ? '切换分布 (正态)' : '切换分布 (厚尾)';
+        updateVaRCalculation();
+    }
+    
+    // 运行回测
+    function runBacktest() {
+        const days = +document.getElementById('backtestDays').value;
+        const method = document.getElementById('varMethod').value;
+        const confidence = +document.getElementById('confidenceLevel').value;
+        
+        // 生成回测数据
+        backtestData = generateRandomData(days, 20);
+        varValues = [];
+        
+        // 滚动窗口计算VaR
+        const windowSize = 60;
+        for (let i = windowSize; i < days; i++) {
+            const windowData = backtestData.slice(i - windowSize, i);
+            let var_value;
+            
+            switch(method) {
+                case 'parametric':
+                    var_value = calculateParametricVaR(windowData, confidence);
+                    break;
+                case 'historical':
+                    var_value = calculateHistoricalVaR(windowData, confidence);
+                    break;
+                case 'montecarlo':
+                    var_value = calculateMonteCarloVaR(windowData, confidence);
+                    break;
+            }
+            varValues.push(var_value);
+        }
+        
+        // 计算违约统计
+        const testData = backtestData.slice(windowSize);
+        const violations = testData.filter((d, i) => d < -varValues[i]).length;
+        const expectedViolations = Math.round(testData.length * (1 - confidence / 100));
+        const violationRate = (violations / testData.length * 100);
+        
+        // Kupiec检验
+        const n = testData.length;
+        const x = violations;
+        const p = (1 - confidence / 100);
+        const lr = 2 * (x * Math.log(x / (n * p)) + (n - x) * Math.log((n - x) / (n * (1 - p))));
+        const pValue = 1 - jStat.chisquare.cdf(lr, 1); // 简化计算
+        
+        // 更新显示
+        document.getElementById('violationRate').textContent = `${violationRate.toFixed(2)}%`;
+        document.getElementById('expectedViolations').textContent = expectedViolations;
+        document.getElementById('actualViolations').textContent = violations;
+        document.getElementById('kupiecTest').textContent = isNaN(pValue) ? '--' : pValue.toFixed(4);
+        
+        drawBacktestChart();
+    }
+    
+    // 重置回测
+    function resetBacktest() {
+        backtestData = [];
+        varValues = [];
+        document.getElementById('violationRate').textContent = '--';
+        document.getElementById('expectedViolations').textContent = '--';
+        document.getElementById('actualViolations').textContent = '--';
+        document.getElementById('kupiecTest').textContent = '--';
+        drawBacktestChart();
+    }
+    
+    // 更新回测
+    function updateBacktest() {
+        document.getElementById('backtestDaysNum').value = document.getElementById('backtestDays').value;
+        if (backtestData.length > 0) {
+            runBacktest();
+        }
+    }
+    
+    // 简化的jStat卡方分布函数
+    const jStat = {
+        chisquare: {
+            cdf: function(x, df) {
+                if (x <= 0) return 0;
+                if (df === 1) {
+                    return 2 * (0.5 - 0.5 * Math.exp(-x/2));
+                }
+                // 简化近似
+                return Math.min(1, x / (df + 2));
+            }
+        }
+    };
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        updateVaRCalculation();
+        drawBacktestChart();
+    });
+    </script>
+</body>
+</html>

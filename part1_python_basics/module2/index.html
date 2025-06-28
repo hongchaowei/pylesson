@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块2: 数据结构与控制流 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .hero-section .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .module-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature-item {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .feature-item i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .course-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .course-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .course-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        .course-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .course-card p {
+            color: #6c757d;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .course-card ul {
+            margin-bottom: 25px;
+        }
+        .course-card ul li {
+            color: #495057;
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+        .course-card ul li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+        .btn-large {
+            padding: 15px 35px;
+            font-size: 1.1rem;
+        }
+        .project-card, .module-exercises {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .project-card h3, .module-exercises h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        .project-card .btn, .module-exercises .btn {
+            background: white;
+            color: #f5576c;
+        }
+        .project-card .btn:hover, .module-exercises .btn:hover {
+            background: #f8f9fa;
+            color: #f5576c;
+        }
+        .resources-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .resource {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #667eea;
+        }
+        .resource h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .resource h3::before {
+            content: '📚';
+            font-size: 1.2rem;
+        }
+        .resource:nth-child(2) h3::before {
+            content: '🌐';
+        }
+        .resource:nth-child(3) h3::before {
+            content: '🛠️';
+        }
+        .module-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px 0 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .section-header h2 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            .course-cards {
+                grid-template-columns: 1fr;
+            }
+            .module-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<div class="hero-section">
+    <div class="container">
+        <div class="module-badge">第一部分 - Python基础</div>
+        <h1><i class="fas fa-database"></i> 模块2: 数据结构与控制流</h1>
+        <p class="subtitle">掌握Python核心数据结构，学会控制程序流程</p>
+    </div>
+</div>
+
+<main class="container">
+        <section class="module-intro">
+            <div class="section-header">
+                <h2>模块概述</h2>
+            </div>
+            <p>在本模块中，您将学习Python的核心数据结构和控制流语句。这些知识对于处理金融数据和编写复杂的金融应用程序至关重要。通过学习列表、元组、字典等数据结构，以及条件语句和循环语句，您将能够更有效地组织和处理数据。</p>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="fas fa-layer-group"></i>
+                    <h4>数据组织</h4>
+                    <p>金融数据通常具有复杂的结构，需要合适的数据结构来组织和管理</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-cogs"></i>
+                    <h4>数据处理</h4>
+                    <p>控制流语句让您能够根据不同条件处理数据，实现复杂的业务逻辑</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <h4>效率提升</h4>
+                    <p>合适的数据结构可以提高程序的执行效率</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-code"></i>
+                    <h4>代码可读性</h4>
+                    <p>良好的数据结构和控制流组织可以提高代码的可读性和可维护性</p>
+                </div>
+            </div>
+        </section>
+        <section class="module-content">
+            <div class="section-header">
+                <h2><i class="fas fa-book"></i> 课程内容</h2>
+            </div>
+            <div class="course-cards">
+                <div class="course-card">
+                    <h3><i class="fas fa-list"></i> 课程1: 列表与元组</h3>
+                    <p>学习Python中最基本的序列类型，掌握它们的操作和应用。</p>
+                    <ul>
+                        <li>列表的创建和基本操作</li>
+                        <li>列表切片和索引</li>
+                        <li>列表方法和常用操作</li>
+                        <li>元组的特点和使用场景</li>
+                    </ul>
+                    <a href="lesson1.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-key"></i> 课程2: 字典与集合</h3>
+                    <p>学习Python中的映射类型和无序集合，理解它们在数据处理中的应用。</p>
+                    <ul>
+                        <li>字典的创建和访问</li>
+                        <li>字典方法和操作</li>
+                        <li>集合的基本概念</li>
+                        <li>集合运算和应用</li>
+                    </ul>
+                    <a href="lesson2.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-code-branch"></i> 课程3: 控制流语句</h3>
+                    <p>学习如何使用条件语句和循环语句控制程序流程，实现复杂的逻辑。</p>
+                    <ul>
+                        <li>条件语句（if, elif, else）</li>
+                        <li>for循环和while循环</li>
+                        <li>循环控制语句（break, continue）</li>
+                        <li>金融应用中的控制流</li>
+                    </ul>
+                    <a href="lesson3.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-sync-alt"></i> 课程4: 推导式和生成器</h3>
+                    <p>掌握Python中处理大量数据的高效工具，提高代码效率和可读性。</p>
+                    <ul>
+                        <li>列表、字典和集合推导式</li>
+                        <li>嵌套推导式和条件推导式</li>
+                        <li>生成器表达式和生成器函数</li>
+                        <li>在金融数据处理中的应用</li>
+                    </ul>
+                    <a href="lesson4.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+            </div>
+        </section>
+        <section class="module-project">
+            <div class="section-header">
+                <h2><i class="fas fa-project-diagram"></i> 模块项目</h2>
+            </div>
+            <div class="project-card">
+                <h3><i class="fas fa-chart-line"></i> 股票数据分析工具</h3>
+                <p>在本模块的项目中，您将开发一个简单的股票数据分析工具。这个工具将能够：</p>
+                <ul>
+                    <li>读取和存储股票价格数据</li>
+                    <li>计算基本的统计指标（如平均价格、最高价、最低价等）</li>
+                    <li>分析价格趋势</li>
+                    <li>生成简单的分析报告</li>
+                </ul>
+                <p>通过这个项目，您将应用本模块学到的数据结构和控制流知识，创建一个实用的金融分析工具。</p>
+                <a href="project.html" class="btn btn-large"><i class="fas fa-code"></i> 查看项目详情</a>
+            </div>
+        </section>
+        <section class="module-exercises">
+            <div class="section-header">
+                <h2><i class="fas fa-dumbbell"></i> 练习题</h2>
+            </div>
+            <p>为了帮助您巩固所学知识，我们提供了一系列练习题，涵盖了本模块的所有重要概念。这些练习题从基础到进阶，包括实际的金融应用场景，帮助您将理论知识应用到实践中。</p>
+            <a href="exercises.html" class="btn btn-large"><i class="fas fa-tasks"></i> 查看练习题</a>
+        </section>
+        <section class="module-resources">
+            <div class="section-header">
+                <h2><i class="fas fa-book-open"></i> 学习资源</h2>
+            </div>
+            <div class="resources-list">
+                <div class="resource">
+                    <h3>推荐阅读</h3>
+                    <ul>
+                        <li>《Python数据结构与算法》 - Benjamin Baka</li>
+                        <li>《Python Cookbook》第2章和第3章</li>
+                        <li>《Fluent Python》第2部分：数据结构</li>
+                    </ul>
+                </div>
+                <div class="resource">
+                    <h3>在线资源</h3>
+                    <ul>
+                        <li><a href="https://docs.python.org/zh-cn/3/tutorial/datastructures.html" target="_blank">Python官方教程 - 数据结构</a></li>
+                        <li><a href="https://realpython.com/python-data-structures/" target="_blank">Real Python - Python数据结构指南</a></li>
+                        <li><a href="https://www.geeksforgeeks.org/python-data-structures/" target="_blank">GeeksforGeeks - Python数据结构</a></li>
+                    </ul>
+                </div>
+                <div class="resource">
+                    <h3>练习平台</h3>
+                    <ul>
+                        <li><a href="https://leetcode.com/tag/data-structures/" target="_blank">LeetCode - 数据结构题目</a></li>
+                        <li><a href="https://www.hackerrank.com/domains/python" target="_blank">HackerRank - Python练习</a></li>
+                        <li><a href="https://www.codewars.com/" target="_blank">Codewars - Python Kata</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <div class="module-navigation">
+            <div>
+                <a href="../../syllabus.html" class="btn"><i class="fas fa-arrow-left"></i> 返回课程大纲</a>
+            </div>
+            <div>
+                <a href="../module3/index.html" class="btn">进入模块3 <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

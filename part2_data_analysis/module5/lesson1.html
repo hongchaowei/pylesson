@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程1: NumPy基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>什么是NumPy？</h2>
+            <p>NumPy（Numerical Python）是Python中用于科学计算的基础包。它提供了高性能的多维数组对象和工具，是金融数据分析的重要基础。NumPy数组比Python原生列表更高效，支持向量化操作，能够处理大规模数据集。</p>
+            <h3>NumPy的主要特点</h3>
+            <ul>
+                <li><strong>多维数组对象</strong>：ndarray，高效存储和操作大型数据集</li>
+                <li><strong>广播功能</strong>：允许不同形状数组之间的算术运算</li>
+                <li><strong>数学函数</strong>：提供丰富的数学函数，支持统计和线性代数运算</li>
+                <li><strong>性能优化</strong>：底层用C实现，运算速度快</li>
+                <li><strong>与其他库集成</strong>：Pandas、SciPy等金融分析库都基于NumPy</li>
+            </ul>
+            <h3>NumPy在金融中的应用</h3>
+            <ul>
+                <li>价格序列分析</li>
+                <li>收益率计算</li>
+                <li>风险计算</li>
+                <li>量化建模</li>
+                <li>投资组合优化</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>安装NumPy</h2>
+            <p>在开始使用NumPy之前，我们需要先安装它。NumPy可以通过pip或conda安装。</p>
+            <h3>使用pip安装</h3>
+            <pre><code>pip install numpy</code></pre>
+            <h3>使用conda安装</h3>
+            <pre><code>conda install numpy</code></pre>
+            <h3>验证安装</h3>
+            <p>在Python交互式环境中运行以下代码验证NumPy是否安装成功：</p>
+            <pre><code>import numpy as np
+print(np.__version__)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>创建NumPy数组</h2>
+            <p>NumPy的核心是ndarray（N-dimensional array）对象。让我们学习如何创建NumPy数组。</p>
+            <h3>从Python列表创建</h3>
+            <pre><code>import numpy as np
+# 创建一维数组
+arr1 = np.array([1, 2, 3, 4, 5])
+print(arr1)
+# 创建二维数组
+arr2 = np.array([[1, 2, 3], [4, 5, 6]])
+print(arr2)</code></pre>
+            <h3>使用内置函数创建</h3>
+            <pre><code># 创建全零数组
+zeros = np.zeros((3, 4))
+print(zeros)
+# 创建全一数组
+ones = np.ones((2, 3))
+print(ones)
+# 创建单位矩阵
+eye = np.eye(3)
+print(eye)
+# 创建等差数列
+range_arr = np.arange(0, 10, 2)  # 从0开始，到10结束（不包括10），步长为2
+print(range_arr)
+# 创建等间隔数组
+linspace_arr = np.linspace(0, 1, 5)  # 从0到1，均匀分成5个点
+print(linspace_arr)</code></pre>
+            <h3>创建随机数组</h3>
+            <pre><code># 创建0到1之间的随机数
+random_arr = np.random.random((2, 3))
+print(random_arr)
+# 创建标准正态分布随机数
+normal_arr = np.random.randn(4)
+print(normal_arr)
+# 创建指定范围内的随机整数
+randint_arr = np.random.randint(0, 10, size=(3, 3))
+print(randint_arr)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>数组属性</h2>
+            <p>NumPy数组有许多有用的属性，可以帮助我们了解数组的特性。</p>
+            <pre><code>arr = np.array([[1, 2, 3], [4, 5, 6]])
+# 数组形状
+print("形状:", arr.shape)  # 输出 (2, 3)
+# 数组维度
+print("维度:", arr.ndim)  # 输出 2
+# 数组元素总数
+print("元素总数:", arr.size)  # 输出 6
+# 数组数据类型
+print("数据类型:", arr.dtype)  # 输出 int32或int64</code></pre>
+            <h3>改变数组形状</h3>
+            <pre><code># reshape方法不会改变原数组，而是返回新视图
+reshaped = arr.reshape(3, 2)
+print(reshaped)
+# 使用resize方法会改变原数组
+arr.resize(3, 2)
+print(arr)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>数组索引和切片</h2>
+            <p>NumPy数组的索引和切片与Python列表类似，但功能更强大。</p>
+            <h3>一维数组索引</h3>
+            <pre><code>arr = np.array([10, 20, 30, 40, 50])
+# 获取单个元素
+print(arr[0])  # 输出 10
+print(arr[-1])  # 输出 50
+# 切片
+print(arr[1:4])  # 输出 [20, 30, 40]
+print(arr[:3])  # 输出 [10, 20, 30]
+print(arr[2:])  # 输出 [30, 40, 50]
+print(arr[::2])  # 输出 [10, 30, 50]</code></pre>
+            <h3>多维数组索引</h3>
+            <pre><code>arr = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+# 获取单个元素
+print(arr[0, 1])  # 输出 2
+print(arr[2, 0])  # 输出 7
+# 切片
+print(arr[:2, 1:])  # 输出 [[2, 3], [5, 6]]
+print(arr[:, 0])  # 输出 [1, 4, 7] (第一列)
+print(arr[1, :])  # 输出 [4, 5, 6] (第二行)</code></pre>
+            <h3>布尔索引</h3>
+            <pre><code>arr = np.array([1, 2, 3, 4, 5, 6])
+# 创建布尔数组
+mask = arr > 3
+print(mask)  # 输出 [False, False, False, True, True, True]
+# 使用布尔数组索引
+print(arr[mask])  # 输出 [4, 5, 6]</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>数组运算</h2>
+            <p>NumPy支持各种数组运算，包括算术运算、统计运算和线性代数运算。</p>
+            <h3>基本算术运算</h3>
+            <pre><code>a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+# 加法
+print(a + b)  # 输出 [5, 7, 9]
+# 减法
+print(b - a)  # 输出 [3, 3, 3]
+# 乘法（元素级）
+print(a * b)  # 输出 [4, 10, 18]
+# 除法（元素级）
+print(b / a)  # 输出 [4., 2.5, 2.]
+# 幂运算
+print(a ** 2)  # 输出 [1, 4, 9]</code></pre>
+            <h3>统计运算</h3>
+            <pre><code>arr = np.array([[1, 2, 3], [4, 5, 6]])
+# 求和
+print(np.sum(arr))  # 输出 21
+print(np.sum(arr, axis=0))  # 按列求和，输出 [5, 7, 9]
+print(np.sum(arr, axis=1))  # 按行求和，输出 [6, 15]
+# 平均值
+print(np.mean(arr))  # 输出 3.5
+# 标准差
+print(np.std(arr))  # 输出 1.707825127659933
+# 最大值和最小值
+print(np.max(arr))  # 输出 6
+print(np.min(arr))  # 输出 1</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用示例</h2>
+            <p>让我们看一个简单的金融应用示例，计算股票收益率。</p>
+            <pre><code>import numpy as np
+# 模拟股票价格数据（每日收盘价）
+prices = np.array([100, 102, 101, 105, 107, 106, 110, 108, 112, 115])
+# 计算简单收益率
+returns = (prices[1:] - prices[:-1]) / prices[:-1]
+print("每日收益率:", returns)
+# 计算累积收益率
+cumulative_return = np.prod(1 + returns) - 1
+print("累积收益率:", cumulative_return)
+# 计算平均收益率和波动率
+mean_return = np.mean(returns)
+std_return = np.std(returns)
+print("平均收益率:", mean_return)
+print("收益率波动率:", std_return)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>了解了NumPy的基本概念和在金融中的应用</li>
+                <li>学习了如何创建NumPy数组</li>
+                <li>探索了数组的属性和形状操作</li>
+                <li>掌握了数组索引和切片</li>
+                <li>学习了基本的数组运算</li>
+                <li>应用NumPy计算了股票收益率</li>
+            </ul>
+            <p>这些基础知识将为您后续的金融数据分析打下坚实基础。在下一课中，我们将深入学习NumPy的广播机制和更高级的数组操作。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请确保您已经：</p>
+                <ul>
+                    <li>成功安装了NumPy</li>
+                    <li>尝试运行了本课的所有示例代码</li>
+                    <li>理解了数组的基本操作</li>
+                </ul>
+                <a href="lesson2.html" class="btn btn-large">继续学习：数组运算与广播</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="../../index.html" class="btn">« 返回模块5概览</a>
+            </div>
+            <div>
+                <a href="lesson2.html" class="btn">下一课：数组运算与广播 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

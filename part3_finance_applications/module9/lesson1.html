@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第1课: 金融数据API介绍 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="../../../js/financial-charts.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    
+    /* 概念解释样式 */
+    .concept-explanation {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .concept-explanation::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #ffd700, #ff6b6b, #4ecdc4, #45b7d1);
+    }
+    
+    .concept-explanation h4 {
+        margin: 0 0 15px 0;
+        font-size: 1.2em;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .concept-explanation p {
+        margin: 10px 0;
+        line-height: 1.6;
+        font-size: 0.95em;
+    }
+    
+    .concept-explanation strong {
+        color: #ffd700;
+        font-weight: bold;
+    }
+    
+    /* 公式解释样式 */
+    .formula-explanation {
+        background-color: #f8f9ff;
+        color: #4a5568;
+        padding: 8px 12px;
+        border-left: 3px solid #667eea;
+        margin: 5px 0 15px 20px;
+        font-style: italic;
+        font-size: 0.9em;
+        border-radius: 0 6px 6px 0;
+    }
+    
+    /* 数学公式容器增强 */
+    .math-formula {
+        background: #fafbfc;
+        border: 1px solid #e1e8ed;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        position: relative;
+    }
+    
+    .math-formula::before {
+        content: '📐';
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.2em;
+        opacity: 0.6;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .concept-explanation {
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .concept-explanation h4 {
+            font-size: 1.1em;
+        }
+        
+        .concept-explanation p {
+            font-size: 0.9em;
+        }
+        
+        .formula-explanation {
+            margin-left: 10px;
+            font-size: 0.85em;
+        }
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="theory-section">
+            <h2>📚 数学理论基础</h2>
+            <div class="theory-content">
+                <h3>1. 金融时间序列的数学特征</h3>
+                <div class="concept-explanation">
+                    <h4>💡 为什么需要两种收益率定义？</h4>
+                    <p>简单收益率更直观（涨了10%就是0.1），但在复利计算和统计分析中有局限性。对数收益率具有时间可加性，更适合数学建模。</p>
+                    <p><strong>实际应用：</strong>简单收益率用于日常交流（"股票涨了5%"），对数收益率用于学术研究和风险模型。</p>
+                    <p><strong>数学优势：</strong>对数收益率近似正态分布，便于统计分析；且具有时间可加性，便于计算长期收益。</p>
+                </div>
+                
+                <div class="math-formula">
+                    <div class="concept-explanation">
+                        <h4>🔍 简单收益率推导</h4>
+                        <p><strong>经济含义：</strong>投资回报率，表示每投入1元能获得多少收益</p>
+                        <p><strong>推导思路：</strong>收益 = (期末价值 - 期初价值) / 期初价值</p>
+                    </div>
+                    <p><strong>收益率的定义：</strong></p>
+                    \[ R_t = \frac{P_t - P_{t-1}}{P_{t-1}} = \frac{P_t}{P_{t-1}} - 1 \]
+                    <div class="formula-explanation">
+                        <p><strong>公式含义：</strong></p>
+                        <ul>
+                            <li>P_t：第t期的价格（期末价格）</li>
+                            <li>P_{t-1}：第t-1期的价格（期初价格）</li>
+                            <li>R_t：第t期的简单收益率</li>
+                        </ul>
+                        <p><strong>计算示例：</strong></p>
+                        <pre>
+假设某股票：
+昨日收盘价 P_{t-1} = 100元
+今日收盘价 P_t = 105元
+
+简单收益率 R_t = (105 - 100) / 100 = 0.05 = 5%
+
+解释：投资100元，今天获得5元收益，收益率为5%
+                        </pre>
+                        <p><strong>特性分析：</strong></p>
+                        <ul>
+                            <li>取值范围：R_t ∈ (-1, +∞)</li>
+                            <li>-1表示血本无归，0表示无涨跌，正值表示盈利</li>
+                            <li>不具有时间可加性：R_{1,3} ≠ R_1 + R_2 + R_3</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="concept-explanation">
+                        <h4>🔍 对数收益率推导</h4>
+                        <p><strong>数学动机：</strong>解决简单收益率的时间可加性问题</p>
+                        <p><strong>推导过程：</strong>从连续复利的角度出发</p>
+                    </div>
+                    <p><strong>对数收益率：</strong></p>
+                    \[ r_t = \ln\left(\frac{P_t}{P_{t-1}}\right) = \ln(P_t) - \ln(P_{t-1}) \]
+                    <div class="formula-explanation">
+                        <p><strong>推导过程：</strong></p>
+                        <pre>
+设连续复利率为r，则：P_t = P_{t-1} × e^r
+两边取对数：ln(P_t) = ln(P_{t-1}) + r
+因此：r = ln(P_t) - ln(P_{t-1}) = ln(P_t/P_{t-1})
+                        </pre>
+                        <p><strong>计算示例：</strong></p>
+                        <pre>
+使用同样的例子：
+P_{t-1} = 100元，P_t = 105元
+
+对数收益率 r_t = ln(105/100) = ln(1.05) ≈ 0.04879 ≈ 4.879%
+
+注意：对数收益率(4.879%)略小于简单收益率(5%)
+                        </pre>
+                        <p><strong>时间可加性验证：</strong></p>
+                        <pre>
+假设三天的价格变化：100 → 105 → 110 → 115
+
+方法1：直接计算三天总收益
+r_{1,3} = ln(115/100) = ln(1.15) ≈ 0.1398
+
+方法2：分别计算每天收益再相加
+r_1 = ln(105/100) ≈ 0.04879
+r_2 = ln(110/105) ≈ 0.04652  
+r_3 = ln(115/110) ≈ 0.04445
+r_1 + r_2 + r_3 ≈ 0.1398
+
+结论：r_{1,3} = r_1 + r_2 + r_3 ✓ (时间可加性成立)
+                        </pre>
+                        <p><strong>统计优势：</strong></p>
+                        <ul>
+                            <li>近似正态分布：便于使用经典统计方法</li>
+                            <li>对称性：上涨10%和下跌10%的对数收益率大小相等符号相反</li>
+                            <li>时间可加性：便于计算长期收益和复合增长率</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="concept-explanation">
+                        <h4>🔍 两种收益率的关系</h4>
+                        <p><strong>数学关系：</strong>r_t = ln(1 + R_t)，当R_t较小时，r_t ≈ R_t</p>
+                    </div>
+                    <div class="formula-explanation">
+                        <p><strong>近似关系验证：</strong></p>
+                        <pre>
+当收益率较小时的泰勒展开：
+ln(1 + R_t) ≈ R_t - R_t²/2 + R_t³/3 - ...
+
+当|R_t| < 0.1时，高阶项可忽略：ln(1 + R_t) ≈ R_t
+
+示例验证：
+R_t = 0.05 → r_t = ln(1.05) = 0.04879 ≈ 0.05 ✓
+R_t = 0.20 → r_t = ln(1.20) = 0.1823 ≠ 0.20 ✗
+
+结论：小幅波动时两者近似相等，大幅波动时差异明显
+                        </pre>
+                    </div>
+                    <p>其中 \(P_t\) 是时刻 \(t\) 的价格。</p>
+                </div>
+                <h3>2. 时间序列的统计性质</h3>
+                <div class="concept-explanation">
+                    <h4>💡 为什么需要平稳性条件？</h4>
+                    <p>在金融市场中，我们希望找到一些稳定的统计规律来预测未来。如果股价的统计特性（如平均值、波动性）随时间剧烈变化，那么基于历史数据的预测就会失效。平稳性条件确保了时间序列的统计特性保持相对稳定，这是进行可靠统计分析的基础。</p>
+                    <p><strong>生活化理解：</strong>就像测量一个人的身高，如果这个人每天的身高都在剧烈变化，那么昨天的测量结果对今天就没有参考价值。平稳性确保了"测量标准"的一致性。</p>
+                </div>
+                <div class="math-formula">
+                    <p><strong>平稳性：</strong></p>
+                    <p>时间序列 \(\{X_t\}\) 是弱平稳的，如果：</p>
+                    <p>\[ E[X_t] = \mu \text{ (常数)} \]</p>
+                    <p class="formula-explanation">期望值恒定：股价的平均水平不随时间变化</p>
+                    <p>\[ \text{Var}(X_t) = \sigma^2 \text{ (常数)} \]</p>
+                    <p class="formula-explanation">方差恒定：股价的波动程度保持稳定</p>
+                    <p>\[ \text{Cov}(X_t, X_{t+h}) = \gamma(h) \text{ (只依赖于滞后期h)} \]</p>
+                    <p class="formula-explanation">协方差只依赖时间间隔：今天和未来某天的关联性只取决于间隔天数，而不是具体日期</p>
+                </div>
+                <h3>3. 自相关函数</h3>
+                <div class="concept-explanation">
+                    <h4>💡 为什么需要自相关函数？</h4>
+                    <p>在股票投资中，我们经常听到"趋势延续"或"均值回归"等概念。自相关函数帮助我们量化这种现象：如果今天股价上涨，明天上涨的概率有多大？这种"记忆效应"对于制定交易策略至关重要。</p>
+                    <p><strong>实际意义：</strong>自相关系数接近1表示强趋势性（涨了还会涨），接近0表示随机游走（今天的涨跌对明天没影响），接近-1表示反转性（涨了就会跌）。</p>
+                </div>
+                <div class="math-formula">
+                    <div class="concept-explanation">
+                        <h4>🔍 自协方差函数推导</h4>
+                        <p><strong>经济含义：</strong>衡量时间序列在不同时点的线性相关程度</p>
+                        <p><strong>推导思路：</strong>从协方差的定义出发，考虑时间滞后</p>
+                    </div>
+                    <p><strong>自协方差函数：</strong></p>
+                    \[ \gamma(h) = \text{Cov}(X_t, X_{t+h}) = E[(X_t - \mu)(X_{t+h} - \mu)] \]
+                    <div class="formula-explanation">
+                        <p><strong>推导过程：</strong></p>
+                        <pre>
+协方差的一般定义：Cov(X,Y) = E[(X-E[X])(Y-E[Y])]
+
+应用到时间序列：
+- X = X_t（当前时刻的观测值）
+- Y = X_{t+h}（h期后的观测值）
+- μ = E[X_t] = E[X_{t+h}]（平稳序列的均值不变）
+
+因此：γ(h) = E[(X_t - μ)(X_{t+h} - μ)]
+                        </pre>
+                        <p><strong>计算示例：</strong></p>
+                        <pre>
+假设股票日收益率序列：[0.02, -0.01, 0.03, -0.02, 0.01]
+计算滞后1期的自协方差γ(1)：
+
+步骤1：计算均值
+μ = (0.02 - 0.01 + 0.03 - 0.02 + 0.01) / 5 = 0.006
+
+步骤2：构造配对数据
+(X_t, X_{t+1})配对：
+(X_1, X_2) = (0.02, -0.01)
+(X_2, X_3) = (-0.01, 0.03)
+(X_3, X_4) = (0.03, -0.02)
+(X_4, X_5) = (-0.02, 0.01)
+
+步骤3：计算协方差
+γ(1) = E[(X_t - 0.006)(X_{t+1} - 0.006)]
+     = [(0.02-0.006)(-0.01-0.006) + (-0.01-0.006)(0.03-0.006) 
+        + (0.03-0.006)(-0.02-0.006) + (-0.02-0.006)(0.01-0.006)] / 4
+     = [(0.014)(-0.016) + (-0.016)(0.024) 
+        + (0.024)(-0.026) + (-0.026)(0.004)] / 4
+     = [-0.000224 - 0.000384 - 0.000624 - 0.000104] / 4
+     = -0.000336
+                        </pre>
+                        <p><strong>性质分析：</strong></p>
+                        <ul>
+                            <li>γ(0) = Var(X_t)：零滞后就是方差</li>
+                            <li>γ(h) = γ(-h)：自协方差函数是偶函数</li>
+                            <li>|γ(h)| ≤ γ(0)：任何滞后的协方差都不超过方差</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="concept-explanation">
+                        <h4>🔍 自相关函数推导</h4>
+                        <p><strong>标准化动机：</strong>消除量纲影响，便于不同序列间比较</p>
+                        <p><strong>推导思路：</strong>用方差对协方差进行标准化</p>
+                    </div>
+                    <p><strong>自相关函数：</strong></p>
+                    \[ \rho(h) = \frac{\gamma(h)}{\gamma(0)} = \frac{\text{Cov}(X_t, X_{t+h})}{\text{Var}(X_t)} \]
+                    <div class="formula-explanation">
+                        <p><strong>推导过程：</strong></p>
+                        <pre>
+相关系数的一般定义：ρ(X,Y) = Cov(X,Y) / [√Var(X) × √Var(Y)]
+
+对于平稳时间序列：Var(X_t) = Var(X_{t+h}) = γ(0)
+
+因此：ρ(h) = γ(h) / [√γ(0) × √γ(0)] = γ(h) / γ(0)
+                        </pre>
+                        <p><strong>计算示例：</strong></p>
+                        <pre>
+继续上面的例子：
+
+步骤1：计算方差γ(0)
+γ(0) = E[(X_t - μ)²]
+     = [(0.02-0.006)² + (-0.01-0.006)² + (0.03-0.006)² 
+        + (-0.02-0.006)² + (0.01-0.006)²] / 5
+     = [0.000196 + 0.000256 + 0.000576 + 0.000676 + 0.000016] / 5
+     = 0.000344
+
+步骤2：计算自相关系数
+ρ(1) = γ(1) / γ(0) = -0.000336 / 0.000344 ≈ -0.977
+
+解释：滞后1期的自相关系数为-0.977，表明存在强烈的负相关
+      即今天涨明天很可能跌，呈现反转模式
+                        </pre>
+                        <p><strong>实际应用示例：</strong></p>
+                        <pre>
+不同ρ(1)值的金融含义：
+
+ρ(1) ≈ 0.8：强正相关，趋势持续性强
+→ 适合趋势跟踪策略
+
+ρ(1) ≈ 0：无相关，随机游走特征
+→ 技术分析效果有限
+
+ρ(1) ≈ -0.5：负相关，均值回复特征
+→ 适合反转交易策略
+                        </pre>
+                        <p><strong>统计性质：</strong></p>
+                        <ul>
+                            <li>取值范围：ρ(h) ∈ [-1, 1]</li>
+                            <li>ρ(0) = 1：自己与自己完全相关</li>
+                            <li>ρ(h) = ρ(-h)：自相关函数是偶函数</li>
+                            <li>白噪声：ρ(h) = 0 for h ≠ 0</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="concept-explanation">
+                        <h4>🔍 自相关函数的金融解释</h4>
+                        <p><strong>技术分析视角：</strong>自相关反映价格动量和反转特征</p>
+                    </div>
+                    <div class="formula-explanation">
+                        <p><strong>金融市场中的典型模式：</strong></p>
+                        <pre>
+1. 动量效应（ρ(h) > 0）：
+   - 短期：价格惯性，涨了还会涨
+   - 原因：投资者情绪、资金流入惯性
+   - 策略：趋势跟踪
+
+2. 反转效应（ρ(h) < 0）：
+   - 中期：价格均值回复
+   - 原因：套利资金、基本面修正
+   - 策略：均值回复交易
+
+3. 随机游走（ρ(h) ≈ 0）：
+   - 长期：价格变化不可预测
+   - 原因：市场有效性
+   - 策略：被动投资
+                        </pre>
+                    </div>
+                </div>
+                <h3>4. 波动率聚集性</h3>
+                <div class="concept-explanation">
+                    <h4>💡 为什么需要波动率聚集性模型？</h4>
+                    <p>观察股市你会发现一个有趣现象：平静的日子通常连续出现，而动荡的日子也会扎堆出现。这就是"波动率聚集性"——大波动后面往往跟着大波动，小波动后面往往跟着小波动。</p>
+                    <p><strong>生活化例子：</strong>就像天气一样，暴风雨天气往往持续几天，而晴朗天气也会连续出现。股市的"情绪"也有类似的持续性。</p>
+                    <p><strong>实际应用：</strong>这个特性对风险管理极其重要，因为它告诉我们风险不是恒定的，而是会"传染"和"聚集"的。</p>
+                </div>
+                <div class="concept-explanation">
+                    <h4>💡 为什么需要GARCH模型？</h4>
+                    <p>传统模型假设方差恒定，但金融市场存在"波动率聚集"现象——大波动后面跟着大波动，小波动后面跟着小波动。</p>
+                    <p><strong>现实观察：</strong>股市暴跌后往往伴随高波动期，牛市中波动相对平稳。</p>
+                    <p><strong>模型价值：</strong>更准确的风险度量、期权定价、投资组合管理。</p>
+                </div>
+                
+                <div class="math-formula">
+                    <div class="concept-explanation">
+                        <h4>🔍 条件异方差概念</h4>
+                        <p><strong>核心思想：</strong>方差不是常数，而是依赖于历史信息</p>
+                        <p><strong>数学表达：</strong>给定历史信息下的条件方差</p>
+                    </div>
+                    <p><strong>条件异方差：</strong></p>
+                    \[ \text{Var}(r_t | \mathcal{F}_{t-1}) = \sigma_t^2 \]
+                    <div class="formula-explanation">
+                        <p><strong>公式含义：</strong></p>
+                        <ul>
+                            <li>r_t：第t期的收益率</li>
+                            <li>𝒻_{t-1}：截至t-1期的所有历史信息</li>
+                            <li>σ_t²：第t期的条件方差（时变）</li>
+                        </ul>
+                        <p><strong>与传统模型对比：</strong></p>
+                        <pre>
+传统模型（同方差）：
+Var(r_t) = σ² （常数）
+
+条件异方差模型：
+Var(r_t | 历史信息) = σ_t² （时变）
+
+优势：能够捕捉波动率的时间变化特征
+                        </pre>
+                    </div>
+                    
+                    <div class="concept-explanation">
+                        <h4>🔍 GARCH(1,1)模型推导</h4>
+                        <p><strong>建模思路：</strong>当前波动率依赖于前期冲击和前期波动率</p>
+                        <p><strong>经济直觉：</strong>市场有记忆，昨天的大涨大跌影响今天的波动</p>
+                    </div>
+                    <p><strong>GARCH(1,1)模型：</strong></p>
+                    \[ \sigma_t^2 = \omega + \alpha r_{t-1}^2 + \beta \sigma_{t-1}^2 \]
+                    <div class="formula-explanation">
+                        <p><strong>推导过程：</strong></p>
+                        <pre>
+步骤1：观察波动率聚集现象
+- 大的价格变动（|r_{t-1}|大）往往伴随高波动期
+- 波动率本身具有持续性
+
+步骤2：构建数学模型
+当前方差 = 基础方差 + 冲击效应 + 持续效应
+σ_t² = ω + α×(前期冲击)² + β×(前期方差)
+
+步骤3：确定具体形式
+- 前期冲击用r_{t-1}²衡量（收益率平方反映冲击大小）
+- 前期方差用σ_{t-1}²表示
+- 得到：σ_t² = ω + αr_{t-1}² + βσ_{t-1}²
+                        </pre>
+                        <p><strong>参数经济含义：</strong></p>
+                        <ul>
+                            <li><strong>ω > 0：</strong>长期平均方差，市场基础波动水平</li>
+                            <li><strong>α ≥ 0：</strong>冲击系数，衡量新信息对波动率的影响</li>
+                            <li><strong>β ≥ 0：</strong>持续系数，衡量波动率的惯性</li>
+                            <li><strong>α + β < 1：</strong>平稳性条件，保证长期收敛</li>
+                        </ul>
+                        <p><strong>计算示例：</strong></p>
+                        <pre>
+假设GARCH(1,1)参数：ω = 0.0001, α = 0.1, β = 0.85
+
+初始条件：
+σ₁² = 0.0004 （年化波动率20%的日方差）
+r₁ = 0.02 （第1天收益率2%）
+
+计算第2天的条件方差：
+σ₂² = ω + αr₁² + βσ₁²
+    = 0.0001 + 0.1×(0.02)² + 0.85×0.0004
+    = 0.0001 + 0.1×0.0004 + 0.00034
+    = 0.0001 + 0.00004 + 0.00034
+    = 0.00048
+
+对应的波动率：σ₂ = √0.00048 ≈ 0.0219 ≈ 2.19%
+
+解释：由于前一天有2%的较大收益，第2天的预期波动率
+      从2%上升到2.19%，体现了波动率聚集效应
+                        </pre>
+                        <p><strong>长期方差计算：</strong></p>
+                        <pre>
+在平稳条件下（α + β < 1），长期无条件方差为：
+E[σ_t²] = ω / (1 - α - β)
+
+使用上面的参数：
+E[σ_t²] = 0.0001 / (1 - 0.1 - 0.85) = 0.0001 / 0.05 = 0.002
+
+长期波动率：√0.002 ≈ 0.0447 ≈ 4.47%（日波动率）
+年化波动率：4.47% × √252 ≈ 71%
+                        </pre>
+                        <p><strong>模型特征分析：</strong></p>
+                        <pre>
+1. 波动率聚集：
+   - α > 0 确保大冲击后波动率上升
+   - β > 0 确保高波动率具有持续性
+
+2. 均值回复：
+   - α + β < 1 确保波动率最终回到长期水平
+   - 回复速度：1 - α - β（越大回复越快）
+
+3. 厚尾分布：
+   - GARCH模型产生的收益率分布比正态分布更厚尾
+   - 更好地拟合金融数据的极端事件
+                        </pre>
+                    </div>
+                    
+                    <div class="concept-explanation">
+                        <h4>🔍 GARCH模型的实际应用</h4>
+                        <p><strong>风险管理：</strong>动态VaR计算、压力测试</p>
+                        <p><strong>期权定价：</strong>随机波动率模型的基础</p>
+                        <p><strong>投资组合：</strong>动态对冲比率、资产配置</p>
+                    </div>
+                    <div class="formula-explanation">
+                        <p><strong>实际应用示例：</strong></p>
+                        <pre>
+1. VaR计算：
+   假设投资组合价值1000万，置信度95%
+   
+   传统方法（固定波动率）：
+   VaR = 1000万 × 1.645 × 2% = 32.9万
+   
+   GARCH方法（动态波动率）：
+   当σ_t = 3%时：VaR = 1000万 × 1.645 × 3% = 49.35万
+   当σ_t = 1%时：VaR = 1000万 × 1.645 × 1% = 16.45万
+   
+   优势：风险度量随市场状况动态调整
+
+2. 期权定价：
+   Black-Scholes假设波动率恒定，但GARCH提供时变波动率
+   
+   修正的期权价格 = BS价格 × 波动率调整因子
+   
+   在高波动期：期权价格上升
+   在低波动期：期权价格下降
+                        </pre>
+                    </div>
+                </div>
+                <h3>5. 数据质量指标</h3>
+                <div class="concept-explanation">
+                    <h4>💡 为什么需要数据质量指标？</h4>
+                    <p>在金融分析中，"垃圾进，垃圾出"是一个重要原则。如果基础数据有问题（缺失、错误、不完整），那么再精密的模型也会得出错误结论。数据质量指标帮助我们评估数据的可靠性。</p>
+                    <p><strong>实际影响：</strong>想象你要分析一只股票的年收益率，但缺失了其中3个月的数据，这会严重影响分析结果的准确性。数据质量指标让我们知道这种影响有多大。</p>
+                </div>
+                <div class="math-formula">
+                    <p><strong>缺失数据比例：</strong></p>
+                    <p>\[ \text{Missing Rate} = \frac{\text{缺失观测数}}{\text{总观测数}} \times 100\% \]</p>
+                    <p class="formula-explanation">衡量数据缺失的严重程度，超过5%通常需要特别处理</p>
+                    <p><strong>数据完整性指数：</strong></p>
+                    <p>\[ \text{Completeness} = 1 - \text{Missing Rate} \]</p>
+                    <p class="formula-explanation">数据完整性的正向指标，1表示完全完整，0.95以上通常认为可接受</p>
+                </div>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>AKShare数据源</h2>
+            <p>AKShare是一个优秀的开源金融数据接口库，提供股票、期货、期权、基金、外汇、债券、指数、加密货币等金融产品的历史和实时数据。</p>
+            <h3>1. 安装与基本使用</h3>
+            <pre><code class="language-python"># 安装akshare库
+# pip install akshare
+import akshare as ak
+# 获取股票实时行情
+stock_zh_a_spot_em_df = ak.stock_zh_a_spot_em()
+print(stock_zh_a_spot_em_df.head())
+# 获取个股历史数据
+stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol="000001", period="daily", start_date="20220101", end_date="20231201", adjust="")
+print(stock_zh_a_hist_df.head())</code></pre>
+            <h3>2. 虚拟数据生成器</h3>
+            <p>为了演示和测试目的，我们提供了虚拟数据生成器：</p>
+            <div id="mock-data-demo"></div>
+            <pre><code class="language-python"># 使用虚拟数据生成器
+from js.akshare_data import MockStockData
+# 创建虚拟股票数据
+mock_data = MockStockData()
+stock_data = mock_data.generate_stock_prices('000001', 252)  # 生成一年的日线数据
+print(stock_data.head())
+# 生成技术指标
+rsi_data = mock_data.calculate_rsi(stock_data['close'])
+macd_data = mock_data.calculate_macd(stock_data['close'])
+print(f"RSI: {rsi_data[-5:]}")
+print(f"MACD: {macd_data[-5:]}")</code></pre>
+            <h3>3. 数据可视化</h3>
+            <div id="stock-chart-demo"></div>
+            <h2>Yahoo Finance API (备选)</h2>
+            <p>Yahoo Finance提供免费的金融市场数据，包括股票、指数、外汇和加密货币等。</p>
+            <h3>1. 安装与基本使用</h3>
+            <pre><code class="language-python"># 安装yfinance库
+# pip install yfinance
+import yfinance as yf
+# 获取单只股票数据
+msft = yf.Ticker("MSFT")
+hist = msft.history(period="1y")  # 获取1年历史数据
+print(hist.head())</code></pre>
+            <h3>2. 数据获取选项</h3>
+            <pre><code class="language-python"># 获取多只股票数据
+data = yf.download("AAPL MSFT GOOG", start="2022-01-01", end="2023-01-01")
+# 不同时间间隔
+data_1d = yf.download("AAPL", period="1y", interval="1d")   # 日线
+data_1h = yf.download("AAPL", period="1mo", interval="1h")  # 小时线
+data_1m = yf.download("AAPL", period="1d", interval="1m")   # 分钟线</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>Alpha Vantage API</h2>
+            <p>Alpha Vantage提供高质量的金融API，需要API密钥但免费层足够个人使用。</p>
+            <h3>1. 获取API密钥</h3>
+            <pre><code class="language-python"># 注册获取API密钥: https://www.alphavantage.co/support/#api-key
+API_KEY = "YOUR_API_KEY"  # 替换为你的实际API密钥</code></pre>
+            <h3>2. 使用示例</h3>
+            <pre><code class="language-python">from alpha_vantage.timeseries import TimeSeries
+# 初始化
+ts = TimeSeries(key=API_KEY, output_format='pandas')
+# 获取股票日线数据
+data, meta_data = ts.get_daily(symbol="MSFT", outputsize="full")
+print(data.head())
+# 获取实时报价
+quote, _ = ts.get_quote_endpoint(symbol="MSFT")
+print(quote)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>AKShare高级功能</h2>
+            <h3>1. 宏观经济数据</h3>
+            <pre><code class="language-python"># 获取GDP数据
+macro_china_gdp_df = ak.macro_china_gdp()
+print(macro_china_gdp_df.head())
+# 获取CPI数据
+macro_china_cpi_df = ak.macro_china_cpi_monthly()
+print(macro_china_cpi_df.head())
+# 获取利率数据
+rate_interbank_df = ak.rate_interbank(market="上海银行同业拆借市场", symbol="Shibor人民币")
+print(rate_interbank_df.head())</code></pre>
+            <h3>2. 期货和期权数据</h3>
+            <pre><code class="language-python"># 获取期货实时行情
+futures_main_sina_df = ak.futures_main_sina(symbol="螺纹钢主力")
+print(futures_main_sina_df.head())
+# 获取期权数据
+option_finance_board_df = ak.option_finance_board(symbol="510050")
+print(option_finance_board_df.head())</code></pre>
+            <h3>3. 基金数据</h3>
+            <pre><code class="language-python"># 获取基金实时净值
+fund_etf_spot_em_df = ak.fund_etf_spot_em()
+print(fund_etf_spot_em_df.head())
+# 获取基金历史净值
+fund_open_fund_info_em_df = ak.fund_open_fund_info_em(fund="000001", indicator="单位净值走势")
+print(fund_open_fund_info_em_df.head())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>其他金融数据源</h2>
+            <h3>1. Tushare (备选)</h3>
+            <pre><code class="language-python"># pip install tushare
+import tushare as ts
+# 设置token
+ts.set_token('YOUR_TOKEN')
+pro = ts.pro_api()
+# 获取股票基本信息
+df = pro.stock_basic(exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,list_date')
+print(df.head())</code></pre>
+            <h3>2. Wind API (专业版)</h3>
+            <pre><code class="language-python"># 需要Wind终端授权
+from WindPy import w
+# 启动Wind API
+w.start()
+# 获取股票数据
+data = w.wsd("000001.SZ", "open,high,low,close,volume", "2023-01-01", "2023-12-01")
+print(data)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>API使用最佳实践</h2>
+            <h3>1. 请求频率限制</h3>
+            <pre><code class="language-python">import time
+# 遵守API请求限制
+for symbol in ["AAPL", "MSFT", "GOOG", "AMZN"]:
+    data = yf.download(symbol, period="1mo")
+    print(f"获取{symbol}数据完成")
+    time.sleep(1)  # 添加延迟避免请求过快</code></pre>
+            <h3>2. 数据缓存</h3>
+            <pre><code class="language-python">import os
+import pickle
+def get_data(symbol, refresh=False):
+    cache_file = f"{symbol}_data.pkl"
+    if not refresh and os.path.exists(cache_file):
+        with open(cache_file, 'rb') as f:
+            return pickle.load(f)
+    data = yf.download(symbol, period="1y")
+    with open(cache_file, 'wb') as f:
+        pickle.dump(data, f)
+    return data</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>数据格式与频率</h2>
+            <h3>1. 常见数据字段</h3>
+            <pre><code class="language-python"># 典型金融数据字段
+data = yf.download("AAPL", period="1mo")
+print(data.columns)
+# 输出: ['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits']</code></pre>
+            <h3>2. 调整收盘价</h3>
+            <pre><code class="language-python"># 计算调整收盘价
+data['Adj Close'] = data['Close'] * data['Stock Splits'] + data['Dividends']
+data['Return'] = data['Adj Close'].pct_change()</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="../../index.html" class="btn">« 返回模块概览</a>
+            <a href="lesson2.html" class="btn">下一课: 数据获取与清洗 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

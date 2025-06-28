@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第1课: Matplotlib基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    
+    /* 交互式图表演示样式 */
+    .chart-demo {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        margin: 25px 0;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+    }
+    
+    .chart-controls {
+        display: flex;
+        gap: 15px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .chart-button {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .chart-button:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .chart-button.active {
+        background: rgba(255,255,255,0.4);
+        border-color: rgba(255,255,255,0.6);
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        min-height: 400px;
+    }
+    
+    .chart-info {
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid rgba(255,255,255,0.5);
+    }
+    
+    .parameter-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+    }
+    
+    .parameter-control label {
+        min-width: 100px;
+        font-weight: 500;
+    }
+    
+    .parameter-control input[type="range"] {
+        flex: 1;
+        max-width: 200px;
+    }
+    
+    .parameter-control input[type="number"] {
+        width: 80px;
+        padding: 5px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 5px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+    
+    .tooltip {
+        position: absolute;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 1000;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>Matplotlib简介</h2>
+            <p>Matplotlib是Python中最基础、最广泛使用的数据可视化库，特别适合创建静态、交互式和动画的金融图表。</p>
+            <h3>核心概念</h3>
+            <ul>
+                <li><strong>Figure</strong>: 顶级容器，所有图表元素的父对象</li>
+                <li><strong>Axes</strong>: 实际的图表区域，包含坐标轴、标签等</li>
+                <li><strong>Axis</strong>: 坐标轴对象，控制刻度、标签等</li>
+                <li><strong>Artist</strong>: 所有可见元素的基础类</li>
+            </ul>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+# 创建Figure和Axes
+fig, ax = plt.subplots(figsize=(10, 6))
+# 设置标题和标签
+ax.set_title('股票价格走势', fontsize=14)
+ax.set_xlabel('日期', fontsize=12)
+ax.set_ylabel('价格', fontsize=12)
+# 显示网格
+ax.grid(True, linestyle='--', alpha=0.7)
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>基础图表类型</h2>
+            <h3>1. 线图 (Line Plot)</h3>
+            <p>最适合展示时间序列数据，如股票价格走势。</p>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+# 创建示例数据
+dates = pd.date_range('2023-01-01', periods=50)
+prices = np.cumsum(np.random.randn(50) * 0.1 + 0.05) + 100
+fig, ax = plt.subplots(figsize=(12, 6))
+ax.plot(dates, prices, color='blue', linewidth=2, label='AAPL')
+ax.legend()
+plt.show()</code></pre>
+            <h3>2. 柱状图 (Bar Chart)</h3>
+            <p>适合展示离散数据的比较，如不同股票的收益率。</p>
+            <pre><code class="language-python">stocks = ['AAPL', 'MSFT', 'GOOG', 'AMZN']
+returns = np.random.uniform(-0.1, 0.15, 4)
+fig, ax = plt.subplots(figsize=(10, 6))
+bars = ax.bar(stocks, returns, color=np.where(returns > 0, 'green', 'red'))
+# 添加数值标签
+for bar in bars:
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2., height,
+            f'{height:.2%}', ha='center', va='bottom')
+plt.show()</code></pre>
+            <h3>3. 散点图 (Scatter Plot)</h3>
+            <p>展示两个变量之间的关系，如风险与回报。</p>
+            <pre><code class="language-python">np.random.seed(42)
+volatility = np.random.uniform(0.1, 0.4, 20)
+returns = volatility * 0.5 + np.random.normal(0, 0.05, 20)
+fig, ax = plt.subplots(figsize=(10, 6))
+scatter = ax.scatter(volatility, returns, c=returns/volatility, cmap='viridis', s=100)
+# 添加颜色条
+plt.colorbar(scatter, label='夏普比率')
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融图表定制</h2>
+            <h3>1. 双Y轴图表</h3>
+            <p>同时展示价格和成交量数据。</p>
+            <pre><code class="language-python"># 创建示例数据
+dates = pd.date_range('2023-01-01', periods=30)
+prices = np.cumsum(np.random.randn(30) * 0.1 + 0.05) + 100
+volumes = np.random.randint(500000, 1500000, 30)
+fig, ax1 = plt.subplots(figsize=(12, 6))
+# 价格轴
+color = 'tab:blue'
+ax1.set_xlabel('日期')
+ax1.set_ylabel('价格', color=color)
+ax1.plot(dates, prices, color=color, linewidth=2)
+ax1.tick_params(axis='y', labelcolor=color)
+# 成交量轴
+ax2 = ax1.twinx()
+color = 'tab:red'
+ax2.set_ylabel('成交量', color=color)
+ax2.bar(dates, volumes, color=color, alpha=0.3)
+ax2.tick_params(axis='y', labelcolor=color)
+fig.tight_layout()
+plt.show()</code></pre>
+            <h3>2. 多子图布局</h3>
+            <p>同时展示多个相关图表。</p>
+            <pre><code class="language-python">fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+fig.suptitle('股票分析仪表板', fontsize=16)
+# 价格走势
+axes[0, 0].plot(dates, prices, color='green')
+axes[0, 0].set_title('价格走势')
+# 成交量
+axes[0, 1].bar(dates, volumes, color='blue', alpha=0.5)
+axes[0, 1].set_title('成交量')
+# 收益率分布
+returns = np.diff(prices) / prices[:-1]
+axes[1, 0].hist(returns, bins=15, color='orange', edgecolor='black')
+axes[1, 0].set_title('收益率分布')
+# 滚动波动率
+rolling_vol = pd.Series(returns).rolling(5).std() * np.sqrt(252)
+axes[1, 1].plot(dates[5:], rolling_vol[5:], color='purple')
+axes[1, 1].set_title('5日滚动波动率')
+plt.tight_layout()
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>保存图表</h2>
+            <p>Matplotlib支持多种格式的图表保存，适合报告和演示。</p>
+            <pre><code class="language-python"># 保存为PNG (高分辨率)
+fig.savefig('stock_analysis.png', dpi=300, bbox_inches='tight')
+# 保存为PDF (矢量格式)
+fig.savefig('stock_analysis.pdf', format='pdf')
+# 保存为SVG (可编辑矢量格式)
+fig.savefig('stock_analysis.svg', format='svg')</code></pre>
+            <h3>最佳实践</h3>
+            <ul>
+                <li>使用<code>bbox_inches='tight'</code>避免裁剪</li>
+                <li>报告使用PDF或SVG格式保证清晰度</li>
+                <li>网页使用PNG或JPG格式</li>
+                <li>设置<code>dpi</code>参数控制分辨率</li>
+            </ul>
+        </section>
+        
+        <section class="lesson-content">
+            <h2>交互式图表演示</h2>
+            <p>通过以下交互式演示，体验不同类型的金融图表和参数调整对可视化效果的影响。</p>
+            
+            <div class="chart-demo">
+                <h4>📈 线图演示 - 股票价格走势</h4>
+                <p>体验不同类型的时间序列数据可视化</p>
+                <div class="chart-controls">
+                    <button class="chart-button active" onclick="showLineChart('trend')">趋势线</button>
+                    <button class="chart-button" onclick="showLineChart('volatility')">波动率</button>
+                    <button class="chart-button" onclick="showLineChart('returns')">收益率</button>
+                    <button class="chart-button" onclick="showLineChart('comparison')">多股对比</button>
+                </div>
+                <div class="parameter-control">
+                    <label>时间周期:</label>
+                    <input type="range" id="timeSlider" min="30" max="365" value="90" onchange="updateLineChart()">
+                    <input type="number" id="timeInput" min="30" max="365" value="90" onchange="updateLineChart()">
+                    <span>天</span>
+                </div>
+                <div class="chart-container">
+                    <div id="lineChart"></div>
+                </div>
+                <div class="chart-info">
+                    <p id="lineChartInfo">趋势线显示股票价格的长期走势，是技术分析的基础工具。</p>
+                </div>
+            </div>
+            
+            <div class="chart-demo">
+                <h4>📊 柱状图演示 - 投资组合分析</h4>
+                <p>比较不同资产的表现和分布</p>
+                <div class="chart-controls">
+                    <button class="chart-button active" onclick="showBarChart('performance')">业绩对比</button>
+                    <button class="chart-button" onclick="showBarChart('sectors')">行业分布</button>
+                    <button class="chart-button" onclick="showBarChart('risk')">风险指标</button>
+                    <button class="chart-button" onclick="showBarChart('correlation')">相关性</button>
+                </div>
+                <div class="chart-container">
+                    <div id="barChart"></div>
+                </div>
+                <div class="chart-info">
+                    <p id="barChartInfo">业绩对比图帮助投资者快速识别表现最佳和最差的资产。</p>
+                </div>
+            </div>
+            
+            <div class="chart-demo">
+                <h4>🎯 散点图演示 - 风险收益分析</h4>
+                <p>分析投资组合中资产的风险收益特征</p>
+                <div class="chart-controls">
+                    <button class="chart-button active" onclick="showScatterChart('riskReturn')">风险收益</button>
+                    <button class="chart-button" onclick="showScatterChart('correlation')">相关性分析</button>
+                    <button class="chart-button" onclick="showScatterChart('efficiency')">有效前沿</button>
+                    <button class="chart-button" onclick="showScatterChart('clusters')">资产聚类</button>
+                </div>
+                <div class="parameter-control">
+                    <label>资产数量:</label>
+                    <input type="range" id="assetSlider" min="10" max="100" value="50" onchange="updateScatterChart()">
+                    <input type="number" id="assetInput" min="10" max="100" value="50" onchange="updateScatterChart()">
+                </div>
+                <div class="chart-container">
+                    <div id="scatterChart"></div>
+                </div>
+                <div class="chart-info">
+                    <p id="scatterChartInfo">风险收益散点图是现代投资组合理论的核心可视化工具。</p>
+                </div>
+            </div>
+            
+            <div class="chart-demo">
+                <h4>🥧 饼图演示 - 资产配置</h4>
+                <p>可视化投资组合的资产分配情况</p>
+                <div class="chart-controls">
+                    <button class="chart-button active" onclick="showPieChart('allocation')">资产配置</button>
+                    <button class="chart-button" onclick="showPieChart('geography')">地理分布</button>
+                    <button class="chart-button" onclick="showPieChart('market_cap')">市值分布</button>
+                    <button class="chart-button" onclick="showPieChart('currency')">货币分布</button>
+                </div>
+                <div class="chart-container">
+                    <div id="pieChart"></div>
+                </div>
+                <div class="chart-info">
+                    <p id="pieChartInfo">资产配置饼图清晰显示投资组合的多样化程度。</p>
+                </div>
+            </div>
+        </section>
+        
+        <script>
+        // 创建tooltip
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip");
+        
+        let currentLineType = 'trend';
+        let currentBarType = 'performance';
+        let currentScatterType = 'riskReturn';
+        let currentPieType = 'allocation';
+        
+        // 生成金融时间序列数据
+        function generateFinancialData(type, days = 90) {
+            const data = [];
+            const startPrice = 100;
+            let price = startPrice;
+            
+            for (let i = 0; i < days; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - (days - i));
+                
+                switch (type) {
+                    case 'trend':
+                        price += (Math.random() - 0.45) * 2 + 0.1; // 轻微上升趋势
+                        break;
+                    case 'volatility':
+                        const volatility = 0.5 + 0.5 * Math.sin(i / 10); // 周期性波动
+                        price += (Math.random() - 0.5) * volatility * 3;
+                        break;
+                    case 'returns':
+                        const dailyReturn = (Math.random() - 0.5) * 0.04; // ±2%日收益
+                        price *= (1 + dailyReturn);
+                        break;
+                    case 'comparison':
+                        // 多股票对比数据将在函数中特殊处理
+                        break;
+                }
+                
+                data.push({
+                    date: date,
+                    price: Math.max(price, 10), // 防止负价格
+                    volume: Math.random() * 1000000 + 500000
+                });
+            }
+            
+            return data;
+        }
+        
+        function showLineChart(type) {
+            currentLineType = type;
+            updateActiveButton('.chart-demo:nth-of-type(1) .chart-button', type);
+            updateLineChart();
+        }
+        
+        function updateLineChart() {
+            const days = parseInt(document.getElementById('timeSlider').value);
+            document.getElementById('timeInput').value = days;
+            
+            const container = d3.select("#lineChart");
+            container.selectAll("*").remove();
+            
+            const margin = {top: 20, right: 30, bottom: 40, left: 60};
+            const width = 600 - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom);
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            if (currentLineType === 'comparison') {
+                // 多股票对比
+                const stocks = ['AAPL', 'MSFT', 'GOOG'];
+                const colors = ['#1f77b4', '#ff7f0e', '#2ca02c'];
+                const allData = [];
+                
+                stocks.forEach((stock, i) => {
+                    const data = generateFinancialData('trend', days);
+                    data.forEach(d => {
+                        d.stock = stock;
+                        d.color = colors[i];
+                        // 标准化价格以便比较
+                        d.normalizedPrice = (d.price / data[0].price) * 100;
+                    });
+                    allData.push(...data);
+                });
+                
+                const xScale = d3.scaleTime()
+                    .domain(d3.extent(allData, d => d.date))
+                    .range([0, width]);
+                
+                const yScale = d3.scaleLinear()
+                    .domain(d3.extent(allData, d => d.normalizedPrice))
+                    .range([height, 0]);
+                
+                const line = d3.line()
+                    .x(d => xScale(d.date))
+                    .y(d => yScale(d.normalizedPrice))
+                    .curve(d3.curveMonotoneX);
+                
+                stocks.forEach((stock, i) => {
+                    const stockData = allData.filter(d => d.stock === stock);
+                    g.append("path")
+                        .datum(stockData)
+                        .attr("fill", "none")
+                        .attr("stroke", colors[i])
+                        .attr("stroke-width", 2)
+                        .attr("d", line);
+                });
+                
+                // 添加图例
+                const legend = g.append("g")
+                    .attr("transform", `translate(${width - 80}, 20)`);
+                
+                stocks.forEach((stock, i) => {
+                    const legendRow = legend.append("g")
+                        .attr("transform", `translate(0, ${i * 20})`);
+                    
+                    legendRow.append("rect")
+                        .attr("width", 15)
+                        .attr("height", 15)
+                        .attr("fill", colors[i]);
+                    
+                    legendRow.append("text")
+                        .attr("x", 20)
+                        .attr("y", 12)
+                        .text(stock)
+                        .style("font-size", "12px")
+                        .style("fill", "#333");
+                });
+                
+            } else {
+                const data = generateFinancialData(currentLineType, days);
+                
+                const xScale = d3.scaleTime()
+                    .domain(d3.extent(data, d => d.date))
+                    .range([0, width]);
+                
+                const yScale = d3.scaleLinear()
+                    .domain(d3.extent(data, d => d.price))
+                    .range([height, 0]);
+                
+                const line = d3.line()
+                    .x(d => xScale(d.date))
+                    .y(d => yScale(d.price))
+                    .curve(d3.curveMonotoneX);
+                
+                g.append("path")
+                    .datum(data)
+                    .attr("fill", "none")
+                    .attr("stroke", "#667eea")
+                    .attr("stroke-width", 2)
+                    .attr("d", line);
+                
+                // 添加数据点
+                g.selectAll(".dot")
+                    .data(data.filter((d, i) => i % Math.max(1, Math.floor(days / 20)) === 0))
+                    .enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("cx", d => xScale(d.date))
+                    .attr("cy", d => yScale(d.price))
+                    .attr("r", 3)
+                    .attr("fill", "#667eea")
+                    .on("mouseover", function(event, d) {
+                        tooltip.transition().duration(200).style("opacity", .9);
+                        tooltip.html(`日期: ${d.date.toLocaleDateString()}<br/>价格: $${d.price.toFixed(2)}`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 28) + "px");
+                    })
+                    .on("mouseout", function() {
+                        tooltip.transition().duration(500).style("opacity", 0);
+                    });
+            }
+            
+            // 添加坐标轴
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(d3.scaleTime().domain(d3.extent(generateFinancialData(currentLineType, days), d => d.date)).range([0, width])));
+            
+            g.append("g")
+                .call(d3.axisLeft(d3.scaleLinear().domain(d3.extent(generateFinancialData(currentLineType, days), d => d.price)).range([height, 0])));
+            
+            // 更新信息
+            const infoTexts = {
+                'trend': '趋势线显示股票价格的长期走势，是技术分析的基础工具。',
+                'volatility': '波动率图表显示价格变化的剧烈程度，帮助评估投资风险。',
+                'returns': '收益率图表显示投资的盈亏情况，是投资决策的重要参考。',
+                'comparison': '多股对比图表帮助投资者比较不同股票的相对表现。'
+            };
+            document.getElementById('lineChartInfo').textContent = infoTexts[currentLineType];
+        }
+        
+        function showBarChart(type) {
+            currentBarType = type;
+            updateActiveButton('.chart-demo:nth-of-type(2) .chart-button', type);
+            
+            const container = d3.select("#barChart");
+            container.selectAll("*").remove();
+            
+            const margin = {top: 20, right: 30, bottom: 60, left: 60};
+            const width = 600 - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom);
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            let data;
+            switch (type) {
+                case 'performance':
+                    data = [
+                        {name: 'AAPL', value: 15.2, color: '#1f77b4'},
+                        {name: 'MSFT', value: 12.8, color: '#ff7f0e'},
+                        {name: 'GOOG', value: 8.5, color: '#2ca02c'},
+                        {name: 'AMZN', value: -2.1, color: '#d62728'},
+                        {name: 'TSLA', value: 25.6, color: '#9467bd'}
+                    ];
+                    break;
+                case 'sectors':
+                    data = [
+                        {name: '科技', value: 35, color: '#1f77b4'},
+                        {name: '金融', value: 20, color: '#ff7f0e'},
+                        {name: '医疗', value: 15, color: '#2ca02c'},
+                        {name: '消费', value: 18, color: '#d62728'},
+                        {name: '能源', value: 12, color: '#9467bd'}
+                    ];
+                    break;
+                case 'risk':
+                    data = [
+                        {name: 'AAPL', value: 0.25, color: '#1f77b4'},
+                        {name: 'MSFT', value: 0.22, color: '#ff7f0e'},
+                        {name: 'GOOG', value: 0.28, color: '#2ca02c'},
+                        {name: 'AMZN', value: 0.35, color: '#d62728'},
+                        {name: 'TSLA', value: 0.45, color: '#9467bd'}
+                    ];
+                    break;
+                case 'correlation':
+                    data = [
+                        {name: 'AAPL-MSFT', value: 0.75, color: '#1f77b4'},
+                        {name: 'AAPL-GOOG', value: 0.68, color: '#ff7f0e'},
+                        {name: 'MSFT-GOOG', value: 0.72, color: '#2ca02c'},
+                        {name: 'AAPL-AMZN', value: 0.55, color: '#d62728'},
+                        {name: 'GOOG-AMZN', value: 0.62, color: '#9467bd'}
+                    ];
+                    break;
+            }
+            
+            const xScale = d3.scaleBand()
+                .domain(data.map(d => d.name))
+                .range([0, width])
+                .padding(0.1);
+            
+            const yScale = d3.scaleLinear()
+                .domain(d3.extent(data, d => d.value))
+                .nice()
+                .range([height, 0]);
+            
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.name))
+                .attr("y", d => yScale(Math.max(0, d.value)))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => Math.abs(yScale(d.value) - yScale(0)))
+                .attr("fill", d => d.value >= 0 ? d.color : '#d62728')
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    const unit = type === 'performance' ? '%' : type === 'risk' ? '' : type === 'correlation' ? '' : '%';
+                    tooltip.html(`${d.name}: ${d.value}${unit}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            // 添加坐标轴
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale))
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", ".15em")
+                .attr("transform", "rotate(-45)");
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            
+            // 添加零线（如果需要）
+            if (d3.min(data, d => d.value) < 0) {
+                g.append("line")
+                    .attr("x1", 0)
+                    .attr("x2", width)
+                    .attr("y1", yScale(0))
+                    .attr("y2", yScale(0))
+                    .attr("stroke", "#333")
+                    .attr("stroke-dasharray", "3,3");
+            }
+            
+            // 更新信息
+            const infoTexts = {
+                'performance': '业绩对比图帮助投资者快速识别表现最佳和最差的资产。',
+                'sectors': '行业分布图显示投资组合在不同行业的配置情况。',
+                'risk': '风险指标图比较不同资产的波动率和风险水平。',
+                'correlation': '相关性图表显示不同资产之间的价格联动程度。'
+            };
+            document.getElementById('barChartInfo').textContent = infoTexts[type];
+        }
+        
+        function showScatterChart(type) {
+            currentScatterType = type;
+            updateActiveButton('.chart-demo:nth-of-type(3) .chart-button', type);
+            updateScatterChart();
+        }
+        
+        function updateScatterChart() {
+            const assetCount = parseInt(document.getElementById('assetSlider').value);
+            document.getElementById('assetInput').value = assetCount;
+            
+            const container = d3.select("#scatterChart");
+            container.selectAll("*").remove();
+            
+            const margin = {top: 20, right: 30, bottom: 50, left: 60};
+            const width = 600 - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom);
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const data = generateScatterData(currentScatterType, assetCount);
+            
+            const xScale = d3.scaleLinear()
+                .domain(d3.extent(data, d => d.x))
+                .nice()
+                .range([0, width]);
+            
+            const yScale = d3.scaleLinear()
+                .domain(d3.extent(data, d => d.y))
+                .nice()
+                .range([height, 0]);
+            
+            const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+            
+            g.selectAll(".dot")
+                .data(data)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y))
+                .attr("r", d => d.size || 5)
+                .attr("fill", d => d.color || colorScale(d.cluster || 0))
+                .attr("opacity", 0.7)
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    const xLabel = currentScatterType === 'riskReturn' ? '风险' : currentScatterType === 'correlation' ? '相关性' : 'X';
+                    const yLabel = currentScatterType === 'riskReturn' ? '收益' : currentScatterType === 'correlation' ? '收益' : 'Y';
+                    tooltip.html(`${xLabel}: ${d.x.toFixed(3)}<br/>${yLabel}: ${d.y.toFixed(3)}%`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            // 添加坐标轴
+            g.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale))
+                .append("text")
+                .attr("x", width / 2)
+                .attr("y", 40)
+                .style("text-anchor", "middle")
+                .style("fill", "#333")
+                .text(getAxisLabel(currentScatterType, 'x'));
+            
+            g.append("g")
+                .call(d3.axisLeft(yScale))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -40)
+                .attr("x", -height / 2)
+                .style("text-anchor", "middle")
+                .style("fill", "#333")
+                .text(getAxisLabel(currentScatterType, 'y'));
+            
+            // 添加有效前沿线（如果是有效前沿图）
+            if (currentScatterType === 'efficiency') {
+                const frontierData = [];
+                for (let i = 0; i <= 50; i++) {
+                    const risk = 0.05 + (i / 50) * 0.3;
+                    const return_ = Math.sqrt(risk) * 0.4 + 0.02;
+                    frontierData.push({x: risk, y: return_ * 100});
+                }
+                
+                const line = d3.line()
+                    .x(d => xScale(d.x))
+                    .y(d => yScale(d.y))
+                    .curve(d3.curveMonotoneX);
+                
+                g.append("path")
+                    .datum(frontierData)
+                    .attr("fill", "none")
+                    .attr("stroke", "#ff6b6b")
+                    .attr("stroke-width", 3)
+                    .attr("stroke-dasharray", "5,5")
+                    .attr("d", line);
+            }
+            
+            // 更新信息
+            const infoTexts = {
+                'riskReturn': '风险收益散点图是现代投资组合理论的核心可视化工具。',
+                'correlation': '相关性分析帮助识别资产间的联动关系，优化投资组合。',
+                'efficiency': '有效前沿显示在给定风险水平下能获得的最大收益。',
+                'clusters': '资产聚类分析帮助识别具有相似特征的投资标的。'
+            };
+            document.getElementById('scatterChartInfo').textContent = infoTexts[currentScatterType];
+        }
+        
+        function generateScatterData(type, count) {
+            const data = [];
+            
+            for (let i = 0; i < count; i++) {
+                let x, y, cluster = 0, size = 5;
+                
+                switch (type) {
+                    case 'riskReturn':
+                        x = Math.random() * 0.3 + 0.05; // 风险 5%-35%
+                        y = x * 15 + Math.random() * 5 + 2; // 收益与风险正相关
+                        break;
+                    case 'correlation':
+                        x = Math.random() * 2 - 1; // 相关性 -1 到 1
+                        y = Math.random() * 20 + 5; // 收益 5%-25%
+                        break;
+                    case 'efficiency':
+                        x = Math.random() * 0.35 + 0.05;
+                        y = Math.sqrt(x) * 40 + Math.random() * 3 + 2;
+                        break;
+                    case 'clusters':
+                        cluster = Math.floor(Math.random() * 4);
+                        const centers = [
+                            {x: 0.1, y: 8},   // 低风险低收益
+                            {x: 0.15, y: 12}, // 中等风险中等收益
+                            {x: 0.25, y: 18}, // 高风险高收益
+                            {x: 0.3, y: 15}   // 高风险中等收益
+                        ];
+                        x = centers[cluster].x + (Math.random() - 0.5) * 0.05;
+                        y = centers[cluster].y + (Math.random() - 0.5) * 4;
+                        size = 4 + Math.random() * 4;
+                        break;
+                }
+                
+                data.push({ x, y, cluster, size });
+            }
+            
+            return data;
+        }
+        
+        function getAxisLabel(type, axis) {
+            const labels = {
+                'riskReturn': { x: '风险 (标准差)', y: '预期收益 (%)' },
+                'correlation': { x: '与市场相关性', y: '年化收益 (%)' },
+                'efficiency': { x: '投资组合风险', y: '预期收益 (%)' },
+                'clusters': { x: '风险指标', y: '收益指标 (%)' }
+            };
+            return labels[type][axis];
+        }
+        
+        function showPieChart(type) {
+            currentPieType = type;
+            updateActiveButton('.chart-demo:nth-of-type(4) .chart-button', type);
+            
+            const container = d3.select("#pieChart");
+            container.selectAll("*").remove();
+            
+            const width = 600;
+            const height = 400;
+            const radius = Math.min(width, height) / 2 - 60;
+            
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${width / 2},${height / 2})`);
+            
+            let data;
+            switch (type) {
+                case 'allocation':
+                    data = [
+                        {label: '股票', value: 60, color: '#1f77b4'},
+                        {label: '债券', value: 25, color: '#ff7f0e'},
+                        {label: '现金', value: 10, color: '#2ca02c'},
+                        {label: '商品', value: 5, color: '#d62728'}
+                    ];
+                    break;
+                case 'geography':
+                    data = [
+                        {label: '美国', value: 45, color: '#1f77b4'},
+                        {label: '欧洲', value: 25, color: '#ff7f0e'},
+                        {label: '亚太', value: 20, color: '#2ca02c'},
+                        {label: '新兴市场', value: 10, color: '#d62728'}
+                    ];
+                    break;
+                case 'market_cap':
+                    data = [
+                        {label: '大盘股', value: 50, color: '#1f77b4'},
+                        {label: '中盘股', value: 30, color: '#ff7f0e'},
+                        {label: '小盘股', value: 20, color: '#2ca02c'}
+                    ];
+                    break;
+                case 'currency':
+                    data = [
+                        {label: '美元', value: 55, color: '#1f77b4'},
+                        {label: '欧元', value: 20, color: '#ff7f0e'},
+                        {label: '日元', value: 15, color: '#2ca02c'},
+                        {label: '其他', value: 10, color: '#d62728'}
+                    ];
+                    break;
+            }
+            
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+            
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+            
+            const arcs = g.selectAll(".arc")
+                .data(pie(data))
+                .enter().append("g")
+                .attr("class", "arc");
+            
+            arcs.append("path")
+                .attr("d", arc)
+                .attr("fill", d => d.data.color)
+                .attr("stroke", "white")
+                .attr("stroke-width", 2)
+                .on("mouseover", function(event, d) {
+                    tooltip.transition().duration(200).style("opacity", .9);
+                    tooltip.html(`${d.data.label}: ${d.data.value}%`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition().duration(500).style("opacity", 0);
+                });
+            
+            arcs.append("text")
+                .attr("transform", d => `translate(${arc.centroid(d)})`)
+                .attr("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("fill", "white")
+                .style("font-weight", "bold")
+                .text(d => d.data.value + "%");
+            
+            // 添加图例
+            const legend = svg.append("g")
+                .attr("transform", `translate(${width - 120}, 50)`);
+            
+            legend.selectAll(".legend")
+                .data(data)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => `translate(0, ${i * 25})`)
+                .each(function(d) {
+                    const g = d3.select(this);
+                    g.append("rect")
+                        .attr("width", 18)
+                        .attr("height", 18)
+                        .attr("fill", d.color);
+                    g.append("text")
+                        .attr("x", 25)
+                        .attr("y", 14)
+                        .text(d.label)
+                        .style("font-size", "14px")
+                        .style("fill", "#333");
+                });
+            
+            // 更新信息
+            const infoTexts = {
+                'allocation': '资产配置饼图清晰显示投资组合的多样化程度。',
+                'geography': '地理分布图帮助评估投资组合的地域风险敞口。',
+                'market_cap': '市值分布图显示投资组合在不同规模公司间的配置。',
+                'currency': '货币分布图展示投资组合面临的汇率风险。'
+            };
+            document.getElementById('pieChartInfo').textContent = infoTexts[type];
+        }
+        
+        function updateActiveButton(selector, activeType) {
+            d3.selectAll(`${selector}`)
+                .classed('active', false);
+            d3.selectAll(`${selector}`)
+                .filter(function() {
+                    return this.textContent.includes(getButtonText(activeType));
+                })
+                .classed('active', true);
+        }
+        
+        function getButtonText(type) {
+            const texts = {
+                'trend': '趋势线',
+                'volatility': '波动率',
+                'returns': '收益率',
+                'comparison': '多股对比',
+                'performance': '业绩对比',
+                'sectors': '行业分布',
+                'risk': '风险指标',
+                'correlation': '相关性',
+                'riskReturn': '风险收益',
+                'efficiency': '有效前沿',
+                'clusters': '资产聚类',
+                'allocation': '资产配置',
+                'geography': '地理分布',
+                'market_cap': '市值分布',
+                'currency': '货币分布'
+            };
+            return texts[type] || type;
+        }
+        
+        // 同步滑块和输入框
+        document.getElementById('timeSlider').addEventListener('input', function() {
+            document.getElementById('timeInput').value = this.value;
+            updateLineChart();
+        });
+        
+        document.getElementById('timeInput').addEventListener('input', function() {
+            document.getElementById('timeSlider').value = this.value;
+            updateLineChart();
+        });
+        
+        document.getElementById('assetSlider').addEventListener('input', function() {
+            document.getElementById('assetInput').value = this.value;
+            updateScatterChart();
+        });
+        
+        document.getElementById('assetInput').addEventListener('input', function() {
+            document.getElementById('assetSlider').value = this.value;
+            updateScatterChart();
+        });
+        
+        // 页面加载时初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                updateLineChart();
+                showBarChart('performance');
+                updateScatterChart();
+                showPieChart('allocation');
+            }, 100);
+        });
+        </script>
+        <div class="lesson-navigation">
+            <a href="../../index.html" class="btn">« 返回模块概览</a>
+            <a href="lesson2.html" class="btn">下一课: Seaborn高级可视化 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

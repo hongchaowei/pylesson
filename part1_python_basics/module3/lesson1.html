@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程1: 函数基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>函数的定义与调用</h2>
+            <p>函数是Python中组织和重用代码的基本单位。通过将代码封装到函数中，我们可以提高代码的可读性、可维护性和可重用性。</p>
+            <h3>函数的基本语法</h3>
+            <pre># 函数定义的基本语法
+def function_name(parameters):
+    """函数文档字符串（docstring）"""
+    # 函数体
+    return result  # 可选的返回值</pre>
+            <p>函数定义以<code>def</code>关键字开始，后跟函数名和括号中的参数列表。函数体是缩进的代码块，可以包含任意Python语句。</p>
+            <h3>简单函数示例</h3>
+            <pre># 定义一个简单的函数
+def greet():
+    """打印欢迎信息"""
+    print("欢迎学习Python金融编程！")
+# 调用函数
+greet()  # 输出: 欢迎学习Python金融编程！
+# 带参数的函数
+def greet_user(name):
+    """向特定用户打印欢迎信息"""
+    print(f"你好，{name}！欢迎学习Python金融编程！")
+# 调用带参数的函数
+greet_user("张三")  # 输出: 你好，张三！欢迎学习Python金融编程！</pre>
+            <div class="feature">
+                <h4>金融应用示例：计算投资回报率</h4>
+                <pre># 定义计算投资回报率的函数
+def calculate_roi(initial_investment, final_value):
+    """
+    计算投资回报率(ROI)
+    参数:
+        initial_investment: 初始投资金额
+        final_value: 最终价值
+    返回:
+        投资回报率，以小数表示
+    """
+    roi = (final_value - initial_investment) / initial_investment
+    return roi
+# 调用函数计算ROI
+initial = 10000  # 初始投资10000元
+final = 12500    # 最终价值12500元
+roi = calculate_roi(initial, final)
+print(f"投资回报率: {roi:.2%}")  # 输出: 投资回报率: 25.00%
+# 使用函数比较不同投资的回报率
+investments = [
+    {"name": "股票A", "initial": 5000, "final": 5750},
+    {"name": "债券B", "initial": 10000, "final": 10600},
+    {"name": "基金C", "initial": 8000, "final": 9200}
+]
+print("\n不同投资的回报率比较:")
+for inv in investments:
+    roi = calculate_roi(inv["initial"], inv["final"])
+    print(f"{inv['name']}: {roi:.2%}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>参数与参数传递</h2>
+            <p>函数参数使函数能够接收外部数据并对其进行处理。Python提供了多种参数类型和传递方式，使函数更加灵活和强大。</p>
+            <h3>位置参数</h3>
+            <pre># 位置参数 - 按照定义的顺序传递
+def calculate_future_value(principal, rate, time):
+    """计算未来价值"""
+    return principal * (1 + rate) ** time
+# 调用函数时按顺序传递参数
+future_value = calculate_future_value(1000, 0.05, 3)
+print(f"未来价值: {future_value:.2f}")  # 输出: 未来价值: 1157.63</pre>
+            <h3>关键字参数</h3>
+            <pre># 使用关键字参数 - 通过参数名指定
+future_value = calculate_future_value(principal=1000, rate=0.05, time=3)
+print(f"未来价值: {future_value:.2f}")  # 输出: 未来价值: 1157.63
+# 混合使用位置参数和关键字参数
+# 注意: 位置参数必须在关键字参数之前
+future_value = calculate_future_value(1000, rate=0.05, time=3)
+print(f"未来价值: {future_value:.2f}")  # 输出: 未来价值: 1157.63</pre>
+            <h3>默认参数值</h3>
+            <pre># 带默认参数值的函数
+def calculate_future_value(principal, rate=0.05, time=1):
+    """计算未来价值，默认年利率5%，默认时间1年"""
+    return principal * (1 + rate) ** time
+# 只提供必需的参数，其他使用默认值
+future_value = calculate_future_value(1000)
+print(f"默认参数 - 未来价值: {future_value:.2f}")  # 输出: 未来价值: 1050.00
+# 覆盖部分默认参数
+future_value = calculate_future_value(1000, time=3)
+print(f"部分默认参数 - 未来价值: {future_value:.2f}")  # 输出: 未来价值: 1157.63</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>可变参数</h2>
+            <p>Python允许函数接收可变数量的参数，这在处理不确定数量的数据时非常有用。</p>
+            <h3>*args - 可变位置参数</h3>
+            <pre># 使用*args接收任意数量的位置参数
+def calculate_average_price(*prices):
+    """计算任意数量价格的平均值"""
+    if not prices:
+        return 0
+    return sum(prices) / len(prices)
+# 调用函数并传入不同数量的参数
+avg1 = calculate_average_price(10.5, 11.2, 9.8)
+print(f"三个价格的平均值: {avg1:.2f}")  # 输出: 10.50
+avg2 = calculate_average_price(100.5, 98.7, 102.3, 99.9, 101.2)
+print(f"五个价格的平均值: {avg2:.2f}")  # 输出: 100.52</pre>
+            <h3>**kwargs - 可变关键字参数</h3>
+            <pre># 使用**kwargs接收任意数量的关键字参数
+def analyze_portfolio(**holdings):
+    """分析投资组合中的各个持仓"""
+    total_value = 0
+    print("投资组合分析:")
+    for asset, value in holdings.items():
+        total_value += value
+        print(f"  {asset}: ${value:,.2f}")
+    print(f"总价值: ${total_value:,.2f}")
+    return total_value
+# 调用函数并传入不同的持仓
+analyze_portfolio(
+    股票A=5000,
+    债券B=3000,
+    基金C=2000
+)
+# 结合使用*args和**kwargs
+def portfolio_summary(*asset_names, **holdings):
+    """生成投资组合摘要"""
+    print("\n关注的资产:", ", ".join(asset_names))
+    return analyze_portfolio(**holdings)</pre>
+            <div class="feature">
+                <h4>金融应用示例：灵活的投资组合分析</h4>
+                <pre># 定义一个灵活的投资组合分析函数
+def analyze_investments(*assets, risk_free_rate=0.02, **metrics):
+    """
+    分析多个投资资产的各项指标
+    参数:
+        *assets: 资产对象列表
+        risk_free_rate: 无风险利率，默认2%
+        **metrics: 要计算的指标及其参数
+    """
+    results = {}
+    for asset in assets:
+        asset_results = {}
+        # 计算各项指标
+        if "return" in metrics:
+            period = metrics.get("return", 252)  # 默认使用252个交易日
+            asset_results["年化收益率"] = calculate_annual_return(asset, period)
+        if "volatility" in metrics:
+            period = metrics.get("volatility", 252)
+            asset_results["波动率"] = calculate_volatility(asset, period)
+        if "sharpe" in metrics:
+            asset_results["夏普比率"] = calculate_sharpe_ratio(
+                asset_results["年化收益率"],
+                asset_results["波动率"],
+                risk_free_rate
+            )
+        results[asset.name] = asset_results
+    return results
+# 示例使用
+class Asset:
+    def __init__(self, name, prices):
+        self.name = name
+        self.prices = prices
+# 模拟数据
+stock_a = Asset("股票A", [100, 102, 101, 103, 102])
+stock_b = Asset("股票B", [50, 51, 49, 52, 51])
+# 分析多个资产的多个指标
+results = analyze_investments(
+    stock_a, stock_b,
+    risk_free_rate=0.025,
+    return=252,
+    volatility=252,
+    sharpe=True
+)
+# 打印分析结果
+for asset_name, metrics in results.items():
+    print(f"\n{asset_name}分析结果:")
+    for metric_name, value in metrics.items():
+        print(f"  {metric_name}: {value:.4f}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>返回值</h2>
+            <p>Python函数可以返回单个值、多个值或者不返回任何值。了解不同的返回值方式可以让我们更灵活地设计函数。</p>
+            <h3>单个返回值</h3>
+            <pre># 返回单个值
+def calculate_compound_interest(principal, rate, time):
+    """计算复利"""
+    return principal * (1 + rate) ** time
+result = calculate_compound_interest(1000, 0.05, 3)
+print(f"复利结果: {result:.2f}")  # 输出复利计算结果</pre>
+            <h3>多个返回值</h3>
+            <pre># 返回多个值
+def analyze_stock_performance(prices):
+    """分析股票表现，返回最高价、最低价和平均价"""
+    return max(prices), min(prices), sum(prices) / len(prices)
+# 接收多个返回值
+high, low, avg = analyze_stock_performance([100, 105, 98, 103, 102])
+print(f"最高价: {high}, 最低价: {low}, 平均价: {avg:.2f}")</pre>
+            <h3>返回None</h3>
+            <pre># 不显式返回值的函数默认返回None
+def print_portfolio_summary(portfolio):
+    """打印投资组合摘要"""
+    print("投资组合摘要:")
+    for asset, value in portfolio.items():
+        print(f"  {asset}: ${value:,.2f}")
+    # 没有return语句，默认返回None
+result = print_portfolio_summary({"股票": 5000, "债券": 3000})
+print(f"函数返回值: {result}")  # 输出: 函数返回值: None</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>函数文档</h2>
+            <p>良好的函数文档可以帮助其他开发者（包括未来的自己）理解函数的用途、参数和返回值。Python使用文档字符串（docstring）来提供函数文档。</p>
+            <h3>文档字符串格式</h3>
+            <pre># Google风格的文档字符串
+def calculate_portfolio_metrics(portfolio, risk_free_rate=0.02):
+    """
+    计算投资组合的各项指标。
+    Args:
+        portfolio (dict): 投资组合，键为资产名称，值为持仓金额
+        risk_free_rate (float, optional): 无风险利率。默认为0.02
+    Returns:
+        dict: 包含以下指标的字典：
+            - total_value: 总价值
+            - returns: 收益率
+            - volatility: 波动率
+            - sharpe_ratio: 夏普比率
+    Raises:
+        ValueError: 如果portfolio为空或包含无效值
+    """
+    if not portfolio:
+        raise ValueError("投资组合不能为空")
+    # 计算指标...
+    metrics = {
+        "total_value": 1000000,
+        "returns": 0.15,
+        "volatility": 0.12,
+        "sharpe_ratio": 1.08
+    }
+    return metrics</pre>
+            <h3>查看函数文档</h3>
+            <pre># 使用help()函数查看文档
+help(calculate_portfolio_metrics)
+# 直接访问__doc__属性
+print(calculate_portfolio_metrics.__doc__)</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们学习了：</p>
+            <ul>
+                <li>如何定义和调用函数</li>
+                <li>不同类型的参数传递方式</li>
+                <li>如何使用可变参数处理不确定数量的输入</li>
+                <li>函数返回值的不同形式</li>
+                <li>如何编写清晰的函数文档</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一课中，我们将深入探讨函数的高级特性，包括作用域、闭包和装饰器。</p>
+                <a href="lesson2.html" class="btn btn-large">下一课：函数进阶 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="../module2/lesson4.html" class="btn">« 上一课：推导式和生成器</a>
+            </div>
+            <div>
+                <a href="lesson2.html" class="btn">下一课：函数进阶 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

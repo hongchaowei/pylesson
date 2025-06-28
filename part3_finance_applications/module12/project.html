@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目实战</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+    <main class="container">
+        <!-- 数据集下载区域 -->
+        <section class="lesson-content data-section">
+            <h2>📊 配套数据集</h2>
+            <div class="data-download-area">
+                <div class="data-info">
+                    <p>本项目需要使用以下数据文件构建完整的自动化交易系统。您可以直接下载使用。</p>
+                </div>
+                
+                <div class="data-files-grid">
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">📊</span>
+                            <span class="file-name">data.csv</span>
+                        </div>
+                        <div class="file-description">
+                            综合市场数据，包含价格、成交量、技术指标等，用于策略开发和回测
+                        </div>
+                        <div class="file-stats">
+                            <span>📈 市场数据</span>
+                            <span>📅 长期历史</span>
+                            <span>💾 ~200KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('data.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                    
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">📰</span>
+                            <span class="file-name">news_data.csv</span>
+                        </div>
+                        <div class="file-description">
+                            新闻情感数据，包含新闻标题、情感分析结果等，用于情感驱动的交易策略
+                        </div>
+                        <div class="file-stats">
+                            <span>📰 新闻数据</span>
+                            <span>🎭 情感分析</span>
+                            <span>💾 ~150KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('news_data.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="data-usage-tips">
+                    <h4>💡 使用说明</h4>
+                    <ul>
+                        <li>下载所有数据文件到您的工作目录</li>
+                        <li><code>data.csv</code> 用于技术分析策略和回测框架</li>
+                        <li><code>news_data.csv</code> 用于情感分析和新闻驱动策略</li>
+                        <li>数据适合构建完整的自动化交易系统项目</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="project-intro">
+            <h2>项目概述</h2>
+            <p>本项目将构建一个完整的自动化交易系统，整合本模块学到的所有知识，从数据获取到策略执行的全流程实现。</p>
+            <div class="project-requirements">
+                <h3>项目要求</h3>
+                <ul>
+                    <li>实现至少两种不同的交易策略</li>
+                    <li>构建完整的回测框架</li>
+                    <li>集成风险管理系统</li>
+                    <li>支持模拟交易和实盘交易</li>
+                    <li>提供可视化监控界面</li>
+                </ul>
+            </div>
+        </section>
+        <section class="project-architecture">
+            <h2>系统架构设计</h2>
+            <h3>1. 整体架构</h3>
+            <pre><code class="language-python">system_architecture = {
+    '数据层': ['实时数据流', '历史数据存储', '数据预处理'],
+    '策略层': ['信号生成', '组合管理', '参数优化'],
+    '执行层': ['订单管理', '交易执行', '滑点模型'],
+    '风控层': ['头寸限制', '止损策略', '波动率控制'],
+    '监控层': ['实时监控', '报警系统', '日志记录']
+}</code></pre>
+            <h3>2. 类图设计</h3>
+            <pre><code class="language-python">class TradingSystem:
+    """交易系统主类"""
+    def __init__(self, data_source, broker):
+        self.data_source = data_source
+        self.broker = broker
+        self.strategies = []
+        self.portfolio = Portfolio()
+        self.risk_manager = RiskManager()
+        self.order_manager = OrderManager()
+    def add_strategy(self, strategy):
+        """添加交易策略"""
+        self.strategies.append(strategy)
+    def run(self):
+        """运行交易系统"""
+        self._initialize()
+        self._start_event_loop()
+    def _initialize(self):
+        """初始化系统"""
+        self.data_source.connect()
+        self.broker.connect()
+    def _start_event_loop(self):
+        """启动事件循环"""
+        while True:
+            data = self.data_source.get_next()
+            self._process_data(data)
+    def _process_data(self, data):
+        """处理市场数据"""
+        for strategy in self.strategies:
+            signals = strategy.generate_signals(data)
+            self._execute_signals(signals, data)
+    def _execute_signals(self, signals, data):
+        """执行交易信号"""
+        orders = self.order_manager.create_orders(signals, data)
+        approved_orders = self.risk_manager.check_orders(orders, self.portfolio)
+        self.broker.execute_orders(approved_orders)</code></pre>
+        </section>
+        <section class="project-implementation">
+            <h2>核心模块实现</h2>
+            <h3>1. 双均线策略实现</h3>
+            <pre><code class="language-python">class DualMovingAverageStrategy:
+    """双均线交叉策略"""
+    def __init__(self, symbol, short_window=10, long_window=50):
+        self.symbol = symbol
+        self.short_window = short_window
+        self.long_window = long_window
+        self.short_ma = None
+        self.long_ma = None
+    def generate_signals(self, data):
+        """生成交易信号"""
+        if self.symbol not in data:
+            return {}
+        # 计算移动平均线
+        prices = data[self.symbol]['close']
+        self.short_ma = prices.rolling(self.short_window).mean()
+        self.long_ma = prices.rolling(self.long_window).mean()
+        # 生成信号
+        signals = {}
+        if self.short_ma[-1] > self.long_ma[-1] and self.short_ma[-2] <= self.long_ma[-2]:
+            signals[self.symbol] = 'BUY'
+        elif self.short_ma[-1] < self.long_ma[-1] and self.short_ma[-2] >= self.long_ma[-2]:
+            signals[self.symbol] = 'SELL'
+        else:
+            signals[self.symbol] = 'HOLD'
+        return signals</code></pre>
+            <h3>2. 风险管理系统实现</h3>
+            <pre><code class="language-python">class RiskManager:
+    """风险管理系统"""
+    def __init__(self, max_position_pct=0.2, max_loss_pct=0.05):
+        self.max_position_pct = max_position_pct
+        self.max_loss_pct = max_loss_pct
+        self.daily_pnl = 0
+    def check_orders(self, orders, portfolio):
+        """检查订单是否符合风控规则"""
+        approved_orders = []
+        for order in orders:
+            # 检查单标的风险敞口
+            position_value = portfolio.positions.get(order.symbol, 0)
+            order_value = order.quantity * portfolio.get_last_price(order.symbol)
+            if (position_value + order_value) / portfolio.total_value > self.max_position_pct:
+                continue
+            # 检查当日亏损
+            if self.daily_pnl < -self.max_loss_pct * portfolio.total_value:
+                continue
+            approved_orders.append(order)
+        return approved_orders
+    def update_pnl(self, pnl):
+        """更新盈亏"""
+        self.daily_pnl += pnl</code></pre>
+        </section>
+        <section class="project-complete">
+            <h2>完整系统实现</h2>
+            <h3>1. 主程序代码</h3>
+            <pre><code class="language-python">import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import time
+class DataSimulator:
+    """模拟数据源"""
+    def __init__(self, symbols):
+        self.symbols = symbols
+        self.data = {symbol: self._generate_random_walk() for symbol in symbols}
+    def _generate_random_walk(self, start_price=100, steps=1000):
+        """生成随机游走价格序列"""
+        returns = np.random.normal(0, 0.01, steps)
+        prices = start_price * (1 + returns).cumprod()
+        dates = pd.date_range(end=datetime.now(), periods=steps, freq='1min')
+        return pd.Series(prices, index=dates)
+    def get_next(self):
+        """获取下一分钟数据"""
+        time.sleep(0.1)  # 模拟实时延迟
+        now = datetime.now()
+        data = {}
+        for symbol in self.symbols:
+            data[symbol] = {
+                'open': self.data[symbol].loc[:now].iloc[-1],
+                'high': self.data[symbol].loc[:now].iloc[-1] * 1.01,
+                'low': self.data[symbol].loc[:now].iloc[-1] * 0.99,
+                'close': self.data[symbol].loc[:now].iloc[-1],
+                'volume': np.random.randint(100, 1000)
+            }
+        return data
+class PaperBroker:
+    """模拟经纪商"""
+    def __init__(self):
+        self.positions = {}
+        self.cash = 100000
+        self.orders = []
+    def execute_order(self, order):
+        """执行订单"""
+        fill_price = order.price if order.order_type == 'LIMIT' else \
+            self.get_market_price(order.symbol)
+        if order.side == 'BUY':
+            cost = order.quantity * fill_price
+            if cost <= self.cash:
+                self.cash -= cost
+                self.positions[order.symbol] = self.positions.get(order.symbol, 0) + order.quantity
+                return True
+        else:  # SELL
+            if order.symbol in self.positions and self.positions[order.symbol] >= order.quantity:
+                proceeds = order.quantity * fill_price
+                self.cash += proceeds
+                self.positions[order.symbol] -= order.quantity
+                if self.positions[order.symbol] == 0:
+                    del self.positions[order.symbol]
+                return True
+        return False
+    def get_market_price(self, symbol):
+        """获取当前市场价格"""
+        return np.random.uniform(95, 105)  # 简单模拟
+# 初始化系统
+symbols = ['AAPL', 'MSFT']
+data_source = DataSimulator(symbols)
+broker = PaperBroker()
+trading_system = TradingSystem(data_source, broker)
+# 添加策略
+trading_system.add_strategy(DualMovingAverageStrategy('AAPL'))
+trading_system.add_strategy(DualMovingAverageStrategy('MSFT', 5, 20))
+# 运行系统
+print("启动自动化交易系统...")
+trading_system.run()</code></pre>
+            <h3>2. 监控界面实现</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+from IPython.display import clear_output
+class Dashboard:
+    """交易监控仪表板"""
+    def __init__(self, trading_system):
+        self.system = trading_system
+        self.fig, self.axes = plt.subplots(2, 2, figsize=(15, 10))
+    def update(self):
+        """更新监控界面"""
+        clear_output(wait=True)
+        # 价格和信号图
+        self.axes[0, 0].clear()
+        for symbol in self.system.data_source.symbols:
+            prices = [d[symbol]['close'] for d in self.system.data_history]
+            self.axes[0, 0].plot(prices, label=symbol)
+        self.axes[0, 0].set_title('价格走势')
+        self.axes[0, 0].legend()
+        # 持仓图
+        self.axes[0, 1].clear()
+        positions = self.system.portfolio.positions
+        self.axes[0, 1].bar(positions.keys(), positions.values())
+        self.axes[0, 1].set_title('当前持仓')
+        # 资金曲线
+        self.axes[1, 0].clear()
+        equity = [p.total_value for p in self.system.portfolio_history]
+        self.axes[1, 0].plot(equity)
+        self.axes[1, 0].set_title('资金曲线')
+        # 风险指标
+        self.axes[1, 1].clear()
+        metrics = [
+            f"夏普比率: {self.system.performance.sharpe:.2f}",
+            f"最大回撤: {self.system.performance.max_drawdown:.2%}",
+            f"年化收益: {self.system.performance.annual_return:.2%}"
+        ]
+        self.axes[1, 1].text(0.1, 0.5, '\n'.join(metrics), fontsize=12)
+        self.axes[1, 1].axis('off')
+        plt.tight_layout()
+        plt.show()</code></pre>
+        </section>
+        <section class="project-deployment">
+            <h2>测试与部署</h2>
+            <h3>1. 测试策略</h3>
+            <pre><code class="language-python">def test_strategy(strategy, test_data):
+    """测试交易策略"""
+    signals = []
+    for data in test_data:
+        signals.append(strategy.generate_signals(data))
+    # 计算策略表现
+    returns = []
+    position = 0
+    for i in range(1, len(test_data)):
+        if signals[i-1] == 'BUY':
+            position = 1
+        elif signals[i-1] == 'SELL':
+            position = -1
+        ret = position * (test_data[i]['close'] / test_data[i-1]['close'] - 1)
+        returns.append(ret)
+    # 计算绩效指标
+    sharpe = np.mean(returns) / np.std(returns) * np.sqrt(252)
+    return {
+        '总收益率': np.sum(returns),
+        '夏普比率': sharpe,
+        '交易次数': len([s for s in signals if s != 'HOLD'])
+    }
+# 示例测试
+test_data = [...]  # 加载测试数据
+strategy = DualMovingAverageStrategy('AAPL')
+results = test_strategy(strategy, test_data)
+print("策略测试结果:", results)</code></pre>
+            <h3>2. 部署指南</h3>
+            <pre><code class="language-markdown">## 自动化交易系统部署指南
+1. **环境准备**
+   - Python 3.8+
+   - 依赖库: `pip install pandas numpy matplotlib requests`
+2. **配置文件**
+   ```ini
+   [broker]
+   api_key = your_api_key
+   secret_key = your_secret_key
+   paper_trading = true
+   [data]
+   symbols = AAPL,MSFT,GOOG
+   ```
+3. **启动系统**
+   ```bash
+   python trading_system.py --config config.ini
+   ```
+4. **监控系统**
+   - 访问 `http://localhost:8080/dashboard` 查看实时监控
+   - 日志文件: `logs/trading.log`
+5. **注意事项**
+   - 先在模拟账户测试
+   - 设置合理的风险控制参数
+   - 定期检查系统健康状况</code></pre>
+        </section>
+        <div class="project-navigation">
+            <a href="lesson4.html" class="btn">« 上一课: 实盘交易系统集成</a>
+            <a href="exercises.html" class="btn">练习题 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

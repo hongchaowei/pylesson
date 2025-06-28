@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第4课: 投资组合绩效评估 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <!-- 数据集下载区域 -->
+        <section class="lesson-content data-section">
+            <h2>📊 配套数据集</h2>
+            <div class="data-download-area">
+                <div class="data-info">
+                    <p>本课程需要使用以下投资组合绩效分析数据文件。您可以直接下载使用，无需手动创建。</p>
+                </div>
+                
+                <div class="data-files-grid">
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">📈</span>
+                            <span class="file-name">portfolio_returns.csv</span>
+                        </div>
+                        <div class="file-description">
+                            投资组合收益率数据，包含日期和收益率信息
+                        </div>
+                        <div class="file-stats">
+                            <span>📊 日收益率</span>
+                            <span>📅 2年数据</span>
+                            <span>💾 ~15KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('portfolio_returns.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                    
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">📊</span>
+                            <span class="file-name">benchmark_returns.csv</span>
+                        </div>
+                        <div class="file-description">
+                            基准收益率数据，用于投资组合绩效比较分析
+                        </div>
+                        <div class="file-stats">
+                            <span>📊 基准数据</span>
+                            <span>📅 2年数据</span>
+                            <span>💾 ~15KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('benchmark_returns.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                    
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">⚖️</span>
+                            <span class="file-name">portfolio_weights.csv</span>
+                        </div>
+                        <div class="file-description">
+                            投资组合权重配置数据，显示各资产的配置比例
+                        </div>
+                        <div class="file-stats">
+                            <span>📊 权重数据</span>
+                            <span>📅 时间序列</span>
+                            <span>💾 ~10KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('portfolio_weights.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                    
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">💰</span>
+                            <span class="file-name">asset_returns.csv</span>
+                        </div>
+                        <div class="file-description">
+                            各类资产收益率数据，用于投资组合构建和分析
+                        </div>
+                        <div class="file-stats">
+                            <span>📊 多资产</span>
+                            <span>📅 历史数据</span>
+                            <span>💾 ~25KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('asset_returns.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="data-usage-tips">
+                    <h4>💡 使用说明</h4>
+                    <ul>
+                        <li>下载所有数据文件到您的工作目录</li>
+                        <li>数据文件包含投资组合绩效分析所需的完整数据</li>
+                        <li>确保文件路径与代码中的引用一致</li>
+                        <li>数据为模拟数据，适合学习投资组合绩效评估</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2>绩效评估指标</h2>
+            <p>全面评估投资组合绩效需要多维度指标。</p>
+            <h3>1. 基本绩效指标</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+def calculate_performance(returns, risk_free_rate=0.02, periods=252):
+    """计算基本绩效指标"""
+    excess_returns = returns - risk_free_rate / periods
+    # 年化收益率
+    annual_return = np.prod(1 + returns) ** (periods/len(returns)) - 1
+    # 年化波动率
+    annual_volatility = returns.std() * np.sqrt(periods)
+    # 夏普比率
+    sharpe_ratio = np.sqrt(periods) * excess_returns.mean() / returns.std()
+    # 最大回撤
+    cum_returns = (1 + returns).cumprod()
+    peak = cum_returns.cummax()
+    drawdown = (cum_returns - peak) / peak
+    max_drawdown = drawdown.min()
+    return {
+        'Annual Return': annual_return,
+        'Annual Volatility': annual_volatility,
+        'Sharpe Ratio': sharpe_ratio,
+        'Max Drawdown': max_drawdown
+    }</code></pre>
+            <h3>2. 信息比率与跟踪误差</h3>
+            <pre><code class="language-python">def information_ratio(returns, benchmark_returns, periods=252):
+    """计算信息比率"""
+    active_returns = returns - benchmark_returns
+    tracking_error = active_returns.std() * np.sqrt(periods)
+    ir = np.sqrt(periods) * active_returns.mean() / tracking_error
+    return ir, tracking_error</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>基准比较分析</h2>
+            <p>通过与基准比较评估投资组合的相对表现。</p>
+            <h3>1. 超额收益分析</h3>
+            <pre><code class="language-python">def analyze_alpha(returns, benchmark_returns, risk_free_rate=0.02):
+    """分析超额收益"""
+    # 计算Jensen's Alpha
+    excess_port = returns - risk_free_rate/252
+    excess_bench = benchmark_returns - risk_free_rate/252
+    # 使用CAPM回归
+    beta = np.cov(excess_port, excess_bench)[0,1] / np.var(excess_bench)
+    alpha = excess_port.mean() - beta * excess_bench.mean()
+    return alpha * 252, beta  # 年化alpha</code></pre>
+            <h3>2. 相对表现可视化</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+def plot_relative_performance(returns, benchmark_returns):
+    """绘制相对表现图"""
+    cum_returns = (1 + returns).cumprod()
+    cum_bench = (1 + benchmark_returns).cumprod()
+    plt.figure(figsize=(12,6))
+    plt.plot(cum_returns, label='Portfolio')
+    plt.plot(cum_bench, label='Benchmark')
+    plt.fill_between(cum_returns.index,
+                    cum_returns, cum_bench,
+                    where=(cum_returns > cum_bench),
+                    facecolor='green', alpha=0.3,
+                    interpolate=True)
+    plt.fill_between(cum_returns.index,
+                    cum_returns, cum_bench,
+                    where=(cum_returns <= cum_bench),
+                    facecolor='red', alpha=0.3,
+                    interpolate=True)
+    plt.title('Portfolio vs Benchmark Performance')
+    plt.ylabel('Cumulative Returns')
+    plt.legend()
+    plt.grid(True)
+    plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>绩效归因分析</h2>
+            <p>分解投资组合收益的来源。</p>
+            <h3>1. Brinson模型归因</h3>
+            <pre><code class="language-python">def brinson_attribution(portfolio_weights, benchmark_weights,
+                        asset_returns, benchmark_return):
+    """Brinson模型绩效归因"""
+    # 资产配置效应
+    allocation = np.sum((portfolio_weights - benchmark_weights) *
+                       (benchmark_returns - benchmark_return))
+    # 证券选择效应
+    selection = np.sum(benchmark_weights *
+                      (asset_returns - benchmark_returns))
+    # 交互效应
+    interaction = np.sum((portfolio_weights - benchmark_weights) *
+                        (asset_returns - benchmark_returns))
+    return allocation, selection, interaction</code></pre>
+            <h3>2. 多期归因分析</h3>
+            <pre><code class="language-python">def multi_period_attribution(portfolio_returns, benchmark_returns,
+                           portfolio_weights, benchmark_weights,
+                           asset_returns):
+    """多期绩效归因"""
+    periods = len(portfolio_returns)
+    results = []
+    for t in range(periods):
+        alloc, select, inter = brinson_attribution(
+            portfolio_weights.iloc[t],
+            benchmark_weights.iloc[t],
+            asset_returns.iloc[t],
+            benchmark_returns.iloc[t]
+        )
+        results.append([alloc, select, inter])
+    return pd.DataFrame(results,
+                       columns=['Allocation', 'Selection', 'Interaction'],
+                       index=portfolio_returns.index)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>回测与结果解读</h2>
+            <p>通过历史数据验证投资策略的有效性。</p>
+            <h3>1. 回测框架实现</h3>
+            <pre><code class="language-python">class BacktestEngine:
+    """简单的回测引擎"""
+    def __init__(self, initial_capital=1000000):
+        self.initial_capital = initial_capital
+        self.positions = {}
+        self.cash = initial_capital
+        self.portfolio_values = []
+    def run_backtest(self, strategy, data):
+        """运行回测"""
+        for date, row in data.iterrows():
+            # 执行策略获取目标权重
+            target_weights = strategy(row)
+            # 计算当前持仓价值
+            current_values = {k: v * row[k+'_price']
+                            for k, v in self.positions.items()}
+            total_value = sum(current_values.values()) + self.cash
+            # 调整仓位至目标权重
+            for asset, target_weight in target_weights.items():
+                target_value = total_value * target_weight
+                current_value = current_values.get(asset, 0)
+                # 计算需要交易的金额
+                delta_value = target_value - current_value
+                if delta_value > self.cash:
+                    delta_value = self.cash  # 限制不超过可用现金
+                # 更新持仓和现金
+                if delta_value != 0:
+                    price = row[asset+'_price']
+                    delta_shares = delta_value / price
+                    self.positions[asset] = self.positions.get(asset, 0) + delta_shares
+                    self.cash -= delta_value
+            # 记录组合价值
+            current_values = {k: v * row[k+'_price']
+                            for k, v in self.positions.items()}
+            self.portfolio_values.append(sum(current_values.values()) + self.cash)
+        return self.portfolio_values</code></pre>
+            <h3>2. 回测结果分析</h3>
+            <pre><code class="language-python">def analyze_backtest(portfolio_values, benchmark_values):
+    """分析回测结果"""
+    portfolio_returns = pd.Series(portfolio_values).pct_change().dropna()
+    benchmark_returns = pd.Series(benchmark_values).pct_change().dropna()
+    # 计算绩效指标
+    perf = calculate_performance(portfolio_returns)
+    alpha, beta = analyze_alpha(portfolio_returns, benchmark_returns)
+    ir, te = information_ratio(portfolio_returns, benchmark_returns)
+    # 添加额外指标
+    perf['Alpha'] = alpha
+    perf['Beta'] = beta
+    perf['Information Ratio'] = ir
+    perf['Tracking Error'] = te
+    return pd.DataFrame.from_dict(perf, orient='index', columns=['Value'])</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>综合案例研究</h2>
+            <p>完整投资组合绩效评估流程。</p>
+            <h3>1. 案例数据准备</h3>
+            <pre><code class="language-python"># 假设我们已经有了以下数据
+portfolio_returns = pd.read_csv('portfolio_returns.csv', index_col=0, parse_dates=True)
+benchmark_returns = pd.read_csv('benchmark_returns.csv', index_col=0, parse_dates=True)
+portfolio_weights = pd.read_csv('portfolio_weights.csv', index_col=0, parse_dates=True)
+benchmark_weights = pd.read_csv('benchmark_weights.csv', index_col=0, parse_dates=True)
+asset_returns = pd.read_csv('asset_returns.csv', index_col=0, parse_dates=True)</code></pre>
+            <h3>2. 完整评估流程</h3>
+            <pre><code class="language-python"># 1. 计算基本绩效指标
+performance = calculate_performance(portfolio_returns)
+print("基本绩效指标:\n", performance)
+# 2. 基准比较分析
+alpha, beta = analyze_alpha(portfolio_returns, benchmark_returns)
+ir, te = information_ratio(portfolio_returns, benchmark_returns)
+print(f"\nAlpha: {alpha:.4f}, Beta: {beta:.4f}")
+print(f"信息比率: {ir:.4f}, 跟踪误差: {te:.4f}")
+# 3. 绘制相对表现图
+plot_relative_performance(portfolio_returns, benchmark_returns)
+# 4. 绩效归因分析
+attribution = multi_period_attribution(portfolio_returns, benchmark_returns,
+                                     portfolio_weights, benchmark_weights,
+                                     asset_returns)
+print("\n绩效归因结果(年化):\n", attribution.mean() * 252)
+# 5. 回测结果分析
+backtest_results = analyze_backtest(portfolio_values, benchmark_values)
+print("\n回测结果分析:\n", backtest_results)</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson3.html" class="btn">« 上一课: 投资组合优化</a>
+            <a href="project.html" class="btn">投资组合分析项目 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+    
+    <style>
+        /* 数据集下载区域样式 */
+        .data-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid #e1e8ed;
+        }
+        
+        .data-download-area h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .data-info {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #5a6c7d;
+            font-size: 1.1em;
+        }
+        
+        .data-files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .data-file-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e1e8ed;
+            transition: all 0.3s ease;
+        }
+        
+        .data-file-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .file-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .file-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .file-description {
+            color: #5a6c7d;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .file-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .file-stats span {
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #495057;
+            border: 1px solid #e9ecef;
+        }
+        
+        .download-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .data-usage-tips {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .data-usage-tips h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .data-usage-tips ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .data-usage-tips li {
+            margin-bottom: 8px;
+            color: #5a6c7d;
+        }
+        
+        .data-usage-tips code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #495057;
+        }
+        
+        /* 下载通知样式 */
+        .download-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .download-notification.show {
+            transform: translateX(0);
+        }
+    </style>
+    
+    <script>
+        // 数据下载功能
+        function downloadDataFile(filename) {
+            let csvContent = '';
+            
+            if (filename === 'portfolio_returns.csv') {
+                csvContent = generatePortfolioReturnsCSV();
+            } else if (filename === 'benchmark_returns.csv') {
+                csvContent = generateBenchmarkReturnsCSV();
+            } else if (filename === 'portfolio_weights.csv') {
+                csvContent = generatePortfolioWeightsCSV();
+            } else if (filename === 'asset_returns.csv') {
+                csvContent = generateAssetReturnsCSV();
+            }
+            
+            // 创建下载链接
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // 显示下载通知
+            showDownloadNotification(`${filename} 下载完成！`);
+        }
+        
+        function generatePortfolioReturnsCSV() {
+            const headers = 'date,returns\n';
+            let data = headers;
+            
+            const startDate = new Date('2022-01-01');
+            const endDate = new Date('2023-12-31');
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+                    const dailyReturn = (Math.random() - 0.5) * 0.04; // ±2%的日收益率
+                    data += `${currentDate.toISOString().split('T')[0]},${dailyReturn.toFixed(6)}\n`;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return data;
+        }
+        
+        function generateBenchmarkReturnsCSV() {
+            const headers = 'date,returns\n';
+            let data = headers;
+            
+            const startDate = new Date('2022-01-01');
+            const endDate = new Date('2023-12-31');
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+                    const dailyReturn = (Math.random() - 0.5) * 0.03; // ±1.5%的基准收益率
+                    data += `${currentDate.toISOString().split('T')[0]},${dailyReturn.toFixed(6)}\n`;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return data;
+        }
+        
+        function generatePortfolioWeightsCSV() {
+            const headers = 'date,AAPL,MSFT,GOOGL,TSLA,AMZN\n';
+            let data = headers;
+            
+            const startDate = new Date('2022-01-01');
+            const endDate = new Date('2023-12-31');
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+                    // 生成权重，确保总和为1
+                    let weights = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random()];
+                    const sum = weights.reduce((a, b) => a + b, 0);
+                    weights = weights.map(w => (w / sum).toFixed(4));
+                    
+                    data += `${currentDate.toISOString().split('T')[0]},${weights.join(',')}\n`;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return data;
+        }
+        
+        function generateAssetReturnsCSV() {
+            const headers = 'date,AAPL,MSFT,GOOGL,TSLA,AMZN,NVDA,META,NFLX\n';
+            let data = headers;
+            
+            const startDate = new Date('2022-01-01');
+            const endDate = new Date('2023-12-31');
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+                    const returns = [];
+                    for (let i = 0; i < 8; i++) {
+                        returns.push(((Math.random() - 0.5) * 0.06).toFixed(6)); // ±3%的日收益率
+                    }
+                    data += `${currentDate.toISOString().split('T')[0]},${returns.join(',')}\n`;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return data;
+        }
+        
+        function showDownloadNotification(message) {
+            // 移除现有通知
+            const existingNotification = document.querySelector('.download-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // 创建新通知
+            const notification = document.createElement('div');
+            notification.className = 'download-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // 显示通知
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

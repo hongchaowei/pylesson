@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程1: 类与对象 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>类与对象基础</h2>
+            <p>在面向对象编程中，<strong>类</strong>是创建对象的蓝图或模板，而<strong>对象</strong>是类的实例。类定义了对象的属性和行为。</p>
+            <h3>定义类</h3>
+            <p>在Python中，使用<code>class</code>关键字定义类：</p>
+            <pre>class Stock:
+    """表示一只股票的类"""
+    def __init__(self, symbol, price):
+        """初始化股票对象"""
+        self.symbol = symbol  # 股票代码
+        self.price = price    # 当前价格
+        self.shares = 0       # 持有数量
+    def buy(self, shares):
+        """购买股票"""
+        self.shares += shares
+        print(f"购买了{shares}股{self.symbol}，当前持有{self.shares}股")
+    def sell(self, shares):
+        """卖出股票"""
+        if shares > self.shares:
+            print("卖出数量不能超过持有数量")
+        else:
+            self.shares -= shares
+            print(f"卖出了{shares}股{self.symbol}，当前持有{self.shares}股")
+    def get_value(self):
+        """计算股票当前价值"""
+        return self.shares * self.price</pre>
+            <h3>创建对象</h3>
+            <p>定义了类之后，我们可以创建该类的对象：</p>
+            <pre># 创建Stock类的对象
+apple = Stock("AAPL", 150.25)  # 创建苹果公司的股票对象
+microsoft = Stock("MSFT", 320.50)  # 创建微软公司的股票对象
+# 访问对象的属性
+print(f"苹果股票代码: {apple.symbol}")
+print(f"微软股票价格: ${microsoft.price:.2f}")
+# 调用对象的方法
+apple.buy(100)  # 购买100股苹果股票
+microsoft.buy(50)  # 购买50股微软股票
+# 计算股票价值
+print(f"苹果股票价值: ${apple.get_value():.2f}")
+print(f"微软股票价值: ${microsoft.get_value():.2f}")</pre>
+            <h3>构造函数</h3>
+            <p><code>__init__</code>方法是一个特殊方法，称为构造函数或初始化方法。它在创建对象时自动调用，用于初始化对象的属性。</p>
+            <div class="feature">
+                <h4>金融应用示例：投资组合类</h4>
+                <p>让我们创建一个更完整的投资组合类，用于管理多个股票投资：</p>
+                <pre>class Portfolio:
+    """表示一个投资组合的类"""
+    def __init__(self, name):
+        """初始化投资组合"""
+        self.name = name
+        self.stocks = {}  # 存储股票对象，键为股票代码
+    def add_stock(self, stock):
+        """向投资组合添加股票"""
+        if stock.symbol in self.stocks:
+            print(f"股票{stock.symbol}已在投资组合中")
+        else:
+            self.stocks[stock.symbol] = stock
+            print(f"已将股票{stock.symbol}添加到投资组合")
+    def buy_stock(self, symbol, shares):
+        """购买投资组合中的股票"""
+        if symbol in self.stocks:
+            self.stocks[symbol].buy(shares)
+        else:
+            print(f"投资组合中没有股票{symbol}")
+    def sell_stock(self, symbol, shares):
+        """卖出投资组合中的股票"""
+        if symbol in self.stocks:
+            self.stocks[symbol].sell(shares)
+        else:
+            print(f"投资组合中没有股票{symbol}")
+    def get_total_value(self):
+        """计算投资组合的总价值"""
+        total = 0
+        for stock in self.stocks.values():
+            total += stock.get_value()
+        return total
+    def get_stock_performance(self):
+        """获取每只股票的表现"""
+        performance = {}
+        for symbol, stock in self.stocks.items():
+            performance[symbol] = {
+                'shares': stock.shares,
+                'price': stock.price,
+                'value': stock.get_value()
+            }
+        return performance
+# 使用投资组合类
+my_portfolio = Portfolio("我的投资组合")
+# 创建几只股票
+apple = Stock("AAPL", 150.25)
+microsoft = Stock("MSFT", 320.50)
+google = Stock("GOOG", 2500.75)
+# 将股票添加到投资组合
+my_portfolio.add_stock(apple)
+my_portfolio.add_stock(microsoft)
+my_portfolio.add_stock(google)
+# 购买一些股票
+my_portfolio.buy_stock("AAPL", 100)
+my_portfolio.buy_stock("MSFT", 50)
+my_portfolio.buy_stock("GOOG", 10)
+# 获取投资组合信息
+print(f"\n投资组合总价值: ${my_portfolio.get_total_value():,.2f}")
+print("\n股票表现:")
+for symbol, data in my_portfolio.get_stock_performance().items():
+    print(f"  {symbol}: {data['shares']}股 @ ${data['price']:.2f} = ${data['value']:,.2f}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>类变量与实例变量</h2>
+            <p>在类中，我们可以定义两种类型的变量：</p>
+            <ul>
+                <li><strong>类变量</strong>：属于类本身的变量，所有实例共享</li>
+                <li><strong>实例变量</strong>：属于特定实例的变量</li>
+            </ul>
+            <h3>类变量</h3>
+            <pre>class Stock:
+    """表示一只股票的类"""
+    # 类变量
+    market = "NASDAQ"  # 所有股票默认在纳斯达克上市
+    def __init__(self, symbol, price):
+        """初始化股票对象"""
+        self.symbol = symbol  # 实例变量
+        self.price = price    # 实例变量
+        self.shares = 0      # 实例变量
+    @classmethod
+    def change_market(cls, new_market):
+        """更改所有股票的市场"""
+        cls.market = new_market
+        print(f"所有股票的市场已更改为{new_market}")
+# 使用类变量
+print(f"默认市场: {Stock.market}")  # 通过类名访问
+apple = Stock("AAPL", 150.25)
+print(f"苹果股票市场: {apple.market}")  # 通过实例访问
+# 修改类变量
+Stock.change_market("NYSE")  # 更改所有股票的市场
+print(f"苹果股票市场: {apple.market}")  # 市场已更改
+print(f"默认市场: {Stock.market}")</pre>
+            <h3>实例变量</h3>
+            <pre># 继续使用上面的Stock类
+apple = Stock("AAPL", 150.25)
+microsoft = Stock("MSFT", 320.50)
+# 实例变量是每个实例独有的
+apple.shares = 100
+microsoft.shares = 50
+print(f"苹果股票持有数量: {apple.shares}")
+print(f"微软股票持有数量: {microsoft.shares}")
+# 修改一个实例的变量不会影响其他实例
+apple.shares += 50
+print(f"苹果股票持有数量: {apple.shares}")
+print(f"微软股票持有数量: {microsoft.shares}")  # 保持不变</pre>
+            <div class="feature">
+                <h4>金融应用示例：交易费用</h4>
+                <p>让我们扩展Stock类，添加交易费用功能：</p>
+                <pre>class Stock:
+    """表示一只股票的类"""
+    # 类变量 - 默认交易费用率
+    transaction_fee_rate = 0.001  # 0.1%
+    def __init__(self, symbol, price):
+        """初始化股票对象"""
+        self.symbol = symbol
+        self.price = price
+        self.shares = 0
+        self.total_fees = 0  # 累计交易费用
+    def buy(self, shares):
+        """购买股票并计算交易费用"""
+        fee = shares * self.price * self.transaction_fee_rate
+        self.shares += shares
+        self.total_fees += fee
+        print(f"购买了{shares}股{self.symbol}，交易费用: ${fee:.2f}")
+    def sell(self, shares):
+        """卖出股票并计算交易费用"""
+        if shares > self.shares:
+            print("卖出数量不能超过持有数量")
+        else:
+            fee = shares * self.price * self.transaction_fee_rate
+            self.shares -= shares
+            self.total_fees += fee
+            print(f"卖出了{shares}股{self.symbol}，交易费用: ${fee:.2f}")
+    @classmethod
+    def set_fee_rate(cls, new_rate):
+        """设置新的交易费用率"""
+        cls.transaction_fee_rate = new_rate
+        print(f"交易费用率已更改为{new_rate:.2%}")
+# 使用交易费用功能
+Stock.set_fee_rate(0.002)  # 设置为0.2%
+apple = Stock("AAPL", 150.25)
+apple.buy(100)  # 购买100股，交易费用: $30.05
+apple.sell(50)  # 卖出50股，交易费用: $15.03
+print(f"累计交易费用: ${apple.total_fees:.2f}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们学习了：</p>
+            <ul>
+                <li>如何定义类和创建对象</li>
+                <li>构造函数<code>__init__</code>的使用</li>
+                <li>实例方法和属性的定义</li>
+                <li>类变量与实例变量的区别</li>
+                <li>如何在金融应用中应用这些概念</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一课中，我们将学习继承与多态的概念，这是面向对象编程的核心特性。</p>
+                <a href="lesson2.html" class="btn btn-large">下一课：继承与多态 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="../module3/lesson4.html" class="btn">« 上一课：标准库概览</a>
+            </div>
+            <div>
+                <a href="lesson2.html" class="btn">下一课：继承与多态 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

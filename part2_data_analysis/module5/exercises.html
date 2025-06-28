@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习题: NumPy与金融数据处理 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>练习题说明</h2>
+            <p>以下练习题旨在帮助您巩固模块5中学到的NumPy和金融数据处理知识。每个练习题都包含一个问题描述和一个参考解答。建议您先尝试自己解决问题，然后再查看参考解答。</p>
+            <p>这些练习题涵盖了NumPy数组操作、金融数据处理、收益率计算、移动窗口计算、波动率和相关性分析等内容。完成这些练习将帮助您为后续的金融数据分析打下坚实的基础。</p>
+        </section>
+        <section class="lesson-content">
+            <h2>基础练习</h2>
+            <div class="exercise">
+                <h3>练习1: 创建NumPy数组</h3>
+                <p><strong>问题</strong>：创建以下NumPy数组：</p>
+                <ul>
+                    <li>一个包含数字1到10的一维数组</li>
+                    <li>一个3x3的全1数组</li>
+                    <li>一个5x5的单位矩阵</li>
+                    <li>一个从0到1之间均匀分布的10个数的数组</li>
+                    <li>一个3x4的随机数组（值在0到1之间）</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import numpy as np
+# 创建1到10的一维数组
+arr1 = np.arange(1, 11)
+print("1到10的数组:", arr1)
+# 创建3x3全1数组
+arr2 = np.ones((3, 3))
+print("\n3x3全1数组:\n", arr2)
+# 创建5x5单位矩阵
+arr3 = np.eye(5)
+print("\n5x5单位矩阵:\n", arr3)
+# 创建0到1之间的10个数
+arr4 = np.linspace(0, 1, 10)
+print("\n0到1之间的10个数:", arr4)
+# 创建3x4随机数组
+arr5 = np.random.random((3, 4))
+print("\n3x4随机数组:\n", arr5)</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习2: 数组索引和切片</h3>
+                <p><strong>问题</strong>：给定以下数组：</p>
+                <pre>arr = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])</pre>
+                <p>编写代码实现以下操作：</p>
+                <ul>
+                    <li>获取第二行第三列的元素</li>
+                    <li>获取第一行的所有元素</li>
+                    <li>获取第二列的所有元素</li>
+                    <li>获取从左上到右下的对角线元素</li>
+                    <li>获取所有大于5的元素</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import numpy as np
+arr = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+# 获取第二行第三列的元素
+print("第二行第三列:", arr[1, 2])
+# 获取第一行的所有元素
+print("\n第一行:", arr[0, :])
+# 获取第二列的所有元素
+print("\n第二列:", arr[:, 1])
+# 获取对角线元素
+print("\n对角线:", arr.diagonal())
+# 获取所有大于5的元素
+print("\n大于5的元素:", arr[arr > 5])</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习3: 数组运算</h3>
+                <p><strong>问题</strong>：给定以下两个数组：</p>
+                <pre>a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])</pre>
+                <p>编写代码实现以下运算：</p>
+                <ul>
+                    <li>元素相加</li>
+                    <li>元素相乘</li>
+                    <li>点积</li>
+                    <li>广播运算：a + 10</li>
+                    <li>计算a的平方和</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import numpy as np
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+# 元素相加
+print("a + b =", a + b)
+# 元素相乘
+print("\na * b =", a * b)
+# 点积
+print("\na · b =", np.dot(a, b))
+# 广播运算
+print("\na + 10 =", a + 10)
+# 平方和
+print("\na的平方和 =", np.sum(a**2))</pre>
+                </details>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用练习</h2>
+            <div class="exercise">
+                <h3>练习4: 收益率计算</h3>
+                <p><strong>问题</strong>：给定以下股票价格数组：</p>
+                <pre>prices = np.array([100, 102, 101, 105, 107, 106, 110, 108, 112, 115])</pre>
+                <p>编写代码计算：</p>
+                <ul>
+                    <li>每日简单收益率</li>
+                    <li>每日对数收益率</li>
+                    <li>累积简单收益率</li>
+                    <li>累积对数收益率</li>
+                    <li>平均日收益率</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import numpy as np
+prices = np.array([100, 102, 101, 105, 107, 106, 110, 108, 112, 115])
+# 计算简单收益率
+simple_returns = (prices[1:] - prices[:-1]) / prices[:-1]
+print("简单收益率:", simple_returns)
+# 计算对数收益率
+log_returns = np.log(prices[1:] / prices[:-1])
+print("\n对数收益率:", log_returns)
+# 计算累积简单收益率
+cum_simple_return = np.prod(1 + simple_returns) - 1
+print("\n累积简单收益率:", cum_simple_return)
+# 计算累积对数收益率
+cum_log_return = np.sum(log_returns)
+print("\n累积对数收益率:", cum_log_return)
+# 计算平均日收益率
+mean_return = np.mean(simple_returns)
+print("\n平均日收益率:", mean_return)</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习5: 移动平均计算</h3>
+                <p><strong>问题</strong>：给定以下股票价格数组：</p>
+                <pre>prices = np.array([100, 102, 101, 105, 107, 106, 110, 108, 112, 115,
+                 116, 118, 117, 119, 120, 121, 123, 122, 124, 125])</pre>
+                <p>编写代码计算：</p>
+                <ul>
+                    <li>5日简单移动平均</li>
+                    <li>10日简单移动平均</li>
+                    <li>5日指数移动平均</li>
+                    <li>20日波动率（年化）</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import numpy as np
+prices = np.array([100, 102, 101, 105, 107, 106, 110, 108, 112, 115,
+                  116, 118, 117, 119, 120, 121, 123, 122, 124, 125])
+# 计算5日简单移动平均
+def moving_average(data, window):
+    weights = np.ones(window) / window
+    return np.convolve(data, weights, mode='valid')
+sma_5 = moving_average(prices, 5)
+print("5日简单移动平均:", sma_5)
+# 计算10日简单移动平均
+sma_10 = moving_average(prices, 10)
+print("\n10日简单移动平均:", sma_10)
+# 计算5日指数移动平均
+def exponential_moving_average(data, span):
+    weights = np.exp(np.linspace(-1, 0, span))
+    weights /= weights.sum()
+    ema = np.zeros_like(data)
+    ema[:span] = data[:span].mean()
+    for i in range(span, len(data)):
+        ema[i] = (data[i] * weights[0]) + (ema[i-1] * (1 - weights[0]))
+    return ema
+ema_5 = exponential_moving_average(prices, 5)
+print("\n5日指数移动平均:", ema_5)
+# 计算20日波动率（年化）
+returns = (prices[1:] - prices[:-1]) / prices[:-1]
+volatility = np.std(returns) * np.sqrt(252)
+print("\n20日年化波动率:", volatility)</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习6: 相关性分析</h3>
+                <p><strong>问题</strong>：给定三只股票的收益率数据：</p>
+                <pre>stock_a = np.array([0.01, 0.02, -0.01, 0.03, 0.02, -0.02, 0.01, 0.03, -0.01, 0.02])
+stock_b = np.array([0.02, -0.01, 0.03, 0.01, -0.01, 0.02, 0.01, -0.02, 0.03, 0.01])
+stock_c = np.array([-0.01, 0.03, 0.02, 0.01, -0.02, 0.01, 0.02, -0.01, 0.02, 0.03])</pre>
+                <p>编写代码计算：</p>
+                <ul>
+                    <li>每只股票的平均收益率</li>
+                    <li>每只股票的波动率（年化）</li>
+                    <li>股票A和B的协方差</li>
+                    <li>三只股票的相关系数矩阵</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import numpy as np
+stock_a = np.array([0.01, 0.02, -0.01, 0.03, 0.02, -0.02, 0.01, 0.03, -0.01, 0.02])
+stock_b = np.array([0.02, -0.01, 0.03, 0.01, -0.01, 0.02, 0.01, -0.02, 0.03, 0.01])
+stock_c = np.array([-0.01, 0.03, 0.02, 0.01, -0.02, 0.01, 0.02, -0.01, 0.02, 0.03])
+# 计算平均收益率
+mean_a = np.mean(stock_a)
+mean_b = np.mean(stock_b)
+mean_c = np.mean(stock_c)
+print("平均收益率:")
+print("股票A:", mean_a)
+print("股票B:", mean_b)
+print("股票C:", mean_c)
+# 计算波动率（年化）
+vol_a = np.std(stock_a) * np.sqrt(252)
+vol_b = np.std(stock_b) * np.sqrt(252)
+vol_c = np.std(stock_c) * np.sqrt(252)
+print("\n年化波动率:")
+print("股票A:", vol_a)
+print("股票B:", vol_b)
+print("股票C:", vol_c)
+# 计算股票A和B的协方差
+cov_ab = np.cov(stock_a, stock_b)[0, 1]
+print("\n股票A和B的协方差:", cov_ab)
+# 计算相关系数矩阵
+corr_matrix = np.corrcoef([stock_a, stock_b, stock_c])
+print("\n相关系数矩阵:")
+print(corr_matrix)</pre>
+                </details>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>挑战练习</h2>
+            <div class="exercise">
+                <h3>挑战1: 投资组合分析</h3>
+                <p><strong>问题</strong>：给定三只股票的历史收益率数据（每行代表一个时间段，每列代表一只股票）：</p>
+                <pre>returns = np.array([
+    [0.01, 0.02, -0.01],
+    [0.02, -0.01, 0.03],
+    [-0.01, 0.03, 0.02],
+    [0.03, 0.01, 0.01],
+    [0.02, -0.01, -0.02],
+    [-0.02, 0.02, 0.01],
+    [0.01, 0.01, 0.02],
+    [0.03, -0.02, -0.01],
+    [-0.01, 0.03, 0.02],
+    [0.02, 0.01, 0.03]
+])</pre>
+                <p>编写代码实现以下功能：</p>
+                <ol>
+                    <li>计算投资组合的等权重收益率（假设三只股票权重相同）</li>
+                    <li>计算投资组合的年化收益率和年化波动率</li>
+                    <li>计算投资组合的夏普比率（假设无风险利率为0.02）</li>
+                    <li>找出使投资组合波动率最小的权重分配</li>
+                </ol>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import numpy as np
+returns = np.array([
+    [0.01, 0.02, -0.01],
+    [0.02, -0.01, 0.03],
+</body>
+</html>

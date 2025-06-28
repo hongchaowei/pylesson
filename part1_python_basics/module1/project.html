@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面标题</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>项目概述</h2>
+            <p>在本项目中，您将创建一个交互式金融计算器，能够执行多种常见的金融计算。这个项目将帮助您应用模块1中学到的Python基础知识，包括变量、运算符、输入输出等。</p>
+            <h3>学习目标</h3>
+            <p>完成本项目后，您将能够：</p>
+            <ul>
+                <li>创建一个完整的交互式Python程序</li>
+                <li>应用基本的Python语法和数据类型</li>
+                <li>处理用户输入和验证</li>
+                <li>实现多种金融计算公式</li>
+                <li>格式化输出金融数据</li>
+                <li>使用基本的错误处理机制</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>项目需求</h2>
+            <p>您的金融计算器应该能够执行以下计算：</p>
+            <ol>
+                <li><strong>复利计算</strong>：计算投资在特定时间段内的复利增长</li>
+                <li><strong>贷款月供计算</strong>：计算固定利率贷款的月供金额</li>
+                <li><strong>退休计划计算</strong>：计算达到退休目标所需的每月储蓄金额</li>
+                <li><strong>通货膨胀影响计算</strong>：计算通货膨胀对金钱价值的影响</li>
+            </ol>
+            <p>您的程序应该：</p>
+            <ul>
+                <li>提供一个菜单，让用户选择要执行的计算</li>
+                <li>获取并验证用户输入</li>
+                <li>执行选定的计算</li>
+                <li>以易于理解的格式显示结果</li>
+                <li>允许用户执行多次计算，直到选择退出</li>
+                <li>妥善处理可能的错误情况</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>项目步骤</h2>
+            <h3>步骤1：创建程序框架</h3>
+            <p>首先，创建程序的基本结构，包括主菜单和主循环。</p>
+            <pre># financial_calculator.py
+def main():
+    print("欢迎使用金融计算器")
+    while True:
+        print("\n请选择要执行的计算：")
+        print("1. 复利计算")
+        print("2. 贷款月供计算")
+        print("3. 退休计划计算")
+        print("4. 通货膨胀影响计算")
+        print("0. 退出程序")
+        choice = input("\n请输入您的选择 (0-4): ")
+        if choice == '0':
+            print("感谢使用金融计算器，再见！")
+            break
+        elif choice == '1':
+            compound_interest_calculator()
+        elif choice == '2':
+            loan_payment_calculator()
+        elif choice == '3':
+            retirement_calculator()
+        elif choice == '4':
+            inflation_calculator()
+        else:
+            print("无效的选择，请重新输入。")
+# 在这里添加各个计算函数的定义
+if __name__ == "__main__":
+    main()</pre>
+            <h3>步骤2：实现复利计算</h3>
+            <p>复利计算是最基本的金融计算之一，用于计算投资随时间增长的价值。</p>
+            <pre>def compound_interest_calculator():
+    print("\n===== 复利计算器 =====")
+    try:
+        principal = float(input("请输入本金金额: "))
+        if principal <= 0:
+            print("错误：本金必须为正数")
+            return
+        rate = float(input("请输入年利率 (例如，5%输入0.05): "))
+        if rate < 0:
+            print("错误：利率不能为负数")
+            return
+        time = float(input("请输入投资年限: "))
+        if time <= 0:
+            print("错误：投资年限必须为正数")
+            return
+        compounds_per_year = int(input("请输入每年复利次数 (1, 2, 4, 12, 365): "))
+        if compounds_per_year not in [1, 2, 4, 12, 365]:
+            print("错误：每年复利次数必须是1, 2, 4, 12或365")
+            return
+        # 计算复利
+        amount = principal * (1 + rate / compounds_per_year) ** (compounds_per_year * time)
+        interest = amount - principal
+        # 显示结果
+        print("\n===== 计算结果 =====")
+        print(f"本金: ${principal:,.2f}")
+        print(f"年利率: {rate:.2%}")
+        print(f"投资年限: {time}年")
+        print(f"每年复利次数: {compounds_per_year}")
+        print(f"最终金额: ${amount:,.2f}")
+        print(f"利息收入: ${interest:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")</pre>
+            <h3>步骤3：实现贷款月供计算</h3>
+            <p>贷款月供计算器可以帮助用户计算每月需要支付的贷款金额。</p>
+            <pre>def loan_payment_calculator():
+    print("\n===== 贷款月供计算器 =====")
+    try:
+        loan_amount = float(input("请输入贷款金额: "))
+        if loan_amount <= 0:
+            print("错误：贷款金额必须为正数")
+            return
+        annual_rate = float(input("请输入年利率 (例如，5%输入0.05): "))
+        if annual_rate < 0:
+            print("错误：利率不能为负数")
+            return
+        years = int(input("请输入贷款年限: "))
+        if years <= 0:
+            print("错误：贷款年限必须为正整数")
+            return
+        # 计算月供
+        monthly_rate = annual_rate / 12
+        num_payments = years * 12
+        if monthly_rate == 0:
+            # 如果利率为0，简单地将贷款金额除以总月数
+            monthly_payment = loan_amount / num_payments
+        else:
+            # 使用贷款月供公式
+            monthly_payment = loan_amount * (monthly_rate * (1 + monthly_rate) ** num_payments) / ((1 + monthly_rate) ** num_payments - 1)
+        total_payment = monthly_payment * num_payments
+        total_interest = total_payment - loan_amount
+        # 显示结果
+        print("\n===== 计算结果 =====")
+        print(f"贷款金额: ${loan_amount:,.2f}")
+        print(f"年利率: {annual_rate:.2%}")
+        print(f"贷款年限: {years}年")
+        print(f"月供金额: ${monthly_payment:,.2f}")
+        print(f"总还款额: ${total_payment:,.2f}")
+        print(f"总利息: ${total_interest:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")</pre>
+            <h3>步骤4：实现退休计划计算</h3>
+            <p>退休计划计算器可以帮助用户确定达到退休目标所需的每月储蓄金额。</p>
+            <pre>def retirement_calculator():
+    print("\n===== 退休计划计算器 =====")
+    try:
+        goal_amount = float(input("请输入退休目标金额: "))
+        if goal_amount <= 0:
+            print("错误：目标金额必须为正数")
+            return
+        current_savings = float(input("请输入当前储蓄金额: "))
+        if current_savings < 0:
+            print("错误：当前储蓄不能为负数")
+            return
+        years_to_retirement = int(input("请输入距离退休的年数: "))
+        if years_to_retirement <= 0:
+            print("错误：年数必须为正整数")
+            return
+        annual_return = float(input("请输入预期年回报率 (例如，7%输入0.07): "))
+        if annual_return < 0:
+            print("错误：回报率不能为负数")
+            return
+        # 计算每月所需储蓄金额
+        months = years_to_retirement * 12
+        monthly_return = annual_return / 12
+        # 使用公式计算每月储蓄金额
+        if monthly_return == 0:
+            monthly_savings = (goal_amount - current_savings) / months
+        else:
+            monthly_savings = (goal_amount - current_savings * (1 + monthly_return) ** months) / ((1 + monthly_return) ** months - 1) * monthly_return
+        total_contributions = monthly_savings * months
+        investment_growth = goal_amount - current_savings - total_contributions
+        # 显示结果
+        print("\n===== 计算结果 =====")
+        print(f"退休目标金额: ${goal_amount:,.2f}")
+        print(f"当前储蓄金额: ${current_savings:,.2f}")
+        print(f"距离退休年数: {years_to_retirement}年")
+        print(f"预期年回报率: {annual_return:.2%}")
+        print(f"每月需储蓄金额: ${monthly_savings:,.2f}")
+        print(f"总储蓄金额: ${total_contributions:,.2f}")
+        print(f"投资增长: ${investment_growth:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")</pre>
+            <h3>步骤5：实现通货膨胀影响计算</h3>
+            <p>通货膨胀计算器可以帮助用户了解通货膨胀对金钱购买力的影响。</p>
+            <pre>def inflation_calculator():
+    print("\n===== 通货膨胀影响计算器 =====")
+    try:
+        present_value = float(input("请输入当前金额: "))
+        if present_value <= 0:
+            print("错误：金额必须为正数")
+            return
+        inflation_rate = float(input("请输入预期年通货膨胀率 (例如，3%输入0.03): "))
+        if inflation_rate < 0:
+            print("错误：通货膨胀率不能为负数")
+            return
+        years = int(input("请输入年数: "))
+        if years <= 0:
+            print("错误：年数必须为正整数")
+            return
+        # 计算通货膨胀后的价值
+        future_value = present_value / ((1 + inflation_rate) ** years)
+        loss_of_value = present_value - future_value
+        loss_percentage = loss_of_value / present_value * 100
+        # 显示结果
+        print("\n===== 计算结果 =====")
+        print(f"当前金额: ${present_value:,.2f}")
+        print(f"年通货膨胀率: {inflation_rate:.2%}")
+        print(f"年数: {years}年")
+        print(f"{years}年后的等值购买力: ${future_value:,.2f}")
+        print(f"购买力损失: ${loss_of_value:,.2f}")
+        print(f"购买力损失百分比: {loss_percentage:.2f}%")
+    except ValueError:
+        print("错误：请输入有效的数字")</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>完整代码</h2>
+            <p>将上述所有函数组合起来，形成完整的金融计算器程序：</p>
+            <pre># financial_calculator.py
+def main():
+    print("欢迎使用金融计算器")
+    while True:
+        print("\n请选择要执行的计算：")
+        print("1. 复利计算")
+        print("2. 贷款月供计算")
+        print("3. 退休计划计算")
+        print("4. 通货膨胀影响计算")
+        print("0. 退出程序")
+        choice = input("\n请输入您的选择 (0-4): ")
+        if choice == '0':
+            print("感谢使用金融计算器，再见！")
+            break
+        elif choice == '1':
+            compound_interest_calculator()
+        elif choice == '2':
+            loan_payment_calculator()
+        elif choice == '3':
+            retirement_calculator()
+        elif choice == '4':
+            inflation_calculator()
+        else:
+            print("无效的选择，请重新输入。")
+def compound_interest_calculator():
+    print("\n===== 复利计算器 =====")
+    try:
+        principal = float(input("请输入本金金额: "))
+        if principal <= 0:
+            print("错误：本金必须为正数")
+            return
+        rate = float(input("请输入年利率 (例如，5%输入0.05): "))
+        if rate < 0:
+            print("错误：利率不能为负数")
+            return
+        time = float(input("请输入投资年限: "))
+        if time <= 0:
+            print("错误：投资年限必须为正数")
+            return
+        compounds_per_year = int(input("请输入每年复利次数 (1, 2, 4, 12, 365): "))
+        if compounds_per_year not in [1, 2, 4, 12, 365]:
+            print("错误：每年复利次数必须是1, 2, 4, 12或365")
+            return
+        # 计算复利
+        amount = principal * (1 + rate / compounds_per_year) ** (compounds_per_year * time)
+        interest = amount - principal
+        # 显示结果
+        print("\n===== 计算结果 =====")
+        print(f"本金: ${principal:,.2f}")
+        print(f"年利率: {rate:.2%}")
+        print(f"投资年限: {time}年")
+        print(f"每年复利次数: {compounds_per_year}")
+        print(f"最终金额: ${amount:,.2f}")
+        print(f"利息收入: ${interest:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")
+def loan_payment_calculator():
+    print("\n===== 贷款月供计算器 =====")
+    try:
+        loan_amount = float(input("请输入贷款金额: "))
+        if loan_amount <= 0:
+            print("错误：贷款金额必须为正数")
+            return
+        annual_rate = float(input("请输入年利率 (例如，5%输入0.05): "))
+        if annual_rate < 0:
+            print("错误：利率不能为负数")
+            return
+        years = int(input("请输入贷款年限: "))
+        if years <= 0:
+            print("错误：贷款年限必须为正整数")
+            return
+        # 计算月供
+        monthly_rate = annual_rate / 12
+        num_payments = years * 12
+        if monthly_rate == 0:
+            # 如果利率为0，简单地将贷款金额除以总月数
+            monthly_payment = loan_amount / num_payments
+        else:
+            # 使用贷款月供公式
+            monthly_payment = loan_amount * (monthly_rate * (1 + monthly_rate) ** num_payments) / ((1 + monthly_rate) ** num_payments - 1)
+        total_payment = monthly_payment * num_payments
+        total_interest = total_payment - loan_amount
+        # 显示结果
+        print("\n===== 计算结果 =====")
+        print(f"贷款金额: ${loan_amount:,.2f}")
+        print(f"年利率: {annual_rate:.2%}")
+        print(f"贷款年限: {years}年")
+        print(f"月供金额: ${monthly_payment:,.2f}")
+        print(f"总还款额: ${total_payment:,.2f}")
+        print(f"总利息: ${total_interest:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")
+def retirement_calculator():
+    print("\n===== 退休计划计算器 =====")
+    try:
+        goal_amount = float(input("请输入退休目标金额: "))
+        if goal_amount <= 0:
+            print("错误：目标金额必须为正数")
+            return
+        current_savings = float(input("请输入当前储蓄金额: "))
+        if current_savings < 0:
+            print("错误：当前储蓄不能为负数")
+            return
+        years_to_retirement = int(input("请输入距离退休的年数: "))
+        if years_to_retirement <= 0:
+            print("错误：年数必须为正整数")
+            return
+        annual_return = float(input("请输入预期年回报率 (例如，7%输入0.07): "))
+        if annual_return < 0:
+            print("错误：回报率不能为负数")
+            return
+        # 计算每月所需储蓄金额
+        months = years_to_retirement * 12
+        monthly_return = annual_return / 12
+        # 使用公式计算每月储蓄金额
+        if monthly_return == 0:
+            monthly_savings = (goal_amount - current_savings) / months
+        else:
+            monthly_savings = (goal_amount - current_savings * (1 + monthly_return) ** months) / ((1 + monthly_return) ** months - 1) * monthly_return
+        total_contributions = monthly_savings * months
+        investment_growth = goal_amount - current_savings - total_contributions
+        # 显示结果
+        print("\n===== 计算结果 =====")
+        print(f"退休目标金额: ${goal_amount:,.2f}")
+        print(f"当前储蓄金额: ${current_savings:,.2f}")
+        print(f"距离退休年数: {years_to_retirement}年")
+        print(f"预期年回报率: {annual_return:.2%}")
+        print(f"每月需储蓄金额: ${monthly_savings:,.2f}")
+        print(f"总储蓄金额: ${total_contributions:,.2f}")
+        print(f"投资增长: ${investment_growth:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")
+def inflation_calculator():
+    print("\n===== 通货膨胀影响计算器 =====")
+    try:
+        present_value = float(input("请输入当前金额: "))
+        if present_value <= 0:
+            print("错误：金额必须为正数")
+            return
+        inflation_rate = float(input("请输入预期年通货膨胀率 (例如，3%输入0.03): "))
+        if inflation_rate < 0:
+            print("错误：通货膨胀率不能为负数")
+            return
+        years = int(input("请输入年数: "))
+        if years <= 0:
+            print("错误：年数必须为正整数")
+            return
+        # 计算通货膨胀后的价值
+        future_value = present_value / ((1 + inflation_rate) ** years)
+        loss_of_value = present_value - future_value
+        loss_percentage = loss_of_value / present_value * 100
+        # 显示结果
+        print("\n===== 计算结果 =====")
+        print(f"当前金额: ${present_value:,.2f}")
+        print(f"年通货膨胀率: {inflation_rate:.2%}")
+        print(f"年数: {years}年")
+        print(f"{years}年后的等值购买力: ${future_value:,.2f}")
+        print(f"购买力损失: ${loss_of_value:,.2f}")
+        print(f"购买力损失百分比: {loss_percentage:.2f}%")
+    except ValueError:
+        print("错误：请输入有效的数字")
+if __name__ == "__main__":
+    main()</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>项目扩展</h2>
+            <p>完成基本功能后，您可以考虑以下扩展，进一步提升您的金融计算器：</p>
+            <ol>
+                <li><strong>保存结果到文件</strong>：添加将计算结果保存到文本文件的功能</li>
+                <li><strong>添加更多计算功能</strong>：如投资回报率(ROI)计算、净现值(NPV)计算等</li>
+                <li><strong>改进用户界面</strong>：使用循环和更好的错误处理，提升用户体验</li>
+                <li><strong>添加图形界面</strong>：如果您熟悉GUI库（如Tkinter），可以创建一个图形界面</li>
+                <li><strong>添加数据可视化</strong>：使用matplotlib等库，添加结果的图形展示</li>
+            </ol>
+        </section>
+        <section class="lesson-content">
+            <h2>提交要求</h2>
+            <p>完成项目后，请提交以下内容：</p>
+            <ol>
+                <li>完整的Python源代码文件（financial_calculator.py）</li>
+                <li>一个简短的文档，描述您的程序功能和使用方法</li>
+                <li>对于扩展功能，请说明您实现了哪些扩展，以及如何使用这些功能</li>
+            </ol>
+            <h3>评分标准</h3>
+            <ul>
+                <li><strong>功能完整性（40%）</strong>：是否实现了所有要求的计算功能</li>
+                <li><strong>代码质量（30%）</strong>：代码结构、命名规范、注释等</li>
+                <li><strong>用户体验（20%）</strong>：输入验证、错误处理、结果展示等</li>
+                <li><strong>扩展功能（10%）</strong>：实现的扩展功能的质量和创新性</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>通过完成这个金融计算器项目，您将能够应用模块1中学到的Python基础知识，创建一个实用的金融工具。这个项目涵盖了变量、运算符、输入输出、错误处理等核心概念，为您后续学习更复杂的Python编程和金融应用奠定基础。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>完成项目后，您可以查看模块1的练习题，进一步巩固所学知识。</p>
+                <a href="exercises.html" class="btn btn-large">查看练习题</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson4.html" class="btn">« 上一课：输入与输出</a>
+            </div>
+            <div>
+                <a href="exercises.html" class="btn">练习题 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

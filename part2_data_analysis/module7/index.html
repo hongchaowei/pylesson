@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块7: 数据可视化 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 英雄区域样式 */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-section h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero-section .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        
+        /* 特色网格样式 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        /* 课程卡片样式 */
+        .lesson-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .lesson-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .lesson-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .lesson-card h3 i {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+        
+        .lesson-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .lesson-card a:hover {
+            color: #667eea;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+        
+        /* 项目和练习卡片样式 */
+        .project-card, .exercises-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .project-card h2, .exercises-card h2 {
+            color: white;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .project-card a, .exercises-card a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .project-card a:hover, .exercises-card a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 学习资源样式 */
+        .resources-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+        
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .resource-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .resource-item h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* 模块导航样式 */
+        .module-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 3rem 0;
+            gap: 1rem;
+        }
+        
+        .module-navigation .btn {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .module-navigation {
+                flex-direction: column;
+            }
+            
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <!-- 英雄区域 -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h1>模块7: 数据可视化</h1>
+            <p class="subtitle">掌握Python生态中最强大的数据可视化工具，创建专业的金融图表和交互式仪表板</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <section class="module-overview">
+            <h2><i class="fas fa-info-circle"></i> 模块概述</h2>
+            <p>本模块将带您掌握Python生态中最强大的数据可视化工具，包括Matplotlib、Seaborn和Plotly。您将学习如何创建专业的金融图表，从基础的价格走势图到复杂的交互式可视化仪表板。</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>Matplotlib基础</h3>
+                    <p>掌握Python最基础的绘图库，创建线图、柱状图和散点图</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-palette"></i>
+                    <h3>Seaborn美化</h3>
+                    <p>使用Seaborn创建美观的统计图表和热力图</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <h3>Plotly交互</h3>
+                    <p>构建交互式图表和动态金融仪表板</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-area"></i>
+                    <h3>专业图表</h3>
+                    <p>创建K线图、技术指标图等专业金融图表</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <h3>仪表板设计</h3>
+                    <p>设计完整的金融数据可视化仪表板</p>
+                </div>
+            </div>
+        </section>
+        <section class="lessons-list">
+            <h2><i class="fas fa-book"></i> 课程内容</h2>
+            <div class="lesson-card">
+                <h3><i class="fas fa-chart-bar"></i><a href="lesson1.html">第1课: Matplotlib基础</a></h3>
+                <p>学习Matplotlib核心概念，创建线图、柱状图和散点图等基础金融图表。</p>
+                <a href="lesson1.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+            </div>
+            <div class="lesson-card">
+                <h3><i class="fas fa-palette"></i><a href="lesson2.html">第2课: Seaborn高级可视化</a></h3>
+                <p>掌握Seaborn库，绘制热力图、分布图和回归图等高级统计可视化。</p>
+                <a href="lesson2.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+            </div>
+            <div class="lesson-card">
+                <h3><i class="fas fa-mouse-pointer"></i><a href="lesson3.html">第3课: Plotly交互式可视化</a></h3>
+                <p>使用Plotly创建交互式K线图、技术指标图和动态仪表板。</p>
+                <a href="lesson3.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+            </div>
+            <div class="lesson-card">
+                <h3><i class="fas fa-chart-line"></i><a href="lesson4.html">第4课: 金融数据专用图表</a></h3>
+                <p>专门针对金融数据设计的图表类型，包括蜡烛图、MACD和布林带等。</p>
+                <a href="lesson4.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+            </div>
+        </section>
+        
+        <section class="project">
+            <div class="project-card">
+                <h2><i class="fas fa-project-diagram"></i><a href="project.html">金融数据可视化项目</a></h2>
+                <p>应用所学知识，创建一个完整的金融数据可视化项目，从数据准备到交互式仪表板开发。</p>
+                <a href="project.html" class="btn btn-secondary"><i class="fas fa-eye"></i> 查看项目详情</a>
+            </div>
+        </section>
+        
+        <section class="exercises">
+            <div class="exercises-card">
+                <h2><i class="fas fa-tasks"></i><a href="exercises.html">数据可视化练习题</a></h2>
+                <p>通过实践练习巩固所学知识，提升数据可视化技能。</p>
+                <a href="exercises.html" class="btn btn-secondary"><i class="fas fa-pencil-alt"></i> 查看练习题</a>
+            </div>
+        </section>
+        
+        <div class="module-navigation">
+            <a href="../module6/index.html" class="btn"><i class="fas fa-arrow-left"></i> 上一模块: Pandas与金融数据</a>
+            <a href="../../part3_finance_applications/index.html" class="btn">下一部分: 金融应用实战 <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

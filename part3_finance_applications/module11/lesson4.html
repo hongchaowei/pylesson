@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第4课: 极端事件风险评估 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>极值理论(EVT)基础</h2>
+            <p>极值理论(Extreme Value Theory, EVT)是专门研究极端事件统计特性的数学理论。</p>
+            <h3>1. 极值理论概述</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import genextreme, genpareto
+from scipy.optimize import minimize
+class ExtremeValueAnalyzer:
+    """极值分析基础类"""
+    def __init__(self, returns, threshold_quantile=0.95):
+        self.returns = returns
+        self.threshold = np.percentile(returns, 100 * threshold_quantile)
+        self.excesses = None
+        self.params = None
+    def get_excesses(self):
+        """获取超过阈值的超额损失"""
+        losses = -self.returns
+        self.excesses = losses[losses > self.threshold] - self.threshold
+        return self.excesses
+    def plot_tail(self):
+        """绘制损失分布的尾部"""
+        losses = -self.returns
+        plt.figure(figsize=(10,6))
+        plt.hist(losses, bins=50, density=True, alpha=0.5, label='全部损失')
+        plt.hist(self.excesses + self.threshold, bins=20,
+                density=True, alpha=0.7, label='尾部超额损失')
+        plt.axvline(self.threshold, color='r', linestyle='--',
+                  label=f'阈值 ({self.threshold:.2%})')
+        plt.title('损失分布尾部')
+        plt.xlabel('损失')
+        plt.ylabel('密度')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+# 示例收益率数据
+np.random.seed(42)
+returns = pd.Series(np.random.normal(0.0005, 0.02, 10000))
+# 初始化极值分析
+eva = ExtremeValueAnalyzer(returns)
+excesses = eva.get_excesses()
+print(f"超过阈值的极端事件数量: {len(excesses)}")
+eva.plot_tail()</code></pre>
+            <h3>2. 极值分布类型</h3>
+            <pre><code class="language-python">def extreme_value_distributions():
+    """极值分布类型比较"""
+    x = np.linspace(0, 5, 100)
+    # Gumbel分布 (Type I)
+    gumbel = genextreme.pdf(x, c=0)
+    # Fréchet分布 (Type II)
+    frechet = genextreme.pdf(x, c=0.5)
+    # Weibull分布 (Type III)
+    weibull = genextreme.pdf(x, c=-0.5)
+    plt.figure(figsize=(10,6))
+    plt.plot(x, gumbel, label='Gumbel (Type I)')
+    plt.plot(x, frechet, label='Fréchet (Type II)')
+    plt.plot(x, weibull, label='Weibull (Type III)')
+    plt.title('极值分布类型比较')
+    plt.xlabel('x')
+    plt.ylabel('概率密度')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+extreme_value_distributions()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>广义帕累托分布(GPD)</h2>
+            <p>广义帕累托分布(Generalized Pareto Distribution, GPD)是建模超额损失的常用分布。</p>
+            <h3>1. GPD模型拟合</h3>
+            <pre><code class="language-python">class GPDAnalyzer(ExtremeValueAnalyzer):
+    """广义帕累托分布分析"""
+    def fit_gpd(self, method='MLE'):
+        """拟合GPD分布"""
+        if self.excesses is None:
+            self.get_excesses()
+        def neg_log_likelihood(params):
+            """负对数似然函数"""
+            c, scale = params
+            if scale <= 0:
+                return np.inf
+            if c < -1:
+                return np.inf
+            return -np.sum(genpareto.logpdf(self.excesses, c, scale=scale))
+        # 初始猜测
+        init_params = [0.1, np.std(self.excesses)]
+        # 优化
+        bounds = [(-1, 1), (1e-6, None)]
+        result = minimize(neg_log_likelihood, init_params,
+                          method='SLSQP', bounds=bounds)
+        self.params = {'shape': result.x[0], 'scale': result.x[1]}
+        return self.params
+    def plot_gpd_fit(self):
+        """绘制GPD拟合结果"""
+        if self.params is None:
+            self.fit_gpd()
+        plt.figure(figsize=(10,6))
+        hist = plt.hist(self.excesses, bins=30, density=True, alpha=0.5,
+                       label='超额损失数据')
+        x = np.linspace(0, max(self.excesses)*1.1, 100)
+        pdf = genpareto.pdf(x, self.params['shape'], scale=self.params['scale'])
+        plt.plot(x, pdf, 'r-', lw=2,
+                label=f'GPD拟合 (ξ={self.params["shape"]:.3f}, σ={self.params["scale"]:.3f})')
+        plt.title('广义帕累托分布拟合')
+        plt.xlabel('超额损失')
+        plt.ylabel('密度')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+# GPD分析
+gpd_analyzer = GPDAnalyzer(returns)
+params = gpd_analyzer.fit_gpd()
+print("\nGPD拟合参数:\n", params)
+gpd_analyzer.plot_gpd_fit()</code></pre>
+            <h3>2. GPD模型验证</h3>
+            <pre><code class="language-python">    def gpd_qqplot(self):
+        """GPD模型的QQ图"""
+        if self.params is None:
+            self.fit_gpd()
+        sorted_excesses = np.sort(self.excesses)
+        n = len(sorted_excesses)
+        theoretical_quantiles = genpareto.ppf(np.linspace(1/n, 1-1/n, n),
+                                           self.params['shape'],
+                                           scale=self.params['scale'])
+        plt.figure(figsize=(8,8))
+        plt.scatter(theoretical_quantiles, sorted_excesses, alpha=0.5)
+        plt.plot([0, max(theoretical_quantiles)], [0, max(theoretical_quantiles)],
+                'r--', label='完美拟合线')
+        plt.title('GPD模型的QQ图')
+        plt.xlabel('理论分位数')
+        plt.ylabel('样本分位数')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        # 计算拟合优度
+        correlation = np.corrcoef(theoretical_quantiles, sorted_excesses)[0,1]
+        print(f"QQ图相关系数: {correlation:.4f}")
+gpd_analyzer.gpd_qqplot()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>峰值超过阈值(POT)方法</h2>
+            <p>峰值超过阈值(Peaks Over Threshold, POT)方法是应用GPD建模极端事件的标准方法。</p>
+            <h3>1. POT方法实现</h3>
+            <pre><code class="language-python">class POTModel(GPDAnalyzer):
+    """峰值超过阈值模型"""
+    def __init__(self, returns, threshold_quantile=0.95):
+        super().__init__(returns, threshold_quantile)
+        self.var = None
+        self.cvar = None
+    def calculate_var_cvar(self, confidence_level=0.99):
+        """基于POT方法计算VaR和CVaR"""
+        if self.params is None:
+            self.fit_gpd()
+        n = len(self.returns)
+        nu = len(self.excesses)
+        # 计算VaR
+        quantile = 1 - (1 - confidence_level) * (n / nu)
+        var = self.threshold + (self.params['scale'] / self.params['shape']) * (
+            ((nu / (n * (1 - confidence_level))) ** self.params['shape']) - 1)
+        # 计算CVaR
+        cvar = var + (self.params['scale'] + self.params['shape'] * (var - self.threshold)) / (
+            1 - self.params['shape'])
+        self.var = var
+        self.cvar = cvar
+        return var, cvar
+    def plot_var_cvar(self, confidence_level=0.99):
+        """可视化VaR和CVaR"""
+        var, cvar = self.calculate_var_cvar(confidence_level)
+        losses = -self.returns
+        plt.figure(figsize=(10,6))
+        plt.hist(losses, bins=50, density=True, alpha=0.5, label='损失分布')
+        x = np.linspace(self.threshold, max(losses)*1.1, 100)
+        pdf = genpareto.pdf(x - self.threshold, self.params['shape'],
+                           scale=self.params['scale'])
+        plt.plot(x, pdf, 'r-', lw=2, label='GPD拟合')
+        plt.axvline(var, color='g', linestyle='--',
+                   label=f'{confidence_level:.0%} VaR: {var:.2%}')
+        plt.axvline(cvar, color='b', linestyle='--',
+                  label=f'{confidence_level:.0%} CVaR: {cvar:.2%}')
+        plt.title('基于POT方法的VaR和CVaR')
+        plt.xlabel('损失')
+        plt.ylabel('密度')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+# POT模型应用
+pot_model = POTModel(returns)
+var, cvar = pot_model.calculate_var_cvar()
+print(f"\nPOT方法估计的99% VaR: {var:.4f}")
+print(f"POT方法估计的99% CVaR: {cvar:.4f}")
+pot_model.plot_var_cvar()</code></pre>
+            <h3>2. 阈值选择方法</h3>
+            <pre><code class="language-python">    def threshold_selection_plot(self, quantile_range=(0.80, 0.99)):
+        """阈值选择分析图"""
+        quantiles = np.linspace(quantile_range[0], quantile_range[1], 20)
+        thresholds = np.percentile(-self.returns, 100 * quantiles)
+        shape_params = []
+        scale_params = []
+        for thresh in thresholds:
+            excesses = -self.returns[-self.returns > thresh] - thresh
+            if len(excesses) < 20:
+                continue
+            # 拟合GPD
+            def neg_log_likelihood(params):
+                c, scale = params
+                if scale <= 0:
+                    return np.inf
+                if c < -1:
+                    return np.inf
+                return -np.sum(genpareto.logpdf(excesses, c, scale=scale))
+            init_params = [0.1, np.std(excesses)]
+            bounds = [(-1, 1), (1e-6, None)]
+            result = minimize(neg_log_likelihood, init_params,
+                            method='SLSQP', bounds=bounds)
+            shape_params.append(result.x[0])
+            scale_params.append(result.x[1])
+        # 绘制形状参数稳定性图
+        plt.figure(figsize=(12,5))
+        plt.subplot(1,2,1)
+        plt.plot(thresholds[:len(shape_params)], shape_params, 'bo-')
+        plt.title('形状参数(ξ)稳定性')
+        plt.xlabel('阈值')
+        plt.ylabel('ξ')
+        plt.grid(True)
+        # 绘制尺度参数稳定性图
+        plt.subplot(1,2,2)
+        plt.plot(thresholds[:len(scale_params)], scale_params, 'ro-')
+        plt.title('尺度参数(σ)稳定性')
+        plt.xlabel('阈值')
+        plt.ylabel('σ')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+pot_model.threshold_selection_plot()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>尾部风险建模应用</h2>
+            <p>极值理论在金融风险管理中的实际应用案例。</p>
+            <h3>1. 多资产尾部风险分析</h3>
+            <pre><code class="language-python">class PortfolioTailRiskAnalyzer:
+    """投资组合尾部风险分析"""
+    def __init__(self, asset_returns):
+        self.asset_returns = asset_returns
+        self.pot_models = {}
+    def fit_models(self, threshold_quantile=0.95):
+        """为每个资产拟合POT模型"""
+        for asset in self.asset_returns.columns:
+            model = POTModel(self.asset_returns[asset], threshold_quantile)
+            model.fit_gpd()
+            self.pot_models[asset] = model
+    def compare_tail_risks(self, confidence_level=0.99):
+        """比较不同资产的尾部风险"""
+        results = []
+        for asset, model in self.pot_models.items():
+            var, cvar = model.calculate_var_cvar(confidence_level)
+            results.append([asset, var, cvar, model.params['shape']])
+        result_df = pd.DataFrame(results,
+                               columns=['Asset', 'VaR', 'CVaR', 'Shape'])
+        return result_df.sort_values('CVaR', ascending=False)
+    def plot_tail_comparison(self, confidence_level=0.99):
+        """可视化尾部风险比较"""
+        result_df = self.compare_tail_risks(confidence_level)
+        plt.figure(figsize=(12,6))
+        plt.bar(result_df['Asset'], result_df['CVaR'], alpha=0.6, label='CVaR')
+        plt.plot(result_df['Asset'], result_df['VaR'], 'ro--', label='VaR')
+        plt.title(f'{confidence_level:.
+</body>
+</html>

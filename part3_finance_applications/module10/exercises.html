@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投资组合练习题 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>练习说明</h2>
+            <p>以下练习将帮助您巩固本模块学到的投资组合分析技能。建议按顺序完成所有练习。</p>
+            <div class="exercise-tips">
+                <h3>练习提示</h3>
+                <ul>
+                    <li>使用Jupyter Notebook完成练习</li>
+                    <li>参考课程内容和官方文档</li>
+                    <li>尝试不同的方法和参数</li>
+                    <li>记录遇到的问题和解决方案</li>
+                </ul>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>基础练习：投资组合理论</h2>
+            <div class="exercise">
+                <h3>练习1：有效前沿计算</h3>
+                <p>给定以下三种资产的预期收益率和协方差矩阵：</p>
+                <pre><code class="language-python">expected_returns = np.array([0.05, 0.08, 0.12])
+cov_matrix = np.array([
+    [0.04, 0.002, 0.001],
+    [0.002, 0.09, 0.003],
+    [0.001, 0.003, 0.16]
+])</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算并绘制有效前沿</li>
+                    <li>找出最小方差组合</li>
+                    <li>找出最大夏普比率组合(假设无风险利率为2%)</li>
+                    <li>比较不同组合的风险收益特征</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习2：CAPM应用</h3>
+                <p>给定以下数据：</p>
+                <pre><code class="language-python">market_return = 0.08  # 市场组合预期收益率
+risk_free_rate = 0.02  # 无风险利率
+beta = 1.2  # 资产贝塔值</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>根据CAPM计算资产的预期收益率</li>
+                    <li>绘制证券市场线(SML)</li>
+                    <li>如果实际收益率为10%，计算该资产的Alpha</li>
+                    <li>分析不同贝塔值资产的预期收益率</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>中级练习：组合优化</h2>
+            <div class="exercise">
+                <h3>练习3：均值-方差优化</h3>
+                <p>使用Yahoo Finance获取以下股票2022年的日线数据：</p>
+                <pre><code class="language-python">tickers = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'TSLA']</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算各资产的预期收益率和协方差矩阵</li>
+                    <li>实现均值-方差优化函数</li>
+                    <li>构建有效前沿并找出最优组合</li>
+                    <li>添加权重约束(单资产不超过30%)重新优化</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习4：风险平价策略</h3>
+                <p>使用练习3中的数据：</p>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>实现风险平价优化函数</li>
+                    <li>计算风险平价组合的权重</li>
+                    <li>分析各资产的风险贡献</li>
+                    <li>比较风险平价组合与均值-方差组合的表现</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>高级练习：绩效评估</h2>
+            <div class="exercise">
+                <h3>练习5：绩效指标计算</h3>
+                <p>给定投资组合和基准的日收益率数据：</p>
+                <pre><code class="language-python">portfolio_returns = pd.read_csv('portfolio_returns.csv', index_col=0, parse_dates=True)
+benchmark_returns = pd.read_csv('benchmark_returns.csv', index_col=0, parse_dates=True)</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算年化收益率、波动率、夏普比率</li>
+                    <li>计算最大回撤及其持续时间</li>
+                    <li>计算Alpha、Beta和信息比率</li>
+                    <li>绘制组合与基准的累积收益对比图</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习6：绩效归因分析</h3>
+                <p>给定以下数据：</p>
+                <pre><code class="language-python">portfolio_weights = pd.read_csv('portfolio_weights.csv', index_col=0, parse_dates=True)
+benchmark_weights = pd.read_csv('benchmark_weights.csv', index_col=0, parse_dates=True)
+asset_returns = pd.read_csv('asset_returns.csv', index_col=0, parse_dates=True)</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>实现Brinson模型绩效归因</li>
+                    <li>分解资产配置效应和证券选择效应</li>
+                    <li>进行多期归因分析</li>
+                    <li>可视化各期的归因结果</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>综合练习：完整分析流程</h2>
+            <div class="exercise">
+                <h3>练习7：投资组合分析系统</h3>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>选择5-10只股票构建投资组合</li>
+                    <li>获取至少3年的历史数据</li>
+                    <li>实现完整的投资组合分析流程：
+                        <ul>
+                            <li>数据获取与预处理</li>
+                            <li>组合优化(至少两种方法)</li>
+                            <li>绩效评估与归因分析</li>
+                            <li>结果可视化</li>
+                        </ul>
+                    </li>
+                    <li>撰写简要分析报告</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习8：策略回测</h3>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>设计一个简单的投资策略(如动量策略、均值回归策略)</li>
+                    <li>实现回测框架</li>
+                    <li>在历史数据上测试策略表现</li>
+                    <li>分析策略的收益来源和风险特征</li>
+                    <li>提出改进建议</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercise-solutions">
+            <h2>练习参考答案</h2>
+            <p>完成练习后，可以参考以下代码检查您的实现：</p>
+            <div class="solution">
+                <h3>练习1参考代码</h3>
+                <pre><code class="language-python"># 有效前沿计算
+def generate_efficient_frontier(expected_returns, cov_matrix, n_points=20):
+    target_returns = np.linspace(expected_returns.min(), expected_returns.max(), n_points)
+    volatilities = []
+    for target in target_returns:
+        constraints = [
+            {'type': 'eq', 'fun': lambda x: np.sum(x) - 1},
+            {'type': 'eq', 'fun': lambda x: np.dot(x, expected_returns) - target}
+        ]
+        result = minimize(lambda x: np.sqrt(np.dot(x.T, np.dot(cov_matrix, x))),
+                         np.ones(len(expected_returns))/len(expected_returns),
+                         constraints=constraints,
+                         bounds=[(0,1) for _ in range(len(expected_returns))])
+        volatilities.append(result.fun)
+    return target_returns, volatilities
+# 绘制有效前沿
+target_returns, volatilities = generate_efficient_frontier(expected_returns, cov_matrix)
+plt.plot(volatilities, target_returns, 'b-')
+plt.xlabel('Volatility')
+plt.ylabel('Expected Return')
+plt.title('Efficient Frontier')
+plt.grid(True)
+plt.show()</code></pre>
+            </div>
+            <div class="solution">
+                <h3>练习5参考代码</h3>
+                <pre><code class="language-python"># 绩效指标计算
+def calculate_metrics(returns, benchmark=None, risk_free_rate=0.02, periods=252):
+    metrics = {}
+    # 年化收益率
+    metrics['Return'] = np.prod(1 + returns) ** (periods/len(returns)) - 1
+    # 年化波动率
+    metrics['Volatility'] = returns.std() * np.sqrt(periods)
+    # 夏普比率
+    excess_returns = returns - risk_free_rate/periods
+    metrics['Sharpe'] = np.sqrt(periods) * excess_returns.mean() / returns.std()
+    # 最大回撤
+    cum_returns = (1 + returns).cumprod()
+    peak = cum_returns.cummax()
+    drawdown = (cum_returns - peak) / peak
+    metrics['Max Drawdown'] = drawdown.min()
+    # 与基准比较
+    if benchmark is not None:
+        active_returns = returns - benchmark
+        metrics['Tracking Error'] = active_returns.std() * np.sqrt(periods)
+        metrics['Information Ratio'] = np.sqrt(periods) * active_returns.mean() / metrics['Tracking Error']
+        # Alpha和Beta
+        excess_bench = benchmark - risk_free_rate/periods
+        beta = np.cov(returns, benchmark)[0,1] / np.var(benchmark)
+        alpha = metrics['Return'] - (risk_free_rate + beta * (np.prod(1+benchmark)**(periods/len(benchmark))-1 - risk_free_rate))
+        metrics['Alpha'] = alpha
+        metrics['Beta'] = beta
+    return pd.DataFrame.from_dict(metrics, orient='index', columns=['Value'])</code></pre>
+            </div>
+        </section>
+        <div class="exercises-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+            <a href="../../index.html" class="btn">下一模块: 风险评估模型 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

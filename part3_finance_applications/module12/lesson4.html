@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第4课: 实盘交易系统集成 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>实盘交易系统架构</h2>
+            <p>实盘交易系统需要处理实时数据、执行交易并管理风险。</p>
+            <h3>1. 系统核心组件</h3>
+            <pre><code class="language-python">trading_system_components = {
+    '数据流': '实时市场数据订阅与处理',
+    '策略引擎': '实时信号生成与决策',
+    '订单管理': '订单路由、执行与状态跟踪',
+    '风险管理': '头寸监控、止损控制',
+    '监控报警': '系统健康检查与异常报警'
+}</code></pre>
+            <h3>2. 典型架构设计</h3>
+            <pre><code class="language-python">class TradingSystem:
+    """自动化交易系统基类"""
+    def __init__(self, data_source, broker_api):
+        self.data_source = data_source  # 数据源连接
+        self.broker_api = broker_api    # 经纪商API
+        self.positions = {}             # 当前持仓
+        self.orders = {}                # 活动订单
+        self.strategies = []            # 注册的策略
+    def add_strategy(self, strategy):
+        """添加交易策略"""
+        self.strategies.append(strategy)
+    def run(self):
+        """启动交易系统"""
+        self._connect_data()
+        self._start_event_loop()
+    def _connect_data(self):
+        """连接数据源"""
+        self.data_source.subscribe(self._on_data)
+    def _on_data(self, data):
+        """处理市场数据"""
+        for strategy in self.strategies:
+            signals = strategy.generate_signals(data)
+            self._execute_signals(signals)
+    def _execute_signals(self, signals):
+        """执行交易信号"""
+        for symbol, signal in signals.items():
+            if signal != 0:
+                order = self._create_order(symbol, signal)
+                self.broker_api.submit_order(order)
+    def _create_order(self, symbol, signal):
+        """创建订单对象"""
+        # 实现订单创建逻辑
+        pass</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>订单管理与执行</h2>
+            <p>实盘交易需要精确的订单管理和执行控制。</p>
+            <h3>1. 订单类型与状态</h3>
+            <pre><code class="language-python">class Order:
+    """订单基类"""
+    def __init__(self, symbol, quantity, order_type, side):
+        self.symbol = symbol      # 交易标的
+        self.quantity = quantity  # 数量
+        self.order_type = order_type  # 订单类型(LIMIT/MARKET)
+        self.side = side          # 买卖方向(BUY/SELL)
+        self.status = 'PENDING'   # 订单状态
+        self.filled = 0           # 已成交数量
+        self.avg_price = 0       # 平均成交价
+    def update(self, fill_qty, fill_price):
+        """更新订单状态"""
+        self.filled += fill_qty
+        if self.filled >= self.quantity:
+            self.status = 'FILLED'
+        else:
+            self.status = 'PARTIAL'
+        # 计算平均成交价
+        self.avg_price = (
+            (self.avg_price * (self.filled - fill_qty) +
+             fill_price * fill_qty) / self.filled
+        )
+class LimitOrder(Order):
+    """限价订单"""
+    def __init__(self, symbol, quantity, price, side):
+        super().__init__(symbol, quantity, 'LIMIT', side)
+        self.price = price  # 限价
+class MarketOrder(Order):
+    """市价订单"""
+    def __init__(self, symbol, quantity, side):
+        super().__init__(symbol, quantity, 'MARKET', side)</code></pre>
+            <h3>2. 订单执行模拟</h3>
+            <pre><code class="language-python">class OrderManager:
+    """订单管理器"""
+    def __init__(self, broker_api):
+        self.broker_api = broker_api
+        self.pending_orders = []
+        self.filled_orders = []
+    def submit_order(self, order):
+        """提交订单"""
+        self.pending_orders.append(order)
+        self.broker_api.place_order(order)
+    def on_order_update(self, order_update):
+        """处理订单状态更新"""
+        for order in self.pending_orders:
+            if order.id == order_update.order_id:
+                order.update(
+                    order_update.filled_quantity,
+                    order_update.fill_price
+                )
+                if order.status == 'FILLED':
+                    self.pending_orders.remove(order)
+                    self.filled_orders.append(order)
+                break</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>风险控制系统</h2>
+            <p>实盘交易必须包含严格的风险控制机制。</p>
+            <h3>1. 风险控制规则</h3>
+            <pre><code class="language-python">class RiskManager:
+    """风险管理系统"""
+    def __init__(self, max_position_size=0.1, max_daily_loss=0.05):
+        self.max_position_size = max_position_size  # 单标的最大仓位比例
+        self.max_daily_loss = max_daily_loss        # 最大单日亏损比例
+        self.daily_pnl = 0                          # 当日盈亏
+    def check_order(self, order, portfolio):
+        """检查订单是否符合风控规则"""
+        # 检查单标的风险敞口
+        position_value = portfolio.positions.get(order.symbol, 0)
+        order_value = order.quantity * portfolio.get_last_price(order.symbol)
+        if (position_value + order_value) / portfolio.total_value > self.max_position_size:
+            return False
+        # 检查当日亏损
+        if self.daily_pnl < -self.max_daily_loss * portfolio.total_value:
+            return False
+        return True
+    def update_daily_pnl(self, pnl):
+        """更新当日盈亏"""
+        self.daily_pnl += pnl</code></pre>
+            <h3>2. 止损策略实现</h3>
+            <pre><code class="language-python">class StopLossManager:
+    """止损管理器"""
+    def __init__(self, stop_loss_pct=0.03, trailing_stop_pct=0.02):
+        self.stop_loss_pct = stop_loss_pct          # 固定止损比例
+        self.trailing_stop_pct = trailing_stop_pct  # 移动止损比例
+        self.stop_prices = {}                       # 各标的的止损价
+    def update_stop_prices(self, symbol, current_price):
+        """更新止损价格(移动止损)"""
+        if symbol not in self.stop_prices:
+            self.stop_prices[symbol] = current_price * (1 - self.stop_loss_pct)
+        else:
+            # 移动止损: 只在价格上涨时更新
+            if current_price > self.stop_prices[symbol] / (1 - self.trailing_stop_pct):
+                self.stop_prices[symbol] = current_price * (1 - self.trailing_stop_pct)
+    def check_stop_loss(self, symbol, current_price):
+        """检查是否触发止损"""
+        if symbol in self.stop_prices and current_price <= self.stop_prices[symbol]:
+            return True
+        return False</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>经纪商API集成</h2>
+            <p>与真实经纪商API对接实现自动化交易。</p>
+            <h3>1. 通用API接口设计</h3>
+            <pre><code class="language-python">from abc import ABC, abstractmethod
+class BrokerAPI(ABC):
+    """经纪商API抽象基类"""
+    @abstractmethod
+    def connect(self):
+        """连接经纪商API"""
+        pass
+    @abstractmethod
+    def place_order(self, order):
+        """下单"""
+        pass
+    @abstractmethod
+    def cancel_order(self, order_id):
+        """撤单"""
+        pass
+    @abstractmethod
+    def get_positions(self):
+        """获取当前持仓"""
+        pass
+    @abstractmethod
+    def get_account_info(self):
+        """获取账户信息"""
+        pass</code></pre>
+            <h3>2. Alpaca交易API示例</h3>
+            <pre><code class="language-python">import alpaca_trade_api as tradeapi
+class AlpacaBroker(BrokerAPI):
+    """Alpaca经纪商实现"""
+    def __init__(self, api_key, secret_key, base_url='https://paper-api.alpaca.markets'):
+        self.api = tradeapi.REST(api_key, secret_key, base_url)
+    def connect(self):
+        """连接Alpaca API"""
+        account = self.api.get_account()
+        print(f"已连接到Alpaca账户: {account.id}")
+    def place_order(self, order):
+        """Alpaca下单"""
+        try:
+            if order.side == 'BUY':
+                side = 'buy'
+            else:
+                side = 'sell'
+            if order.order_type == 'MARKET':
+                self.api.submit_order(
+                    symbol=order.symbol,
+                    qty=str(order.quantity),
+                    side=side,
+                    type='market',
+                    time_in_force='gtc'
+                )
+            elif order.order_type == 'LIMIT':
+                self.api.submit_order(
+                    symbol=order.symbol,
+                    qty=str(order.quantity),
+                    side=side,
+                    type='limit',
+                    time_in_force='gtc',
+                    limit_price=str(order.price)
+                )
+        except Exception as e:
+            print(f"下单失败: {e}")
+    def get_positions(self):
+        """获取Alpaca持仓"""
+        return self.api.list_positions()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>系统监控与部署</h2>
+            <p>生产环境中的系统监控和部署最佳实践。</p>
+            <h3>1. 监控指标</h3>
+            <pre><code class="language-python">monitoring_metrics = [
+    '策略信号频率',
+    '订单执行延迟',
+    '成交滑点',
+    '系统资源使用率',
+    '网络延迟',
+    'API调用限额'
+]</code></pre>
+            <h3>2. 部署架构</h3>
+            <pre><code class="language-python">deployment_architecture = {
+    '开发环境': '本地测试与策略开发',
+    '模拟环境': '使用Paper Trading API测试',
+    '生产环境': '多服务器冗余部署',
+    '灾备方案': '自动故障转移与恢复',
+    '日志系统': '集中式日志收集与分析',
+    '报警系统': '异常情况实时通知'
+}</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson3.html" class="btn">« 上一课: 回测框架与实现</a>
+            <a href="project.html" class="btn">项目: 自动化交易系统 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目实战</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+    <main class="container">
+        <section class="project-overview">
+            <h2>项目概述</h2>
+            <p>本项目将使用Python数据可视化工具创建一个完整的金融数据分析仪表板，涵盖从数据获取到交互式可视化的全流程。</p>
+            <h3>项目目标</h3>
+            <ul>
+                <li>掌握金融数据可视化的完整工作流程</li>
+                <li>应用Matplotlib、Seaborn和Plotly创建专业图表</li>
+                <li>构建交互式金融分析仪表板</li>
+                <li>实现多图表联动分析</li>
+            </ul>
+            <h3>数据集</h3>
+            <p>使用Yahoo Finance的AAPL(苹果公司)股票数据，包含：</p>
+            <ul>
+                <li>2018-2023年的日线数据</li>
+                <li>开盘价、最高价、最低价、收盘价</li>
+                <li>调整后收盘价</li>
+                <li>交易量</li>
+            </ul>
+            <pre><code class="language-python">import yfinance as yf
+# 下载AAPL数据
+data = yf.download('AAPL', start='2018-01-01', end='2023-12-31')
+data.head()</code></pre>
+        </section>
+        <section class="project-steps">
+            <h2>项目步骤</h2>
+            <h3>1. 数据准备与清洗</h3>
+            <pre><code class="language-python"># 检查缺失值
+print(data.isnull().sum())
+# 填充可能的缺失值(前向填充)
+data.fillna(method='ffill', inplace=True)
+# 计算对数收益率
+data['Log_Return'] = np.log(data['Close'] / data['Close'].shift(1))
+# 计算滚动波动率(20天)
+data['Volatility'] = data['Log_Return'].rolling(window=20).std() * np.sqrt(252)
+# 计算简单移动平均
+data['SMA_20'] = data['Close'].rolling(window=20).mean()
+data['SMA_50'] = data['Close'].rolling(window=50).mean()</code></pre>
+            <h3>2. 创建基础图表</h3>
+            <pre><code class="language-python"># 设置Matplotlib样式
+plt.style.use('seaborn')
+plt.rcParams['figure.figsize'] = (12, 6)
+# 创建价格走势图
+fig, ax = plt.subplots()
+ax.plot(data.index, data['Close'], label='收盘价', color='blue')
+ax.plot(data.index, data['SMA_20'], label='20日均线', color='orange', linestyle='--')
+ax.plot(data.index, data['SMA_50'], label='50日均线', color='green', linestyle='--')
+ax.set_title('AAPL价格走势与均线', fontsize=14)
+ax.set_ylabel('价格', fontsize=12)
+ax.legend()
+ax.grid(True, linestyle='--', alpha=0.7)
+plt.show()</code></pre>
+            <h3>3. 创建专业K线图</h3>
+            <pre><code class="language-python"># 使用mplfinance创建K线图
+mpf.plot(data[-100:], type='candle', style='charles',
+         title='AAPL最近100天K线图',
+         ylabel='价格',
+         volume=True,
+         mav=(20, 50),
+         figratio=(12, 8))</code></pre>
+        </section>
+        <section class="project-steps">
+            <h3>4. 创建交互式仪表板</h3>
+            <pre><code class="language-python">import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+# 创建子图布局
+fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
+                    vertical_spacing=0.05,
+                    row_heights=[0.6, 0.2, 0.2],
+                    specs=[[{"secondary_y": True}],
+                           [{"secondary_y": False}],
+                           [{"secondary_y": False}]])
+# 添加K线图
+fig.add_trace(go.Candlestick(x=data.index,
+                             open=data['Open'],
+                             high=data['High'],
+                             low=data['Low'],
+                             close=data['Close'],
+                             name='价格'),
+              row=1, col=1)
+# 添加均线
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['SMA_20'],
+                         name='20日均线',
+                         line=dict(color='orange', width=1)),
+              row=1, col=1)
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['SMA_50'],
+                         name='50日均线',
+                         line=dict(color='green', width=1)),
+              row=1, col=1)
+# 添加交易量
+fig.add_trace(go.Bar(x=data.index,
+                     y=data['Volume'],
+                     name='交易量',
+                     marker_color='rgba(100, 100, 255, 0.4)'),
+              row=2, col=1)
+# 添加波动率
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['Volatility'],
+                         name='波动率',
+                         line=dict(color='purple', width=1)),
+              row=3, col=1)
+# 更新布局
+fig.update_layout(title='AAPL金融分析仪表板',
+                  height=800,
+                  xaxis_rangeslider_visible=False,
+                  template='plotly_white')
+# 显示图表
+fig.show()</code></pre>
+            <h3>5. 添加技术指标分析</h3>
+            <pre><code class="language-python">import talib
+# 计算MACD
+data['MACD'], data['MACD_Signal'], data['MACD_Hist'] = talib.MACD(data['Close'])
+# 计算RSI
+data['RSI'] = talib.RSI(data['Close'])
+# 创建技术指标图表
+fig = make_subplots(rows=2, cols=1, shared_xaxes=True)
+# 添加价格和MACD
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['Close'],
+                         name='收盘价'),
+              row=1, col=1)
+fig.add_trace(go.Bar(x=data.index,
+                     y=data['MACD_Hist'],
+                     name='MACD直方图'),
+              row=2, col=1)
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['MACD'],
+                         name='MACD',
+                         line=dict(color='blue')),
+              row=2, col=1)
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['MACD_Signal'],
+                         name='信号线',
+                         line=dict(color='orange')),
+              row=2, col=1)
+# 更新布局
+fig.update_layout(title='AAPL技术指标分析',
+                  height=600,
+                  template='plotly_dark')
+fig.show()</code></pre>
+        </section>
+        <section class="project-conclusion">
+            <h2>项目总结与扩展</h2>
+            <h3>项目成果</h3>
+            <ul>
+                <li>完成了从数据获取到可视化展示的全流程</li>
+                <li>创建了静态和交互式两种金融图表</li>
+                <li>实现了多图表联动的分析仪表板</li>
+                <li>应用了多种技术指标分析方法</li>
+            </ul>
+            <h3>扩展建议</h3>
+            <ul>
+                <li>添加更多技术指标(布林带、ATR等)</li>
+                <li>实现多股票对比分析</li>
+                <li>添加基本面数据可视化</li>
+                <li>使用Dash创建Web应用</li>
+                <li>添加交易策略回测功能</li>
+            </ul>
+            <h3>最终代码整合</h3>
+            <pre><code class="language-python"># 完整代码示例
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import mplfinance as mpf
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import talib
+import yfinance as yf
+# 1. 数据获取与准备
+data = yf.download('AAPL', start='2018-01-01', end='2023-12-31')
+data.fillna(method='ffill', inplace=True)
+# 2. 计算指标
+data['Log_Return'] = np.log(data['Close'] / data['Close'].shift(1))
+data['Volatility'] = data['Log_Return'].rolling(window=20).std() * np.sqrt(252)
+data['SMA_20'] = data['Close'].rolling(window=20).mean()
+data['SMA_50'] = data['Close'].rolling(window=50).mean()
+data['MACD'], data['MACD_Signal'], data['MACD_Hist'] = talib.MACD(data['Close'])
+data['RSI'] = talib.RSI(data['Close'])
+# 3. 创建交互式仪表板
+fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
+                    vertical_spacing=0.05,
+                    row_heights=[0.6, 0.2, 0.2])
+# 价格和均线
+fig.add_trace(go.Candlestick(x=data.index,
+                             open=data['Open'],
+                             high=data['High'],
+                             low=data['Low'],
+                             close=data['Close'],
+                             name='价格'),
+              row=1, col=1)
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['SMA_20'],
+                         name='20日均线',
+                         line=dict(color='orange')),
+              row=1, col=1)
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['SMA_50'],
+                         name='50日均线',
+                         line=dict(color='green')),
+              row=1, col=1)
+# 交易量
+fig.add_trace(go.Bar(x=data.index,
+                     y=data['Volume'],
+                     name='交易量',
+                     marker_color='rgba(100, 100, 255, 0.4)'),
+              row=2, col=1)
+# MACD
+fig.add_trace(go.Bar(x=data.index,
+                     y=data['MACD_Hist'],
+                     name='MACD直方图'),
+              row=3, col=1)
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['MACD'],
+                         name='MACD',
+                         line=dict(color='blue')),
+              row=3, col=1)
+fig.add_trace(go.Scatter(x=data.index,
+                         y=data['MACD_Signal'],
+                         name='信号线',
+                         line=dict(color='orange')),
+              row=3, col=1)
+# 更新布局
+fig.update_layout(title='AAPL金融分析仪表板',
+                  height=800,
+                  xaxis_rangeslider_visible=False,
+                  template='plotly_white')
+fig.show()</code></pre>
+        </section>
+        <div class="project-navigation">
+            <a href="lesson4.html" class="btn">« 返回课程</a>
+            <a href="exercises.html" class="btn">数据可视化练习题 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

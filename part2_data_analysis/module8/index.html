@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块8: 统计分析基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            border-radius: 15px;
+        }
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .module-overview {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+        .module-overview h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+        }
+        .module-overview h2 i {
+            margin-right: 1rem;
+            color: #667eea;
+        }
+        .learning-objectives {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            border-left: 4px solid #667eea;
+        }
+        .learning-objectives h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .learning-objectives h3 i {
+            margin-right: 0.5rem;
+        }
+        .learning-objectives ul {
+            list-style: none;
+            padding: 0;
+        }
+        .learning-objectives li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #495057;
+        }
+        .learning-objectives li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .lessons-list {
+            margin-bottom: 3rem;
+        }
+        .lessons-list h2 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+        }
+        .lessons-list h2 i {
+            margin-right: 1rem;
+            color: #667eea;
+        }
+        .lesson-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .lesson-card h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        .lesson-card h3 a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .lesson-card h3 a:hover {
+            color: #764ba2;
+        }
+        .lesson-card h3 a:before {
+            content: '📚';
+            margin-right: 0.5rem;
+        }
+        .lesson-card p {
+            color: #6c757d;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .project, .exercises {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+        .project:hover, .exercises:hover {
+            transform: translateY(-5px);
+        }
+        .project h2, .exercises h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .project h2 i, .exercises h2 i {
+            margin-right: 1rem;
+            color: #667eea;
+        }
+        .project h2 a, .exercises h2 a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .project h2 a:hover, .exercises h2 a:hover {
+            color: #764ba2;
+        }
+        .project p, .exercises p {
+            color: #6c757d;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .module-navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .module-navigation .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .module-navigation .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2rem;
+            }
+            .module-overview, .project, .exercises {
+                padding: 2rem;
+            }
+            .lesson-card {
+                padding: 1.5rem;
+            }
+            .module-navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+    <div class="container">
+        <div class="hero">
+            <h2><i class="fas fa-chart-bar"></i> 模块8: 统计分析基础</h2>
+            <p>掌握金融数据的统计分析方法，从描述性统计到假设检验，为金融建模打下坚实基础。</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <section class="module-overview">
+            <h2><i class="fas fa-info-circle"></i> 模块概述</h2>
+            <p>本模块将带您掌握金融数据的统计分析方法，从描述性统计到假设检验，为金融建模和风险管理打下坚实基础。</p>
+            <div class="learning-objectives">
+                <h3><i class="fas fa-bullseye"></i> 学习目标</h3>
+                <p>完成本模块后，您将能够：</p>
+                <ul>
+                    <li>掌握描述性统计分析的核心方法</li>
+                    <li>理解概率分布在金融中的应用</li>
+                    <li>进行假设检验和置信区间估计</li>
+                    <li>实现相关性和回归分析</li>
+                    <li>应用统计方法解决金融问题</li>
+                </ul>
+            </div>
+        </section>
+        <section class="lessons-list">
+            <h2><i class="fas fa-book-open"></i> 课程内容</h2>
+            <div class="lesson-card">
+                <h3><a href="lesson1.html">第1课: 描述性统计分析</a></h3>
+                <p>学习如何计算和解释金融数据的基本统计量，包括均值、方差、偏度和峰度等。</p>
+            </div>
+            <div class="lesson-card">
+                <h3><a href="lesson2.html">第2课: 概率分布基础</a></h3>
+                <p>掌握正态分布、t分布等常见概率分布及其在金融中的应用。</p>
+            </div>
+            <div class="lesson-card">
+                <h3><a href="lesson3.html">第3课: 假设检验</a></h3>
+                <p>学习t检验、卡方检验等统计检验方法及其在金融数据分析中的应用。</p>
+            </div>
+            <div class="lesson-card">
+                <h3><a href="lesson4.html">第4课: 相关性与回归分析</a></h3>
+                <p>掌握相关性分析和线性回归模型，理解其在资产定价和风险管理中的应用。</p>
+            </div>
+        </section>
+        <section class="project">
+            <h2><i class="fas fa-project-diagram"></i> <a href="project.html">金融数据处理项目</a></h2>
+            <p>构建一个完整的金融数据获取和处理系统，实现多源数据的整合分析和自动化处理流程。</p>
+        </section>
+        <section class="exercises">
+            <h2><i class="fas fa-dumbbell"></i> <a href="exercises.html">数据处理练习题</a></h2>
+            <p>通过实践练习巩固数据获取和处理的核心技能，提升数据处理能力。</p>
+        </section>
+        <div class="module-navigation">
+            <a href="../module7/index.html" class="btn"><i class="fas fa-arrow-left"></i> 上一模块: 数据可视化</a>
+            <a href="../module9/index.html" class="btn">下一模块: 统计分析基础 <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

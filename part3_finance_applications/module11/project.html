@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目实战</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+    <main class="container">
+        <section class="project-overview">
+            <h2>项目概述</h2>
+            <p>本项目将整合模块11所学知识，构建一个完整的金融风险评估系统，从数据准备到风险计算和监控。</p>
+            <div class="project-features">
+                <h3>系统功能</h3>
+                <ul>
+                    <li>风险价值(VaR)和条件风险价值(CVaR)计算</li>
+                    <li>历史情景和假设情景压力测试</li>
+                    <li>极端事件风险评估</li>
+                    <li>风险监控与预警</li>
+                    <li>可视化报告生成</li>
+                </ul>
+            </div>
+        </section>
+        <section class="project-steps">
+            <h2>系统架构设计</h2>
+            <h3>1. 系统类结构</h3>
+            <pre><code class="language-python">class RiskAssessmentSystem:
+    """风险评估系统核心类"""
+    def __init__(self, portfolio_data):
+        self.portfolio_data = portfolio_data  # 投资组合数据
+        self.risk_metrics = {}               # 风险指标存储
+        self.scenarios = {}                  # 压力测试情景
+        self.models = {                      # 风险模型实例
+            'var': None,
+            'cvar': None,
+            'stress_test': None,
+            'evt': None
+        }
+    def initialize_models(self):
+        """初始化所有风险模型"""
+        from var_model import VarCalculator
+        from cvar_model import CVarCalculator
+        from stress_test import StressTester
+        from evt_model import EVTAnalyzer
+        self.models['var'] = VarCalculator(self.portfolio_data)
+        self.models['cvar'] = CVarCalculator(self.portfolio_data)
+        self.models['stress_test'] = StressTester(self.portfolio_data)
+        self.models['evt'] = EVTAnalyzer(self.portfolio_data)
+    def run_all_analysis(self, confidence_level=0.95):
+        """运行全面风险评估"""
+        # 计算VaR和CVaR
+        self.risk_metrics['var'] = self.models['var'].calculate(confidence_level)
+        self.risk_metrics['cvar'] = self.models['cvar'].calculate(confidence_level)
+        # 执行压力测试
+        self.risk_metrics['stress_test'] = {}
+        for name, scenario in self.scenarios.items():
+            self.models['stress_test'].add_scenario(name, scenario)
+        self.risk_metrics['stress_test']['results'] = self.models['stress_test'].run_tests()
+        # 极端事件分析
+        self.risk_metrics['evt'] = self.models['evt'].analyze_extremes()
+        return self.risk_metrics
+    def generate_report(self, filename='risk_report.pdf'):
+        """生成风险评估报告"""
+        from report_generator import RiskReportGenerator
+        reporter = RiskReportGenerator(self.risk_metrics)
+        reporter.generate_pdf(filename)
+        return filename</code></pre>
+        </section>
+        <section class="project-steps">
+            <h2>VaR和CVaR计算模块</h2>
+            <h3>1. VaR计算器实现</h3>
+            <pre><code class="language-python"># var_model.py
+import numpy as np
+import pandas as pd
+from scipy.stats import norm
+class VarCalculator:
+    """风险价值(VaR)计算器"""
+    def __init__(self, portfolio_data):
+        self.returns = portfolio_data['returns']
+        self.positions = portfolio_data['positions']
+    def calculate(self, confidence_level=0.95, method='historical'):
+        """计算投资组合VaR"""
+        if method == 'historical':
+            return self._historical_var(confidence_level)
+        elif method == 'parametric':
+            return self._parametric_var(confidence_level)
+        elif method == 'monte_carlo':
+            return self._monte_carlo_var(confidence_level)
+        else:
+            raise ValueError("不支持的VaR计算方法")
+    def _historical_var(self, confidence_level):
+        """历史模拟法"""
+        portfolio_returns = (self.returns * self.positions).sum(axis=1)
+        return -np.percentile(portfolio_returns, 100 * (1 - confidence_level))
+    def _parametric_var(self, confidence_level):
+        """参数法(正态假设)"""
+        portfolio_returns = (self.returns * self.positions).sum(axis=1)
+        mu = portfolio_returns.mean()
+        sigma = portfolio_returns.std()
+        alpha = norm.ppf(1 - confidence_level)
+        return -(mu + alpha * sigma)
+    def _monte_carlo_var(self, confidence_level, n_simulations=10000):
+        """蒙特卡洛模拟法"""
+        cov_matrix = self.returns.cov()
+        mean_returns = self.returns.mean()
+        # 生成相关随机数
+        simulated_returns = np.random.multivariate_normal(
+            mean_returns, cov_matrix, n_simulations
+        )
+        portfolio_values = np.dot(simulated_returns, self.positions)
+        return -np.percentile(portfolio_values, 100 * (1 - confidence_level))</code></pre>
+            <h3>2. CVaR计算器实现</h3>
+            <pre><code class="language-python"># cvar_model.py
+import numpy as np
+import pandas as pd
+class CVarCalculator:
+    """条件风险价值(CVaR)计算器"""
+    def __init__(self, portfolio_data):
+        self.returns = portfolio_data['returns']
+        self.positions = portfolio_data['positions']
+    def calculate(self, confidence_level=0.95, method='historical'):
+        """计算投资组合CVaR"""
+        if method == 'historical':
+            return self._historical_cvar(confidence_level)
+        elif method == 'monte_carlo':
+            return self._monte_carlo_cvar(confidence_level)
+        else:
+            raise ValueError("不支持的CVaR计算方法")
+    def _historical_cvar(self, confidence_level):
+        """历史模拟法"""
+        portfolio_returns = (self.returns * self.positions).sum(axis=1)
+        var = -np.percentile(portfolio_returns, 100 * (1 - confidence_level))
+        cvar = -portfolio_returns[portfolio_returns <= -var].mean()
+        return cvar
+    def _monte_carlo_cvar(self, confidence_level, n_simulations=10000):
+        """蒙特卡洛模拟法"""
+        cov_matrix = self.returns.cov()
+        mean_returns = self.returns.mean()
+        # 生成相关随机数
+        simulated_returns = np.random.multivariate_normal(
+            mean_returns, cov_matrix, n_simulations
+        )
+        portfolio_values = np.dot(simulated_returns, self.positions)
+        var = -np.percentile(portfolio_values, 100 * (1 - confidence_level))
+        cvar = -portfolio_values[portfolio_values <= -var].mean()
+        return cvar</code></pre>
+        </section>
+        <section class="project-steps">
+            <h2>压力测试模块</h2>
+            <h3>1. 压力测试器实现</h3>
+            <pre><code class="language-python"># stress_test.py
+import numpy as np
+import pandas as pd
+class StressTester:
+    """压力测试器"""
+    def __init__(self, portfolio_data):
+        self.returns = portfolio_data['returns']
+        self.positions = portfolio_data['positions']
+        self.scenarios = {}
+    def add_scenario(self, name, scenario_func, **kwargs):
+        """添加压力测试情景"""
+        self.scenarios[name] = (scenario_func, kwargs)
+    def run_tests(self):
+        """执行所有压力测试"""
+        results = []
+        portfolio_value = self.positions.sum()
+        for name, (func, kwargs) in self.scenarios.items():
+            # 应用情景冲击
+            shocked_returns = func(self.returns.copy(), **kwargs)
+            # 计算组合损失
+            portfolio_loss = (self.positions * (
+                shocked_returns - self.returns)).sum(axis=1).mean()
+            results.append([name, portfolio_loss / portfolio_value])
+        return pd.DataFrame(results, columns=['Scenario', 'Loss'])</code></pre>
+            <h3>2. 常用压力情景</h3>
+            <pre><code class="language-python">    # 添加到StressTester类中
+    @staticmethod
+    def market_crash(returns, severity=0.2):
+        """市场崩盘情景"""
+        return returns * (1 - severity)
+    @staticmethod
+    def interest_rate_shock(returns, rate_increase=0.01, beta=0.5):
+        """利率冲击情景"""
+        # beta表示组合对利率的敏感度
+        return returns - beta * rate_increase
+    @staticmethod
+    def liquidity_crisis(returns, illiquidity_factor=0.3):
+        """流动性危机情景"""
+        # 模拟流动性枯竭导致的额外损失
+        return returns - np.random.uniform(0, illiquidity_factor, len(returns))
+    @staticmethod
+    def historical_scenario(returns, historical_returns):
+        """历史情景重现"""
+        # 对齐历史情景数据
+        aligned_shock = historical_returns.reindex(returns.index, method='ffill')
+        return returns + aligned_shock</code></pre>
+        </section>
+        <section class="project-steps">
+            <h2>极端事件分析模块</h2>
+            <h3>1. 极值分析器实现</h3>
+            <pre><code class="language-python"># evt_model.py
+import numpy as np
+import pandas as pd
+from scipy.stats import genpareto
+from scipy.optimize import minimize
+class EVTAnalyzer:
+    """极值理论分析器"""
+    def __init__(self, portfolio_data, threshold_quantile=0.95):
+        self.returns = portfolio_data['returns']
+        self.positions = portfolio_data['positions']
+        self.threshold_quantile = threshold_quantile
+    def analyze_extremes(self):
+        """执行极端事件分析"""
+        # 计算组合收益
+        portfolio_returns = (self.returns * self.positions).sum(axis=1)
+        # 拟合GPD模型
+        gpd_params = self._fit_gpd(portfolio_returns)
+        # 计算极端风险指标
+        var, cvar = self._calculate_extreme_risk(portfolio_returns, gpd_params)
+        return {
+            'gpd_params': gpd_params,
+            'extreme_var': var,
+            'extreme_cvar': cvar
+        }
+    def _fit_gpd(self, returns, threshold=None):
+        """拟合广义帕累托分布"""
+        losses = -returns
+        if threshold is None:
+            threshold = np.percentile(losses, 100 * self.threshold_quantile)
+        excesses = losses[losses > threshold] - threshold
+        # 最大似然估计
+        def neg_log_likelihood(params):
+            c, scale = params
+            if scale <= 0:
+                return np.inf
+            return -np.sum(genpareto.logpdf(excesses, c, scale=scale))
+        result = minimize(neg_log_likelihood, [0.1, 1],
+                         bounds=[(-1, 1), (1e-6, None)])
+        return {
+            'threshold': threshold,
+            'shape': result.x[0],
+            'scale': result.x[1]
+        }
+    def _calculate_extreme_risk(self, returns, gpd_params):
+        """计算极端风险指标"""
+        n = len(returns)
+        nu = len(returns[-returns > gpd_params['threshold']])
+        # 计算VaR
+        var = gpd_params['threshold'] + (
+            gpd_params['scale'] / gpd_params['shape']) * (
+            ((n / nu) ** gpd_params['shape']) - 1)
+        # 计算CVaR
+        cvar = var + (gpd_params['scale'] + gpd_params['shape'] * (
+            var - gpd_params['threshold'])) / (1 - gpd_params['shape'])
+        return var, cvar</code></pre>
+        </section>
+        <section class="project-steps">
+            <h2>系统完整实现</h2>
+            <h3>1. 准备数据并初始化系统</h3>
+            <pre><code class="language-python"># 示例数据准备
+import pandas as pd
+import numpy as np
+# 生成示例资产数据
+np.random.seed(42)
+dates = pd.date_range('2020-01-01', periods=1000)
+assets = ['Stock_A', 'Stock_B', 'Bond_A', 'Bond_B']
+returns = pd.DataFrame(np.random.multivariate_normal(
+    [0.0005, 0.0003, 0.0002, 0.0001],
+    [[0.04, 0.01, 0.002, 0.001],
+     [0.01, 0.09, 0.003, 0.002],
+     [0.002, 0.003, 0.01, 0.005],
+     [0.001, 0.002, 0.005, 0.008]],
+    size=1000
+), index=dates, columns=assets)
+positions = pd.Series([100000, 80000, 120000, 50000], index=assets)
+portfolio_data = {
+    'returns': returns,
+    'positions': positions
+}</code></pre>
+            <h3>2. 运行系统并生成报告</h3>
+            <pre><code class="language-python"># 初始化风险评估系统
+system = RiskAssessmentSystem(portfolio_data)
+system.initialize_models()
+# 添加压力测试情景
+system.scenarios = {
+    'Market_Crash_20%': (StressTester.market_crash, {'severity': 0.2}),
+    'Interest_Rate_Up_1%': (StressTester.interest_rate_shock, {'rate_increase': 0.01}),
+    'Liquidity_Crisis': (StressTester.liquidity_crisis, {})
+}
+# 执行全面风险评估
+risk_metrics = system.run_all_analysis()
+# 生成PDF报告
+report_file = system.generate_report()
+print(f"\n风险评估报告已生成: {report_file}")
+print("\n主要风险指标:")
+print(f"95% VaR: {risk_metrics['var']:.2f}")
+            </div>
+        </section>
+        <div class="exercises-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

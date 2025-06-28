@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习题: Python入门 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>练习题说明</h2>
+            <p>以下练习题旨在帮助您巩固模块1中学到的Python基础知识。每个练习题都包含一个问题描述和一个参考解答。建议您先尝试自己解决问题，然后再查看参考解答。</p>
+            <p>这些练习题涵盖了Python环境设置、基本语法、数据类型、变量、运算符和输入输出等内容。完成这些练习将帮助您为后续模块的学习打下坚实的基础。</p>
+        </section>
+        <section class="lesson-content">
+            <h2>基础练习</h2>
+            <div class="exercise">
+                <h3>练习1: Hello, Python!</h3>
+                <p><strong>问题</strong>：编写一个Python程序，打印"Hello, Python Finance!"，然后在新行打印您的姓名。</p>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 打印欢迎信息和姓名
+print("Hello, Python Finance!")
+print("张三")  # 替换为您的姓名</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习2: 变量和数据类型</h3>
+                <p><strong>问题</strong>：创建以下变量并打印它们的值和类型：</p>
+                <ul>
+                    <li>一个整数变量，值为100</li>
+                    <li>一个浮点数变量，值为3.14</li>
+                    <li>一个字符串变量，值为"Python"</li>
+                    <li>一个布尔变量，值为True</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 创建不同类型的变量
+my_int = 100
+my_float = 3.14
+my_string = "Python"
+my_bool = True
+# 打印变量的值和类型
+print(f"整数变量: {my_int}, 类型: {type(my_int)}")
+print(f"浮点数变量: {my_float}, 类型: {type(my_float)}")
+print(f"字符串变量: {my_string}, 类型: {type(my_string)}")
+print(f"布尔变量: {my_bool}, 类型: {type(my_bool)}")</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习3: 基本运算</h3>
+                <p><strong>问题</strong>：编写一个程序，计算并打印以下结果：</p>
+                <ul>
+                    <li>10 + 5的结果</li>
+                    <li>10 - 5的结果</li>
+                    <li>10 * 5的结果</li>
+                    <li>10 / 5的结果</li>
+                    <li>10 // 3的结果（整除）</li>
+                    <li>10 % 3的结果（取余）</li>
+                    <li>10 ** 2的结果（幂运算）</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 基本算术运算
+print(f"10 + 5 = {10 + 5}")
+print(f"10 - 5 = {10 - 5}")
+print(f"10 * 5 = {10 * 5}")
+print(f"10 / 5 = {10 / 5}")
+print(f"10 // 3 = {10 // 3}")
+print(f"10 % 3 = {10 % 3}")
+print(f"10 ** 2 = {10 ** 2}")</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习4: 字符串操作</h3>
+                <p><strong>问题</strong>：创建一个名为first_name的变量，值为您的名，和一个名为last_name的变量，值为您的姓。然后：</p>
+                <ul>
+                    <li>将这两个变量连接成一个完整的姓名</li>
+                    <li>计算您的全名长度</li>
+                    <li>将您的全名转换为大写</li>
+                    <li>将您的全名转换为小写</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 字符串操作
+first_name = "三"  # 替换为您的名
+last_name = "张"   # 替换为您的姓
+# 连接姓名
+full_name = last_name + first_name
+print(f"全名: {full_name}")
+# 计算长度
+name_length = len(full_name)
+print(f"全名长度: {name_length}")
+# 转换大小写
+print(f"大写: {full_name.upper()}")
+print(f"小写: {full_name.lower()}")</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习5: 类型转换</h3>
+                <p><strong>问题</strong>：编写一个程序，演示以下类型转换：</p>
+                <ul>
+                    <li>将字符串"123"转换为整数</li>
+                    <li>将整数456转换为字符串</li>
+                    <li>将字符串"3.14"转换为浮点数</li>
+                    <li>将浮点数2.71转换为整数（注意观察结果）</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 类型转换
+str_to_int = int("123")
+print(f"字符串\"123\"转换为整数: {str_to_int}, 类型: {type(str_to_int)}")
+int_to_str = str(456)
+print(f"整数456转换为字符串: {int_to_str}, 类型: {type(int_to_str)}")
+str_to_float = float("3.14")
+print(f"字符串\"3.14\"转换为浮点数: {str_to_float}, 类型: {type(str_to_float)}")
+float_to_int = int(2.71)
+print(f"浮点数2.71转换为整数: {float_to_int}, 类型: {type(float_to_int)}")</pre>
+                </details>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用练习</h2>
+            <div class="exercise">
+                <h3>练习6: 简单利息计算</h3>
+                <p><strong>问题</strong>：编写一个程序，计算简单利息。用户输入本金(principal)、年利率(rate)和时间(years)，程序计算并显示利息金额。使用公式：利息 = 本金 × 利率 × 时间。</p>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 简单利息计算
+try:
+    principal = float(input("请输入本金: "))
+    rate = float(input("请输入年利率(例如，5%输入0.05): "))
+    years = float(input("请输入年数: "))
+    # 计算简单利息
+    interest = principal * rate * years
+    # 显示结果
+    print(f"\n简单利息计算结果:")
+    print(f"本金: ${principal:,.2f}")
+    print(f"年利率: {rate:.2%}")
+    print(f"时间: {years}年")
+    print(f"利息金额: ${interest:,.2f}")
+    print(f"总金额: ${principal + interest:,.2f}")
+except ValueError:
+    print("错误：请输入有效的数字")</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习7: 货币转换</h3>
+                <p><strong>问题</strong>：编写一个程序，将一种货币转换为另一种货币。用户输入金额和汇率，程序计算并显示转换后的金额。</p>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 货币转换
+try:
+    amount = float(input("请输入金额: "))
+    exchange_rate = float(input("请输入汇率: "))
+    from_currency = input("请输入原始货币代码(例如USD): ")
+    to_currency = input("请输入目标货币代码(例如CNY): ")
+    # 计算转换后的金额
+    converted_amount = amount * exchange_rate
+    # 显示结果
+    print(f"\n货币转换结果:")
+    print(f"{amount:.2f} {from_currency} = {converted_amount:.2f} {to_currency}")
+    print(f"使用汇率: 1 {from_currency} = {exchange_rate} {to_currency}")
+except ValueError:
+    print("错误：请输入有效的数字")</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习8: 投资回报率(ROI)计算</h3>
+                <p><strong>问题</strong>：编写一个程序，计算投资回报率(ROI)。用户输入初始投资金额和最终投资价值，程序计算并显示ROI。使用公式：ROI = (最终价值 - 初始投资) / 初始投资 × 100%。</p>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 投资回报率计算
+try:
+    initial_investment = float(input("请输入初始投资金额: "))
+    final_value = float(input("请输入最终投资价值: "))
+    # 计算ROI
+    roi = (final_value - initial_investment) / initial_investment * 100
+    # 显示结果
+    print(f"\n投资回报率计算结果:")
+    print(f"初始投资: ${initial_investment:,.2f}")
+    print(f"最终价值: ${final_value:,.2f}")
+    print(f"投资回报率: {roi:.2f}%")
+except ValueError:
+    print("错误：请输入有效的数字")
+except ZeroDivisionError:
+    print("错误：初始投资不能为零")</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习9: 贷款负担率计算</h3>
+                <p><strong>问题</strong>：编写一个程序，计算贷款负担率。用户输入月收入和月贷款支付金额，程序计算并显示贷款负担率。使用公式：贷款负担率 = 月贷款支付金额 / 月收入 × 100%。</p>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 贷款负担率计算
+try:
+    monthly_income = float(input("请输入月收入: "))
+    monthly_payment = float(input("请输入月贷款支付金额: "))
+    # 计算贷款负担率
+    debt_burden_ratio = (monthly_payment / monthly_income) * 100
+    # 显示结果
+    print(f"\n贷款负担率计算结果:")
+    print(f"月收入: ${monthly_income:,.2f}")
+    print(f"月贷款支付: ${monthly_payment:,.2f}")
+    print(f"贷款负担率: {debt_burden_ratio:.2f}%")
+    # 提供建议
+    if debt_burden_ratio > 40:
+        print("警告：贷款负担率过高，建议控制在40%以下")
+    elif debt_burden_ratio > 30:
+        print("注意：贷款负担率略高，建议注意控制")
+    else:
+        print("贷款负担率在合理范围内")
+except ValueError:
+    print("错误：请输入有效的数字")
+except ZeroDivisionError:
+    print("错误：月收入不能为零")</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习10: 复利计算与格式化输出</h3>
+                <p><strong>问题</strong>：编写一个程序，计算复利并生成一个格式化的投资报告。用户输入本金、年利率和投资年限，程序计算每年末的投资价值并生成一个表格形式的报告。</p>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 复利计算与报告生成
+try:
+    principal = float(input("请输入本金: "))
+    rate = float(input("请输入年利率(例如，5%输入0.05): "))
+    years = int(input("请输入投资年限: "))
+    # 打印表头
+    print("\n年度投资报告")
+    print("=" * 50)
+    print(f"{'年度':^6}{'期初金额':>15}{'利息':>12}{'期末金额':>15}")
+    print("-" * 50)
+    # 计算并打印每年的数据
+    current_amount = principal
+    for year in range(1, years + 1):
+        interest = current_amount * rate
+        end_amount = current_amount + interest
+        print(f"{year:^6}${current_amount:>14,.2f}${interest:>11,.2f}${end_amount:>14,.2f}")
+        current_amount = end_amount
+    print("=" * 50)
+    # 计算总收益
+    total_interest = end_amount - principal
+    print(f"\n投资总结:")
+    print(f"初始投资: ${principal:,.2f}")
+    print(f"总收益: ${total_interest:,.2f}")
+    print(f"最终金额: ${end_amount:,.2f}")
+    print(f"收益率: {(total_interest/principal)*100:.2f}%")
+except ValueError:
+    print("错误：请输入有效的数字")
+except ZeroDivisionError:
+    print("错误：本金不能为零")</pre>
+                </details>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>挑战练习</h2>
+            <div class="exercise">
+                <h3>挑战1: 投资组合价值计算器</h3>
+                <p><strong>问题</strong>：创建一个程序，允许用户输入多个股票的信息（股票代码、持有数量和当前价格），计算投资组合的总价值，并生成一个格式化的投资组合报告。</p>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 投资组合价值计算器
+def get_stock_info():
+    stocks = []
+    while True:
+        try:
+            print("\n输入股票信息 (输入空白股票代码结束)")
+            symbol = input("请输入股票代码: ").upper()
+            if not symbol:
+                break
+            shares = float(input("请输入持有数量: "))
+            price = float(input("请输入当前价格: "))
+            stocks.append({
+                "symbol": symbol,
+                "shares": shares,
+                "price": price,
+                "value": shares * price
+            })
+        except ValueError:
+            print("错误：请输入有效的数字")
+            continue
+    return stocks
+def print_portfolio_report(stocks):
+    if not stocks:
+        print("投资组合为空")
+        return
+    total_value = sum(stock["value"] for stock in stocks)
+    print("\n投资组合报告")
+    print("=" * 55)
+    print(f"{'股票代码':^10}{'持有数量':>12}{'当前价格':>12}{'市值':>15}{'占比':>8}")
+    print("-" * 55)
+    for stock in stocks:
+        percentage = (stock["value"] / total_value) * 100
+        print(f"{stock['symbol']:^10}{stock['shares']:>12,.0f}${stock['price']:>11,.2f}${stock['value']:>14,.2f}{percentage:>7.1f}%")
+    print("-" * 55)
+    print(f"投资组合总价值: ${total_value:,.2f}")
+def main():
+    print("欢迎使用投资组合价值计算器")
+    stocks = get_stock_info()
+    print_portfolio_report(stocks)
+if __name__ == "__main__":
+    main()</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>挑战2: 金融计算器工具集</h3>
+                <p><strong>问题</strong>：创建一个综合性的金融计算器程序，包含多个功能（如复利计算、贷款计算、投资回报率计算等），并提供一个菜单界面让用户选择要使用的功能。确保程序有良好的错误处理和用户体验。</p>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre># 金融计算器工具集
+def show_menu():
+    print("\n=== 金融计算器工具集 ===")
+    print("1. 复利计算")
+    print("2. 贷款月供计算")
+    print("3. 投资回报率计算")
+    print("4. 通货膨胀影响计算")
+    print("0. 退出程序")
+    return input("请选择功能 (0-4): ")
+def compound_interest():
+    print("\n=== 复利计算器 ===")
+    try:
+        principal = float(input("请输入本金: "))
+        rate = float(input("请输入年利率(例如，5%输入0.05): "))
+        years = float(input("请输入投资年限: "))
+        amount = principal * (1 + rate) ** years
+        interest = amount - principal
+        print(f"\n计算结果:")
+        print(f"本金: ${principal:,.2f}")
+        print(f"年利率: {rate:.2%}")
+        print(f"投资年限: {years}年")
+        print(f"最终金额: ${amount:,.2f}")
+        print(f"利息收入: ${interest:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")
+def loan_payment():
+    print("\n=== 贷款月供计算器 ===")
+    try:
+        loan = float(input("请输入贷款金额: "))
+        rate = float(input("请输入年利率(例如，5%输入0.05): "))
+        years = int(input("请输入贷款年限: "))
+        monthly_rate = rate / 12
+        months = years * 12
+        payment = loan * (monthly_rate * (1 + monthly_rate) ** months) / ((1 + monthly_rate) ** months - 1)
+        total = payment * months
+        interest = total - loan
+        print(f"\n计算结果:")
+        print(f"贷款金额: ${loan:,.2f}")
+        print(f"月供金额: ${payment:,.2f}")
+        print(f"总还款额: ${total:,.2f}")
+        print(f"利息总额: ${interest:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")
+def roi_calculator():
+    print("\n=== 投资回报率计算器 ===")
+    try:
+        initial = float(input("请输入初始投资: "))
+        final = float(input("请输入最终价值: "))
+        years = float(input("请输入投资年限: "))
+        total_return = final - initial
+        roi = (total_return / initial) * 100
+        annual_roi = ((final / initial) ** (1/years) - 1) * 100
+        print(f"\n计算结果:")
+        print(f"总收益: ${total_return:,.2f}")
+        print(f"总回报率: {roi:.2f}%")
+        print(f"年化回报率: {annual_roi:.2f}%")
+    except ValueError:
+        print("错误：请输入有效的数字")
+    except ZeroDivisionError:
+        print("错误：初始投资不能为零")
+def inflation_calculator():
+    print("\n=== 通货膨胀影响计算器 ===")
+    try:
+        amount = float(input("请输入当前金额: "))
+        rate = float(input("请输入年通胀率(例如，3%输入0.03): "))
+        years = int(input("请输入年数: "))
+        future_value = amount / (1 + rate) ** years
+        print(f"\n计算结果:")
+        print(f"当前金额: ${amount:,.2f}")
+        print(f"通货膨胀率: {rate:.2%}")
+        print(f"{years}年后的等值购买力: ${future_value:,.2f}")
+        print(f"购买力损失: ${amount - future_value:,.2f}")
+    except ValueError:
+        print("错误：请输入有效的数字")
+def main():
+    while True:
+        choice = show_menu()
+        if choice == '0':
+            print("\n感谢使用金融计算器工具集！")
+            break
+        elif choice == '1':
+            compound_interest()
+        elif choice == '2':
+            loan_payment()
+        elif choice == '3':
+            roi_calculator()
+        elif choice == '4':
+            inflation_calculator()
+        else:
+            print("无效的选择，请重新输入")
+        input("\n按回车键继续...")
+if __name__ == "__main__":
+    main()</pre>
+                </details>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>通过完成这些练习题，您应该能够：</p>
+            <ul>
+                <li>熟练运用Python的基本语法和数据类型</li>
+                <li>理解并使用各种运算符</li>
+                <li>处理用户输入和格式化输出</li>
+                <li>应用这些知识解决实际的金融计算问题</li>
+            </ul>
+            <p>建议您认真完成所有练习，特别是挑战练习，它们将帮助您巩固所学知识并提升编程技能。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>完成这些练习后，您就可以进入下一个模块的学习了。</p>
+                <a href="../../index.html" class="btn btn-large">进入模块2：数据结构与控制流</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="project.html" class="btn">« 返回项目页面</a>
+            </div>
+            <div>
+                <a href="../../index.html" class="btn">进入模块2 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

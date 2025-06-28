@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习题: 自动化交易策略 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>基础概念题</h2>
+            <div class="exercise">
+                <h3>1. 量化交易基本概念</h3>
+                <p>请解释以下量化交易术语：</p>
+                <ol type="a">
+                    <li>Alpha和Beta</li>
+                    <li>夏普比率</li>
+                    <li>最大回撤</li>
+                    <li>滑点</li>
+                    <li>前视偏差</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>2. 技术指标理解</h3>
+                <p>请简要说明以下技术指标的计算方法和交易信号：</p>
+                <ol type="a">
+                    <li>MACD (移动平均收敛发散指标)</li>
+                    <li>RSI (相对强弱指数)</li>
+                    <li>布林带</li>
+                    <li>ATR (平均真实波幅)</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercises-section">
+            <h2>代码实现题</h2>
+            <div class="exercise">
+                <h3>3. 实现简单移动平均策略</h3>
+                <p>补全以下简单移动平均策略的Python代码：</p>
+                <pre><code class="language-python">def moving_average_strategy(prices, short_window=10, long_window=50):
+    """
+    简单移动平均交叉策略
+    :param prices: 价格序列 (pd.Series)
+    :param short_window: 短期移动平均窗口
+    :param long_window: 长期移动平均窗口
+    :return: 交易信号序列 (1: 买入, -1: 卖出, 0: 持有)
+    """
+    signals = pd.Series(0, index=prices.index)
+    # 计算短期和长期移动平均线
+    short_ma = prices.rolling(____).____()
+    long_ma = prices.rolling(____).____()
+    # 生成交易信号
+    signals[short_ma > long_ma] = ____
+    signals[short_ma <= long_ma] = ____
+    # 避免在开始时交易
+    signals[:long_window] = ____
+    return signals</code></pre>
+            </div>
+            <div class="exercise">
+                <h3>4. 实现回测框架</h3>
+                <p>补全以下简单回测框架的Python代码：</p>
+                <pre><code class="language-python">def backtest(prices, signals, initial_capital=100000):
+    """
+    简单回测函数
+    :param prices: 价格序列
+    :param signals: 交易信号序列
+    :param initial_capital: 初始资金
+    :return: 组合价值序列
+    """
+    portfolio = pd.Series(0.0, index=prices.index)
+    positions = 0
+    capital = initial_capital
+    for i in range(1, len(prices)):
+        if signals[i] == 1 and capital > 0:  # 买入信号
+            positions = ____ / prices[i]
+            capital = ____
+        elif signals[i] == -1 and positions > 0:  # 卖出信号
+            capital = ____ * prices[i]
+            positions = ____
+        portfolio[i] = capital + ____ * prices[i]
+    return portfolio</code></pre>
+            </div>
+        </section>
+        <section class="exercises-section">
+            <h2>策略设计题</h2>
+            <div class="exercise">
+                <h3>5. 设计均值回归策略</h3>
+                <p>基于以下要求设计一个均值回归策略：</p>
+                <ol>
+                    <li>使用Z-score作为偏离程度的度量</li>
+                    <li>当Z-score > 2时卖出，Z-score < -2时买入</li>
+                    <li>当Z-score绝对值 < 0.5时平仓</li>
+                    <li>考虑交易成本和滑点</li>
+                </ol>
+                <p>请用Python实现该策略，并说明如何评估其表现。</p>
+            </div>
+            <div class="exercise">
+                <h3>6. 多因子策略组合</h3>
+                <p>设计一个结合以下因子的多因子策略：</p>
+                <ul>
+                    <li>动量因子(过去20天收益率)</li>
+                    <li>波动率因子(过去60天波动率)</li>
+                    <li>成交量因子(成交量5日均值/60日均值)</li>
+                </ul>
+                <p>说明：</p>
+                <ol type="a">
+                    <li>如何标准化和组合这些因子</li>
+                    <li>如何生成交易信号</li>
+                    <li>如何控制风险</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercises-section">
+            <h2>案例分析题</h2>
+            <div class="exercise">
+                <h3>7. 回测结果分析</h3>
+                <p>分析以下策略回测结果，指出可能的问题和改进方向：</p>
+                <table>
+                    <tr>
+                        <th>指标</th>
+                        <th>训练集</th>
+                        <th>测试集</th>
+                    </tr>
+                    <tr>
+                        <td>年化收益率</td>
+                        <td>35%</td>
+                        <td>-5%</td>
+                    </tr>
+                    <tr>
+                        <td>夏普比率</td>
+                        <td>2.1</td>
+                        <td>-0.3</td>
+                    </tr>
+                    <tr>
+                        <td>最大回撤</td>
+                        <td>15%</td>
+                        <td>45%</td>
+                    </tr>
+                    <tr>
+                        <td>交易次数</td>
+                        <td>120</td>
+                        <td>30</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="exercise">
+                <h3>8. 实盘系统故障排查</h3>
+                <p>某实盘交易系统出现以下问题，请分析可能原因和解决方案：</p>
+                <ul>
+                    <li>订单执行延迟高达5秒</li>
+                    <li>部分订单重复执行</li>
+                    <li>在价格剧烈波动时系统崩溃</li>
+                    <li>每日收盘时内存泄漏</li>
+                </ul>
+            </div>
+        </section>
+        <div class="exercises-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+            <a href="../../index.html" class="btn">返回模块首页 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

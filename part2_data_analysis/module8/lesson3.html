@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第3课: 假设检验 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>假设检验基础</h2>
+            <p>假设检验是统计推断的核心方法，用于判断样本数据是否支持特定的统计假设。</p>
+            <h3>1. 基本概念</h3>
+            <pre><code class="language-python">import numpy as np
+from scipy import stats
+# 生成示例数据
+np.random.seed(42)
+control = np.random.normal(0.001, 0.02, 100)  # 对照组
+treatment = np.random.normal(0.002, 0.02, 100)  # 处理组
+# 假设检验步骤
+print("1. 建立原假设(H0): 两组均值相等")
+print("2. 建立备择假设(H1): 两组均值不等")
+print("3. 选择显著性水平(α=0.05)")
+print("4. 计算检验统计量和p值")
+print("5. 做出统计决策")</code></pre>
+            <h3>2. 检验类型</h3>
+            <pre><code class="language-python"># 单样本t检验 - 检验样本均值是否等于给定值
+t_stat, p_value = stats.ttest_1samp(control, 0)
+print(f"单样本t检验: t统计量={t_stat:.4f}, p值={p_value:.4f}")
+# 双样本t检验 - 检验两组独立样本均值是否相等
+t_stat, p_value = stats.ttest_ind(control, treatment)
+print(f"双样本t检验: t统计量={t_stat:.4f}, p值={p_value:.4f}")
+# 配对样本t检验 - 检验相关样本的均值差异
+t_stat, p_value = stats.ttest_rel(control[:50], treatment[:50])
+print(f"配对t检验: t统计量={t_stat:.4f}, p值={p_value:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>参数检验</h2>
+            <h3>1. t检验应用案例</h3>
+            <pre><code class="language-python">import pandas as pd
+import yfinance as yf
+# 获取两只股票收益率
+stocks = yf.download(['AAPL', 'MSFT'], start='2020-01-01', end='2023-01-01')['Adj Close']
+returns = stocks.pct_change().dropna()
+# 检验两只股票收益率均值是否相同
+t_stat, p_value = stats.ttest_ind(returns['AAPL'], returns['MSFT'], equal_var=False)
+print(f"AAPL vs MSFT收益率t检验: t={t_stat:.4f}, p={p_value:.4f}")
+# 解释结果
+alpha = 0.05
+if p_value > alpha:
+    print("不能拒绝原假设，收益率均值无显著差异")
+else:
+    print("拒绝原假设，收益率均值存在显著差异")</code></pre>
+            <h3>2. 方差分析(ANOVA)</h3>
+            <pre><code class="language-python"># 获取多只股票数据
+stocks = yf.download(['AAPL', 'MSFT', 'GOOG'], start='2020-01-01', end='2023-01-01')['Adj Close']
+returns = stocks.pct_change().dropna()
+# 单因素ANOVA检验
+f_stat, p_value = stats.f_oneway(returns['AAPL'], returns['MSFT'], returns['GOOG'])
+print(f"ANOVA检验: F={f_stat:.4f}, p={p_value:.4f}")
+# 事后检验(Tukey HSD)
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+data = pd.melt(returns.reset_index(), id_vars=['Date'], value_vars=['AAPL', 'MSFT', 'GOOG'])
+tukey = pairwise_tukeyhsd(data['value'], data['variable'], alpha=0.05)
+print(tukey.summary())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>非参数检验</h2>
+            <h3>1. Wilcoxon符号秩检验</h3>
+            <pre><code class="language-python"># 非正态数据检验
+x = np.random.exponential(1, 30)
+y = np.random.exponential(1.2, 30)
+# Wilcoxon符号秩检验(配对样本)
+stat, p_value = stats.wilcoxon(x[:20], y[:20])
+print(f"Wilcoxon检验: stat={stat:.4f}, p={p_value:.4f}")
+# Mann-Whitney U检验(独立样本)
+stat, p_value = stats.mannwhitneyu(x, y)
+print(f"Mann-Whitney U检验: stat={stat:.4f}, p={p_value:.4f}")</code></pre>
+            <h3>2. Kruskal-Wallis检验</h3>
+            <pre><code class="language-python"># 多组独立样本比较
+groups = [np.random.exponential(i, 30) for i in [1, 1.2, 1.5]]
+# Kruskal-Wallis检验
+stat, p_value = stats.kruskal(*groups)
+print(f"Kruskal-Wallis检验: stat={stat:.4f}, p={p_value:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融数据分析案例</h2>
+            <h3>1. 市场效率检验</h3>
+            <pre><code class="language-python"># 检验股票收益率是否服从随机游走
+from statsmodels.tsa.stattools import adfuller
+# 获取股票数据
+stock = yf.download('AAPL', start='2020-01-01', end='2023-01-01')
+returns = stock['Adj Close'].pct_change().dropna()
+# ADF检验(单位根检验)
+result = adfuller(returns)
+print(f"ADF统计量: {result[0]:.4f}")
+print(f"p值: {result[1]:.4f}")
+print("临界值:")
+for key, value in result[4].items():
+    print(f"\t{key}: {value:.4f}")</code></pre>
+            <h3>2. 策略显著性检验</h3>
+            <pre><code class="language-python"># 模拟两种交易策略收益
+np.random.seed(42)
+strategy_A = np.random.normal(0.001, 0.02, 252)  # 252个交易日
+strategy_B = np.random.normal(0.0015, 0.02, 252)
+# 检验策略差异
+t_stat, p_value = stats.ttest_ind(strategy_A, strategy_B)
+print(f"策略A vs 策略B: t={t_stat:.4f}, p={p_value:.4f}")
+# 计算统计功效
+from statsmodels.stats.power import tt_ind_solve_power
+effect_size = (np.mean(strategy_B) - np.mean(strategy_A)) / np.sqrt(
+    (np.var(strategy_A) + np.var(strategy_B)) / 2)
+power = tt_ind_solve_power(effect_size=effect_size, nobs1=252, alpha=0.05)
+print(f"统计功效: {power:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>多重检验问题</h2>
+            <h3>1. Bonferroni校正</h3>
+            <pre><code class="language-python"># 多重假设检验校正
+p_values = [0.01, 0.04, 0.03, 0.25, 0.02]
+n_tests = len(p_values)
+# Bonferroni校正
+reject, pvals_corrected, _, _ = stats.multipletests(p_values, alpha=0.05, method='bonferroni')
+print("原始p值:", p_values)
+print("校正后p值:", pvals_corrected)
+print("是否拒绝:", reject)</code></pre>
+            <h3>2. FDR控制</h3>
+            <pre><code class="language-python"># 错误发现率(FDR)控制
+reject, pvals_corrected, _, _ = stats.multipletests(p_values, alpha=0.05, method='fdr_bh')
+print("FDR校正后p值:", pvals_corrected)
+print("是否拒绝:", reject)</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson2.html" class="btn">« 上一课: 概率分布基础</a>
+            <a href="lesson4.html" class="btn">下一课: 相关性与回归分析 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

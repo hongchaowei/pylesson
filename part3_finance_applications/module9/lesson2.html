@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2课: 数据获取与清洗 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>批量获取多资产数据</h2>
+            <p>高效获取和处理多只股票或资产的市场数据。</p>
+            <h3>1. 批量下载股票数据</h3>
+            <pre><code class="language-python">import yfinance as yf
+import pandas as pd
+# 定义股票列表
+tickers = ["AAPL", "MSFT", "GOOG", "AMZN", "META"]
+# 批量下载数据
+data = yf.download(tickers, start="2020-01-01", end="2023-01-01", group_by="ticker")
+# 查看数据结构
+print(data.head())</code></pre>
+            <h3>2. 多线程数据获取</h3>
+            <pre><code class="language-python">from concurrent.futures import ThreadPoolExecutor
+def download_ticker(ticker):
+    return yf.Ticker(ticker).history(period="1y")
+# 使用线程池加速下载
+with ThreadPoolExecutor(max_workers=5) as executor:
+    results = list(executor.map(download_ticker, tickers))
+# 合并结果
+combined = pd.concat(results, keys=tickers, names=["Ticker", "Date"])
+print(combined.head())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>处理缺失值和异常值</h2>
+            <h3>1. 缺失值处理</h3>
+            <pre><code class="language-python"># 检查缺失值
+print(data.isnull().sum())
+# 填充缺失值
+data_filled = data.ffill()  # 前向填充
+data_dropped = data.dropna()  # 删除缺失值
+# 插值法填充
+data_interpolated = data.interpolate(method='time')</code></pre>
+            <h3>2. 异常值检测与处理</h3>
+            <pre><code class="language-python"># 定义异常值检测函数
+def detect_outliers(series, threshold=3):
+    z_scores = (series - series.mean()) / series.std()
+    return abs(z_scores) > threshold
+# 应用异常值检测
+outliers = detect_outliers(data['AAPL']['Close'])
+print(f"检测到{outliers.sum()}个异常值")
+# 处理异常值
+data_cleaned = data.copy()
+for ticker in tickers:
+    for col in ['Open', 'High', 'Low', 'Close']:
+        outliers = detect_outliers(data[ticker][col])
+        data_cleaned[ticker].loc[outliers, col] = None
+data_cleaned = data_cleaned.ffill()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>数据标准化与转换</h2>
+            <h3>1. 价格转换收益率</h3>
+            <pre><code class="language-python"># 计算日收益率
+returns = data['AAPL']['Close'].pct_change()
+# 计算对数收益率
+log_returns = np.log(data['AAPL']['Close']).diff()
+# 可视化比较
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12, 6))
+plt.plot(returns.index, returns, label='简单收益率')
+plt.plot(log_returns.index, log_returns, label='对数收益率')
+plt.legend()
+plt.show()</code></pre>
+            <h3>2. 数据标准化</h3>
+            <pre><code class="language-python">from sklearn.preprocessing import StandardScaler
+# 标准化价格数据
+scaler = StandardScaler()
+prices = data['AAPL'][['Open', 'High', 'Low', 'Close']]
+prices_scaled = pd.DataFrame(scaler.fit_transform(prices),
+                            index=prices.index,
+                            columns=prices.columns)
+print(prices_scaled.head())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>时间序列数据处理</h2>
+            <h3>1. 重采样与频率转换</h3>
+            <pre><code class="language-python"># 日线转周线
+weekly = data['AAPL'].resample('W').agg({
+    'Open': 'first',
+    'High': 'max',
+    'Low': 'min',
+    'Close': 'last',
+    'Volume': 'sum'
+})
+# 分钟线转小时线
+minute_data = yf.download("AAPL", period="1d", interval="1m")
+hourly = minute_data.resample('H').agg({
+    'Open': 'first',
+    'High': 'max',
+    'Low': 'min',
+    'Close': 'last',
+    'Volume': 'sum'
+})</code></pre>
+            <h3>2. 滚动窗口计算</h3>
+            <pre><code class="language-python"># 计算滚动统计量
+rolling_mean = data['AAPL']['Close'].rolling(window=20).mean()
+rolling_std = data['AAPL']['Close'].rolling(window=20).std()
+# 计算布林带
+data['AAPL']['Upper Band'] = rolling_mean + 2 * rolling_std
+data['AAPL']['Lower Band'] = rolling_mean - 2 * rolling_std</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融数据清洗案例</h2>
+            <h3>1. 股票拆分调整</h3>
+            <pre><code class="language-python"># 检查股票拆分
+splits = data['AAPL']['Stock Splits'][data['AAPL']['Stock Splits'] != 0]
+print("股票拆分日期:", splits.index.tolist())
+# 调整历史价格
+adjusted_close = data['AAPL']['Close'] * data['AAPL']['Stock Splits'].cumprod()
+data['AAPL']['Adj Close'] = adjusted_close</code></pre>
+            <h3>2. 完整清洗流程</h3>
+            <pre><code class="language-python">def clean_financial_data(ticker_data):
+    # 1. 处理缺失值
+    cleaned = ticker_data.ffill().bfill()
+    # 2. 处理异常值
+    for col in ['Open', 'High', 'Low', 'Close']:
+        z_scores = (cleaned[col] - cleaned[col].mean()) / cleaned[col].std()
+        cleaned.loc[abs(z_scores) > 3, col] = np.nan
+    # 3. 再次填充缺失值
+    cleaned = cleaned.ffill().bfill()
+    # 4. 调整股票拆分
+    if 'Stock Splits' in cleaned.columns:
+        adj_factor = cleaned['Stock Splits'].cumprod()
+        for col in ['Open', 'High', 'Low', 'Close']:
+            cleaned[col] = cleaned[col] * adj_factor
+    return cleaned
+# 应用清洗函数
+cleaned_data = {ticker: clean_financial_data(data[ticker]) for ticker in tickers}</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson1.html" class="btn">« 上一课: 金融数据API介绍</a>
+            <a href="lesson3.html" class="btn">下一课: 实时数据流处理 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

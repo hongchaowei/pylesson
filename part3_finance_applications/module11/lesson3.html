@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第3课: 压力测试与情景分析 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>压力测试概述</h2>
+            <p>压力测试是评估金融投资组合在极端市场条件下潜在损失的重要工具。</p>
+            <h3>1. 压力测试的基本概念</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+class StressTester:
+    """压力测试基础类"""
+    def __init__(self, portfolio_values, confidence_level=0.99):
+        self.portfolio_values = portfolio_values
+        self.confidence_level = confidence_level
+    def calculate_losses(self):
+        """计算投资组合损失"""
+        returns = self.portfolio_values.pct_change().dropna()
+        losses = -returns
+        return losses
+    def summary_statistics(self):
+        """计算基本统计量"""
+        losses = self.calculate_losses()
+        stats = {
+            'Mean Loss': losses.mean(),
+            'Max Loss': losses.max(),
+            'Loss Std': losses.std(),
+            'VaR': np.percentile(losses, 100 * self.confidence_level),
+            'CVaR': losses[losses >= np.percentile(losses, 100 * self.confidence_level)].mean()
+        }
+        return pd.DataFrame.from_dict(stats, orient='index', columns=['Value'])
+# 示例投资组合价值数据
+np.random.seed(42)
+portfolio_values = pd.Series(100 * np.exp(np.cumsum(np.random.normal(0.0005, 0.02, 1000))))
+# 初始化压力测试器
+tester = StressTester(portfolio_values)
+print("压力测试基本统计量:\n", tester.summary_statistics())</code></pre>
+            <h3>2. 压力测试流程</h3>
+            <pre><code class="language-python">def stress_test_workflow(portfolio_values, scenarios):
+    """压力测试标准流程"""
+    # 1. 确定测试对象和范围
+    print("1. 确定测试对象: 投资组合")
+    # 2. 识别风险因子
+    risk_factors = ['市场风险', '流动性风险', '信用风险']
+    print(f"2. 识别风险因子: {', '.join(risk_factors)}")
+    # 3. 设计压力情景
+    print(f"3. 设计压力情景: {len(scenarios)}种情景")
+    # 4. 执行压力测试
+    results = {}
+    for name, scenario in scenarios.items():
+        stressed_values = portfolio_values * (1 + scenario)
+        loss = (stressed_values.iloc[-1] - portfolio_values.iloc[-1]) / portfolio_values.iloc[-1]
+        results[name] = loss
+    # 5. 分析结果
+    result_df = pd.DataFrame.from_dict(results, orient='index', columns=['Loss'])
+    print("\n5. 压力测试结果:")
+    print(result_df.sort_values('Loss'))
+    # 6. 制定应对措施
+    worst_case = result_df.idxmin()[0]
+    print(f"\n6. 最坏情景: {worst_case}, 建议采取对冲措施")
+    return result_df
+# 定义压力情景
+scenarios = {
+    '市场崩盘': pd.Series(np.linspace(-0.01, -0.30, 1000)),
+    '利率飙升': pd.Series(np.linspace(-0.005, -0.15, 1000)),
+    '流动性枯竭': pd.Series(np.linspace(-0.008, -0.25, 1000))
+}
+# 执行压力测试
+stress_results = stress_test_workflow(portfolio_values, scenarios)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>历史情景分析法</h2>
+            <p>历史情景分析法通过重现历史上的极端市场事件来评估当前投资组合的风险。</p>
+            <h3>1. 历史危机事件分析</h3>
+            <pre><code class="language-python">class HistoricalScenarioAnalyzer:
+    """历史情景分析器"""
+    def __init__(self, portfolio_returns):
+        self.portfolio_returns = portfolio_returns
+    def apply_historical_shock(self, shock_returns, window=30):
+        """应用历史冲击"""
+        # 对齐冲击数据和组合数据
+        aligned_shock = shock_returns.reindex(self.portfolio_returns.index, method='nearest')
+        # 计算冲击后的组合收益
+        shocked_returns = self.portfolio_returns + aligned_shock
+        # 计算冲击期间的最大损失
+        rolling_losses = -shocked_returns.rolling(window).sum()
+        max_loss = rolling_losses.max()
+        max_loss_period = rolling_losses.idxmax()
+        return max_loss, max_loss_period
+    def plot_historical_shock(self, shock_returns, window=30):
+        """可视化历史冲击影响"""
+        max_loss, max_loss_date = self.apply_historical_shock(shock_returns, window)
+        plt.figure(figsize=(12,6))
+        (-self.portfolio_returns).rolling(window).sum().plot(label='正常市场')
+        (-(self.portfolio_returns + shock_returns.reindex(
+            self.portfolio_returns.index, method='nearest'))).rolling(window).sum().plot(label='历史冲击')
+        plt.axvline(x=max_loss_period, color='r', linestyle='--',
+                   label=f'最大损失: {max_loss:.2%}')
+        plt.title('历史情景分析')
+        plt.ylabel(f'{window}天累计损失')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+# 示例历史冲击数据 (模拟2008年金融危机)
+crisis_period = pd.date_range(start='2008-09-01', periods=100, freq='D')
+crisis_returns = pd.Series(np.random.normal(-0.01, 0.03, 100), index=crisis_period)
+# 初始化分析器
+analyzer = HistoricalScenarioAnalyzer(portfolio_values.pct_change().dropna())
+# 分析历史冲击
+max_loss, _ = analyzer.apply_historical_shock(crisis_returns)
+print(f"\n历史危机情景下的最大30天损失: {max_loss:.2%}")
+# 可视化
+analyzer.plot_historical_shock(crisis_returns)</code></pre>
+            <h3>2. 多历史情景比较</h3>
+            <pre><code class="language-python">def compare_historical_crises(portfolio_returns, crisis_dict):
+    """比较多个历史危机情景"""
+    results = []
+    for name, crisis_returns in crisis_dict.items():
+        analyzer = HistoricalScenarioAnalyzer(portfolio_returns)
+        max_loss, _ = analyzer.apply_historical_shock(crisis_returns)
+        results.append([name, max_loss])
+    result_df = pd.DataFrame(results, columns=['Crisis', 'Max Loss'])
+    result_df = result_df.sort_values('Max Loss', ascending=False)
+    plt.figure(figsize=(10,6))
+    plt.barh(result_df['Crisis'], result_df['Max Loss'])
+    plt.title('不同历史危机情景下的最大损失比较')
+    plt.xlabel('30天累计损失')
+    plt.grid(axis='x')
+    plt.show()
+    return result_df
+# 定义多个历史危机情景
+historical_crises = {
+    '2008金融危机': pd.Series(np.random.normal(-0.01, 0.03, 100)),
+    '2000互联网泡沫': pd.Series(np.random.normal(-0.008, 0.025, 100)),
+    '2020新冠疫情': pd.Series(np.random.normal(-0.015, 0.04, 100))
+}
+# 比较不同危机
+crisis_comparison = compare_historical_crises(
+    portfolio_values.pct_change().dropna(),
+    historical_crises
+)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>假设情景分析法</h2>
+            <p>假设情景分析法通过设计可能的极端市场情景来评估投资组合的脆弱性。</p>
+            <h3>1. 单因子压力测试</h3>
+            <pre><code class="language-python">class SingleFactorStressTest:
+    """单因子压力测试"""
+    def __init__(self, factor_returns, factor_betas):
+        self.factor_returns = factor_returns
+        self.factor_betas = factor_betas
+    def apply_shock(self, factor_name, shock_size):
+        """应用单因子冲击"""
+        shocked_returns = self.factor_returns.copy()
+        shocked_returns[factor_name] += shock_size
+        # 计算组合影响
+        portfolio_shock = np.dot(shocked_returns, self.factor_betas)
+        return portfolio_shock
+    def sensitivity_analysis(self, factor_name, shock_range=np.linspace(-0.1, 0.1, 21)):
+        """因子敏感性分析"""
+        sensitivities = []
+        for shock in shock_range:
+            impact = self.apply_shock(factor_name, shock)
+            sensitivities.append(impact.mean())
+        plt.figure(figsize=(10,6))
+        plt.plot(shock_range, sensitivities)
+        plt.axhline(0, color='k', linestyle='--')
+        plt.axvline(0, color='k', linestyle='--')
+        plt.title(f'{factor_name}因子敏感性分析')
+        plt.xlabel('因子冲击大小')
+        plt.ylabel('组合收益影响')
+        plt.grid(True)
+        plt.show()
+# 示例因子数据和因子暴露
+factors = pd.DataFrame({
+    '市场因子': np.random.normal(0.0005, 0.01, 1000),
+    '利率因子': np.random.normal(0.0002, 0.005, 1000),
+    '信用因子': np.random.normal(0.0003, 0.008, 1000)
+}, index=portfolio_values.index[:-1])
+betas = np.array([0.8, 0.5, 0.3])  # 组合对各因子的暴露
+# 初始化单因子测试
+tester = SingleFactorStressTest(factors, betas)
+# 执行利率因子敏感性分析
+tester.sensitivity_analysis('利率因子')</code></pre>
+            <h3>2. 多因子极端情景</h3>
+            <pre><code class="language-python">class MultiFactorScenario:
+    """多因子极端情景分析"""
+    def __init__(self, factor_returns, factor_betas):
+        self.factor_returns = factor_returns
+        self.factor_betas = factor_betas
+        self.factor_names = factor_returns.columns
+    def define_scenario(self, scenario_dict):
+        """定义多因子情景"""
+        shocked_returns = self.factor_returns.copy()
+        for factor, shock in scenario_dict.items():
+            if factor in self.factor_names:
+                shocked_returns[factor] += shock
+            else:
+                raise ValueError(f"未知因子: {factor}")
+        return shocked_returns
+    def evaluate_scenario(self, scenario_dict):
+        """评估情景影响"""
+        shocked_returns = self.define_scenario(scenario_dict)
+        portfolio_impact = np.dot(shocked_returns, self.factor_betas)
+        impact_stats = {
+            'Mean Impact': portfolio_impact.mean(),
+            'Max Impact': portfolio_impact.max(),
+            'Min Impact': portfolio_impact.min(),
+            'Std Impact': portfolio_impact.std()
+        }
+        return pd.DataFrame.from_dict(impact_stats, orient='index', columns=['Value'])
+    def generate_correlation_shock(self, factor1, factor2, shock_size=0.1):
+        """生成相关性冲击情景"""
+        if factor1 not in self.factor_names or factor2 not in self.factor_names:
+            raise ValueError("无效的因子名称")
+        # 增加两个因子之间的相关性
+        cov_matrix = self.factor_returns[[factor1, factor2]].cov()
+        cov_matrix.iloc[0,1] += shock_size
+        cov_matrix.iloc[1,0] += shock_size
+        # 生成相关冲击
+        mean = [0, 0]
+        shocked_returns = np.random.multivariate_normal(mean, cov_matrix.values,
+                                                        size=len(self.factor_returns))
+        # 应用冲击
+        new_returns = self.factor_returns.copy()
+        new_returns[factor1] += shocked_returns[:,0]
+        new_returns[factor2] += shocked_returns[:,1]
+        return new_returns
+# 初始化多因子分析
+multi_tester = MultiFactorScenario(factors, betas)
+# 定义极端情景
+extreme_scenario = {
+    '市场因子': -0.20,  # 市场下跌20%
+    '利率因子': 0.10,   # 利率上升10%
+    '信用因子': -0.15   # 信用利差扩大15%
+}
+# 评估极端情景影响
+scenario_impact = multi_tester.evaluate_scenario(extreme_scenario)
+print("\n极端情景影响评估:\n", scenario_impact)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>系统压力测试框架</h2>
+            <p>构建完整的系统压力测试框架，实现自动化压力测试流程。</p>
+            <h3>1. 系统压力测试类</h3>
+            <pre><code class="language-python">class SystematicStressTester:
+    """系统压力测试框架"""
+    def __init__(self, portfolio_values, factor_data, factor_betas):
+        self.portfolio_values = portfolio_values
+        self.factor_data = factor_data
+        self.factor_betas = factor_betas
+        self.scenarios = {}
+        self.results = None
+    def add_scenario(self, name, scenario_func, **kwargs):
+        """添加压力测试情景"""
+        self.scenarios[name] = (scenario_func, kwargs)
+    def run_tests(self):
+        """运行所有压力测试"""
+        results = []
+        for name, (func, kwargs) in self.scenarios.items():
+            shocked_values = func(self.portfolio_values, **kwargs)
+            loss = (shocked_values.iloc[-1] - self.portfolio_values.iloc[-1]) / self.portfolio_values.iloc[-1]
+            results.append([name, loss])
+        self.results = pd.DataFrame(results, columns=['Scenario', 'Loss'])
+        return self.results
+    def plot_results(self):
+        """可视化压力测试结果"""
+        if self.results is None:
+</body>
+</html>

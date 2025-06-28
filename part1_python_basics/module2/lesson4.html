@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程4: 推导式和生成器 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>推导式进阶</h2>
+            <p>在上一课中，我们简单介绍了推导式的基本用法。本课将深入探讨推导式的高级用法，并介绍如何在金融数据处理中高效应用它们。</p>
+            <h3>嵌套推导式</h3>
+            <pre># 嵌套列表推导式
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+# 转置矩阵
+transposed = [[row[i] for row in matrix] for i in range(len(matrix[0]))]
+# 扁平化嵌套列表
+flattened = [num for row in matrix for num in row]
+# 创建复杂的嵌套结构
+price_matrix = [
+    [price * (1 + 0.01 * i) for i in range(5)]  # 5种不同的价格增长情景
+    for price in [100, 200, 300]  # 3种不同的初始价格
+]</pre>
+            <div class="feature">
+                <h4>金融应用示例：多资产情景分析</h4>
+                <pre># 多资产情景分析
+assets = [
+    {"name": "股票A", "price": 100, "volatility": 0.2},
+    {"name": "股票B", "price": 50, "volatility": 0.3},
+    {"name": "债券C", "price": 1000, "volatility": 0.05},
+    {"name": "商品D", "price": 80, "volatility": 0.4}
+]
+scenarios = [-2, -1, 0, 1, 2]  # 标准差的倍数
+# 使用嵌套推导式创建情景分析矩阵
+scenario_matrix = [
+    {
+        "asset": asset["name"],
+        "scenarios": [
+            {
+                "std_dev": std,
+                "price_change": std * asset["volatility"],
+                "new_price": asset["price"] * (1 + std * asset["volatility"]),
+                "pct_change": std * asset["volatility"] * 100
+            }
+            for std in scenarios
+        ]
+    }
+    for asset in assets
+]
+# 打印情景分析结果
+print("\n多资产情景分析:")
+for asset_data in scenario_matrix:
+    print(f"\n{asset_data['asset']}:")
+    for scenario in asset_data["scenarios"]:
+        direction = "上涨" if scenario["price_change"] > 0 else "下跌" if scenario["price_change"] < 0 else "不变"
+        print(f"  情景 {scenario['std_dev']} σ: {direction} {abs(scenario['pct_change']):.1f}%, 价格: ${scenario['new_price']:.2f}")</pre>
+            </div>
+            <div class="feature">
+                <h4>投资组合情景分析</h4>
+                <pre># 使用推导式计算投资组合在不同情景下的总价值
+portfolio = {
+    "股票A": 100,  # 持有100股
+    "股票B": 200,  # 持有200股
+    "债券C": 10,   # 持有10张
+    "商品D": 50    # 持有50单位
+}
+# 计算当前投资组合价值
+current_value = sum(
+    portfolio[asset["name"]] * asset["price"]
+    for asset in assets
+    if asset["name"] in portfolio
+)
+# 计算不同情景下的投资组合价值
+portfolio_scenarios = [
+    {
+        "scenario": std,
+        "value": sum(
+            portfolio[asset["name"]] * asset["price"] * (1 + std * asset["volatility"])
+            for asset in assets
+            if asset["name"] in portfolio
+        ),
+    }
+    for std in scenarios
+]
+# 打印投资组合情景分析结果
+print("\n投资组合情景分析:")
+print(f"当前价值: ${current_value:,.2f}")
+for scenario in portfolio_scenarios:
+    change = scenario["value"] - current_value
+    change_pct = change / current_value * 100
+    print(f"情景 {scenario['scenario']} σ: ${scenario['value']:,.2f} ({change_pct:+.2f}%)")</pre>
+            </div>
+            <h3>条件推导式的高级用法</h3>
+            <pre># 多条件推导式
+prices = [105, 102, 98, 110, 120, 115, 95]
+previous_day = 100
+# 根据不同条件分类价格变化
+price_changes = [
+    "大幅上涨" if price > previous_day * 1.1 else
+    "小幅上涨" if price > previous_day else
+    "小幅下跌" if price > previous_day * 0.9 else
+    "大幅下跌"
+    for price in prices
+]
+# 使用条件推导式进行过滤和转换
+filtered_prices = [
+    (price, (price - previous_day) / previous_day * 100)
+    for price in prices
+    if abs(price - previous_day) / previous_day > 0.05  # 只关注变化超过5%的价格
+]</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>推导式的性能考虑</h2>
+            <p>推导式不仅使代码更简洁，在许多情况下还能提高性能。在处理大量金融数据时，这一点尤为重要。</p>
+            <pre># 推导式通常比循环更高效
+import time
+# 生成大量数据
+large_data = list(range(1000000))
+# 使用循环
+start_time = time.time()
+squared_loop = []
+for x in large_data:
+    squared_loop.append(x * x)
+loop_time = time.time() - start_time
+# 使用推导式
+start_time = time.time()
+squared_comp = [x * x for x in large_data]
+comp_time = time.time() - start_time
+print(f"循环时间: {loop_time:.4f}秒")
+print(f"推导式时间: {comp_time:.4f}秒")
+print(f"推导式速度提升: {loop_time/comp_time:.2f}倍")</pre>
+            <div class="feature">
+                <h4>金融应用示例：高效数据转换</h4>
+                <pre># 高效处理金融时间序列数据
+import time
+from datetime import datetime, timedelta
+# 生成模拟的每日价格数据（5年）
+start_date = datetime(2020, 1, 1)
+days = 365 * 5
+dates = [start_date + timedelta(days=i) for i in range(days)]
+prices = [100 * (1 + 0.0001 * i + 0.01 * (i % 20 - 10)) for i in range(days)]
+# 创建日期-价格字典
+price_data = {date.strftime("%Y-%m-%d"): price for date, price in zip(dates, prices)}
+# 计算移动平均线 - 传统方法
+def calculate_ma_loop(prices, window):
+    result = []
+    for i in range(len(prices)):
+        if i < window - 1:
+            result.append(None)
+        else:
+            window_avg = sum(prices[i-window+1:i+1]) / window
+            result.append(window_avg)
+    return result
+# 计算移动平均线 - 使用推导式
+def calculate_ma_comprehension(prices, window):
+    return [
+        sum(prices[i-window+1:i+1]) / window if i >= window - 1 else None
+        for i in range(len(prices))
+    ]
+# 性能比较
+print("\n性能比较:")
+# 移动平均线计算
+start_time = time.time()
+ma_loop = calculate_ma_loop(prices, 20)
+ma_loop_time = time.time() - start_time
+start_time = time.time()
+ma_comp = calculate_ma_comprehension(prices, 20)
+ma_comp_time = time.time() - start_time
+print(f"移动平均线计算:")
+print(f"  循环方法: {ma_loop_time:.4f}秒")
+print(f"  推导式方法: {ma_comp_time:.4f}秒")
+print(f"  速度提升: {ma_loop_time/ma_comp_time:.2f}倍")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>生成器基础</h2>
+            <p>生成器是Python中一种特殊的迭代器，它允许我们在需要时逐个生成值，而不是一次性生成所有值。在处理大量金融数据时，生成器可以显著提高内存效率。</p>
+            <h3>生成器表达式</h3>
+            <pre># 列表推导式 vs 生成器表达式
+prices = [100, 101, 102, 103, 104, 105]
+# 列表推导式 - 立即计算所有值
+price_changes_list = [prices[i] - prices[i-1] for i in range(1, len(prices))]
+# 生成器表达式 - 按需计算值
+price_changes_gen = (prices[i] - prices[i-1] for i in range(1, len(prices)))
+# 使用生成器
+print("生成器内容:")
+for change in price_changes_gen:
+    print(f"  价格变化: {change}")
+# 生成器只能迭代一次
+print("\n尝试再次迭代生成器:")
+for change in price_changes_gen:
+    print(f"  价格变化: {change}")  # 不会输出任何内容</pre>
+            <h3>生成器函数</h3>
+            <pre># 使用yield创建生成器函数
+def price_change_generator(prices):
+    for i in range(1, len(prices)):
+        yield prices[i] - prices[i-1]
+# 使用生成器函数
+prices = [100, 102, 101, 103, 105]
+changes = price_change_generator(prices)
+for change in changes:
+    print(f"价格变化: {change}")
+# 更复杂的生成器函数示例
+def moving_average_generator(prices, window):
+    """生成移动平均值的生成器函数"""
+    if len(prices) < window:
+        return
+    # 计算第一个窗口的和
+    window_sum = sum(prices[:window])
+    yield window_sum / window
+    # 使用滑动窗口计算后续值
+    for i in range(window, len(prices)):
+        window_sum = window_sum - prices[i-window] + prices[i]
+        yield window_sum / window</pre>
+            <div class="feature">
+                <h4>金融应用示例：实时数据处理</h4>
+                <pre># 实时价格监控生成器
+def price_monitor_generator(initial_price, volatility=0.02):
+    """模拟实时价格数据生成器"""
+    import random
+    import time
+    current_price = initial_price
+    while True:
+        # 生成随机价格变动
+        change = random.normalvariate(0, volatility) * current_price
+        current_price += change
+        # 生成时间戳
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        yield {
+            "timestamp": timestamp,
+            "price": current_price,
+            "change": change,
+            "change_pct": (change / (current_price - change)) * 100
+        }
+# 使用价格监控生成器
+def monitor_price_movements(symbol, initial_price, target_price, stop_loss):
+    """监控价格变动并在达到目标价格或止损点时发出警报"""
+    monitor = price_monitor_generator(initial_price)
+    print(f"\n开始监控 {symbol}:")
+    print(f"初始价格: ${initial_price:.2f}")
+    print(f"目标价格: ${target_price:.2f}")
+    print(f"止损价格: ${stop_loss:.2f}")
+    for data in monitor:
+        price = data["price"]
+        print(f"\r当前价格: ${price:.2f} ({data['change_pct']:+.2f}%)", end="")
+        if price >= target_price:
+            print(f"\n达到目标价格！时间: {data['timestamp']}")
+            break
+        elif price <= stop_loss:
+            print(f"\n触发止损！时间: {data['timestamp']}")
+            break
+# 示例使用
+# monitor_price_movements("AAPL", 150.0, 155.0, 145.0)</pre>
+            </div>
+            <h3>生成器的高级特性</h3>
+            <pre># send方法 - 向生成器发送值
+def price_analyzer():
+    """价格分析生成器，可以接收新的阈值设置"""
+    threshold = 0.02  # 默认阈值
+    while True:
+        price = yield  # 等待接收价格数据
+        # 接收可选的新阈值
+        new_threshold = yield f"价格变动: {price:.2f}, 阈值: {threshold:.2f}"
+        if new_threshold is not None:
+            threshold = new_threshold
+# throw方法 - 向生成器抛出异常
+def market_data_processor():
+    """处理市场数据的生成器，可以处理异常情况"""
+    try:
+        while True:
+            data = yield
+            # 处理数据...
+            print(f"处理数据: {data}")
+    except ValueError as e:
+        print(f"数据处理错误: {e}")
+        # 可以选择恢复处理
+        while True:
+            data = yield
+            # 继续处理数据...
+            print(f"恢复处理数据: {data}")
+# close方法 - 关闭生成器
+def data_stream():
+    """可关闭的数据流生成器"""
+    try:
+        while True:
+            yield "数据"
+    except GeneratorExit:
+        print("数据流已关闭")
+        # 执行清理操作</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>深入学习了推导式的高级用法，包括嵌套推导式和条件推导式</li>
+                <li>探讨了推导式在性能优化方面的优势</li>
+                <li>学习了生成器的基本概念和使用方法</li>
+                <li>掌握了生成器在金融数据处理中的应用</li>
+                <li>了解了生成器的高级特性和异常处理</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一个模块中，我们将学习函数和模块的使用，这将帮助我们更好地组织和重用代码。</p>
+                <a href="../module3/lesson1.html" class="btn btn-large">下一模块：函数与模块 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson3.html" class="btn">« 上一课：控制流语句</a>
+            </div>
+            <div>
+                <a href="../module3/lesson1.html" class="btn">下一课：函数基础 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

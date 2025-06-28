@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程2: 字典与集合 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>字典基础</h2>
+            <p>字典是Python中最灵活的数据结构之一，它存储键值对，允许通过键快速查找值。在金融应用中，字典常用于存储股票数据、交易信息和市场指标等。</p>
+            <h3>创建字典</h3>
+            <pre># 创建空字典
+portfolio = {}
+market_data = dict()
+# 创建包含键值对的字典
+stock_prices = {
+    "AAPL": 155.75,
+    "GOOGL": 2550.25,
+    "MSFT": 305.25,
+    "AMZN": 3300.50
+}
+# 使用dict()函数创建字典
+trade_info = dict(
+    symbol="AAPL",
+    shares=100,
+    price=150.25,
+    date="2024-01-15"
+)
+# 使用zip()创建字典
+symbols = ["AAPL", "GOOGL", "MSFT"]
+prices = [155.75, 2550.25, 305.25]
+stock_dict = dict(zip(symbols, prices))</pre>
+            <h3>访问和修改字典</h3>
+            <pre># 通过键访问值
+apple_price = stock_prices["AAPL"]  # 155.75
+# 使用get()方法（更安全，可提供默认值）
+google_price = stock_prices.get("GOOGL")  # 2550.25
+tesla_price = stock_prices.get("TSLA", 0)  # 0 (默认值，因为TSLA不在字典中)
+# 修改值
+stock_prices["AAPL"] = 160.50  # 更新苹果股价
+stock_prices["TSLA"] = 750.25  # 添加新的键值对
+# 删除键值对
+del stock_prices["AMZN"]  # 删除亚马逊的股价
+popped_price = stock_prices.pop("MSFT")  # 删除并返回微软的股价
+stock_prices.clear()  # 清空字典</pre>
+            <div class="feature">
+                <h4>金融应用示例：股票投资组合</h4>
+                <pre># 创建投资组合字典
+portfolio = {
+    "AAPL": {
+        "shares": 100,
+        "avg_price": 150.25,
+        "sector": "Technology"
+    },
+    "GOOGL": {
+        "shares": 50,
+        "avg_price": 2500.75,
+        "sector": "Technology"
+    },
+    "JNJ": {
+        "shares": 200,
+        "avg_price": 170.50,
+        "sector": "Healthcare"
+    },
+    "XOM": {
+        "shares": 300,
+        "avg_price": 60.75,
+        "sector": "Energy"
+    }
+}
+# 获取当前市场价格
+current_prices = {
+    "AAPL": 155.75,
+    "GOOGL": 2550.25,
+    "JNJ": 165.30,
+    "XOM": 65.25
+}
+# 计算投资组合价值和收益
+total_value = 0
+total_cost = 0
+sector_allocation = {}
+for symbol, data in portfolio.items():
+    shares = data["shares"]
+    avg_price = data["avg_price"]
+    sector = data["sector"]
+    # 计算持仓成本和当前价值
+    position_cost = shares * avg_price
+    current_price = current_prices.get(symbol, 0)
+    position_value = shares * current_price
+    # 计算收益
+    profit_loss = position_value - position_cost
+    profit_loss_pct = (profit_loss / position_cost) * 100 if position_cost > 0 else 0
+    # 更新总价值和总成本
+    total_value += position_value
+    total_cost += position_cost
+    # 更新行业分配
+    if sector in sector_allocation:
+        sector_allocation[sector] += position_value
+    else:
+        sector_allocation[sector] = position_value
+    # 打印每个持仓的信息
+    print(f"\n{symbol} 持仓分析:")
+    print(f"持有股数: {shares}")
+    print(f"平均成本: ${avg_price:.2f}")
+    print(f"当前价格: ${current_price:.2f}")
+    print(f"持仓市值: ${position_value:,.2f}")
+    print(f"盈亏: ${profit_loss:+,.2f} ({profit_loss_pct:+.2f}%)")
+# 计算总收益
+total_profit_loss = total_value - total_cost
+total_profit_loss_pct = (total_profit_loss / total_cost) * 100 if total_cost > 0 else 0
+# 打印投资组合摘要
+print("\n投资组合摘要:")
+print(f"总市值: ${total_value:,.2f}")
+print(f"总成本: ${total_cost:,.2f}")
+print(f"总盈亏: ${total_profit_loss:+,.2f} ({total_profit_loss_pct:+.2f}%)")
+# 打印行业分配
+print("\n行业分配:")
+for sector, value in sector_allocation.items():
+    allocation_pct = (value / total_value) * 100
+    print(f"{sector}: ${value:,.2f} ({allocation_pct:.2f}%)")</pre>
+            </div>
+            <h3>字典方法和操作</h3>
+            <pre># 获取所有键、值和键值对
+stock_prices = {
+    "AAPL": 155.75,
+    "GOOGL": 2550.25,
+    "MSFT": 305.25
+}
+keys = stock_prices.keys()      # 获取所有键
+values = stock_prices.values()  # 获取所有值
+items = stock_prices.items()    # 获取所有键值对
+# 遍历字典
+for symbol in stock_prices:
+    print(f"{symbol}: ${stock_prices[symbol]}")
+for symbol, price in stock_prices.items():
+    print(f"{symbol}: ${price}")
+# 检查键是否存在
+if "AAPL" in stock_prices:
+    print("Apple stock is in the dictionary")
+# 合并字典
+tech_stocks = {"AAPL": 155.75, "MSFT": 305.25}
+more_stocks = {"GOOGL": 2550.25, "AMZN": 3300.50}
+# Python 3.9+
+merged = tech_stocks | more_stocks
+# 或者使用update()方法
+tech_stocks.update(more_stocks)
+# 字典推导式
+symbols = ["AAPL", "GOOGL", "MSFT"]
+prices = [155.75, 2550.25, 305.25]
+stock_dict = {symbol: price for symbol, price in zip(symbols, prices)}
+# 创建价格变化字典
+old_prices = {"AAPL": 150.25, "GOOGL": 2500.75, "MSFT": 300.50}
+new_prices = {"AAPL": 155.75, "GOOGL": 2550.25, "MSFT": 305.25}
+price_changes = {
+    symbol: new_prices[symbol] - old_prices[symbol]
+    for symbol in old_prices
+    if symbol in new_prices
+}</pre>
+            <div class="feature">
+                <h4>金融应用示例：历史价格数据</h4>
+                <pre># 使用嵌套字典存储历史价格数据
+historical_prices = {
+    "AAPL": {
+        "2024-01-15": {"open": 150.25, "high": 152.50, "low": 149.75, "close": 151.50, "volume": 1000000},
+        "2024-01-16": {"open": 151.75, "high": 153.25, "low": 151.25, "close": 152.75, "volume": 1200000},
+        "2024-01-17": {"open": 152.50, "high": 154.75, "low": 152.00, "close": 154.25, "volume": 1500000}
+    },
+    "GOOGL": {
+        "2024-01-15": {"open": 2500.75, "high": 2525.50, "low": 2495.25, "close": 2520.25, "volume": 500000},
+        "2024-01-16": {"open": 2520.50, "high": 2540.75, "low": 2515.25, "close": 2535.50, "volume": 600000},
+        "2024-01-17": {"open": 2535.75, "high": 2555.25, "low": 2530.50, "close": 2550.25, "volume": 700000}
+    }
+}
+# 分析特定股票的价格趋势
+def analyze_price_trend(symbol, days=3):
+    if symbol not in historical_prices:
+        return f"{symbol} 不在数据集中"
+    stock_data = historical_prices[symbol]
+    dates = sorted(stock_data.keys())[-days:]  # 获取最近几天的日期
+    # 提取收盘价
+    closes = [stock_data[date]["close"] for date in dates]
+    # 计算价格变化
+    price_changes = [closes[i] - closes[i-1] for i in range(1, len(closes))]
+    avg_change = sum(price_changes) / len(price_changes) if price_changes else 0
+    # 确定趋势
+    if avg_change > 0:
+        trend = "上升"
+    elif avg_change < 0:
+        trend = "下降"
+    else:
+        trend = "横盘"
+    # 计算波动性（使用最高价和最低价的差异）
+    volatility = [
+        stock_data[date]["high"] - stock_data[date]["low"]
+        for date in dates
+    ]
+    avg_volatility = sum(volatility) / len(volatility)
+    # 计算成交量趋势
+    volumes = [stock_data[date]["volume"] for date in dates]
+    avg_volume = sum(volumes) / len(volumes)
+    volume_trend = "增加" if volumes[-1] > volumes[0] else "减少"
+    return {
+        "symbol": symbol,
+        "period": f"{dates[0]} 至 {dates[-1]}",
+        "price_trend": trend,
+        "avg_daily_change": avg_change,
+        "avg_volatility": avg_volatility,
+        "volume_trend": volume_trend,
+        "avg_volume": avg_volume
+    }
+# 分析苹果股票的价格趋势
+apple_trend = analyze_price_trend("AAPL")
+print("\n苹果股票价格趋势分析:")
+for key, value in apple_trend.items():
+    if isinstance(value, (int, float)):
+        print(f"{key}: {value:,.2f}")
+    else:
+        print(f"{key}: {value}")
+# 分析谷歌股票的价格趋势
+google_trend = analyze_price_trend("GOOGL")
+print("\n谷歌股票价格趋势分析:")
+for key, value in google_trend.items():
+    if isinstance(value, (int, float)):
+        print(f"{key}: {value:,.2f}")
+    else:
+        print(f"{key}: {value}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>集合基础</h2>
+            <p>集合是Python中的无序集合类型，它存储唯一的元素。在金融应用中，集合常用于跟踪唯一的股票代码、交易日期等。</p>
+            <h3>创建集合</h3>
+            <pre># 创建空集合
+unique_symbols = set()
+# 创建包含元素的集合
+tech_stocks = {"AAPL", "GOOGL", "MSFT", "AMZN"}
+blue_chips = {"AAPL", "JNJ", "JPM", "XOM"}
+# 从其他序列创建集合
+symbols_list = ["AAPL", "GOOGL", "AAPL", "MSFT", "GOOGL"]
+unique_symbols = set(symbols_list)  # 重复的元素会被自动去除</pre>
+            <h3>集合操作</h3>
+            <pre># 添加和删除元素
+tech_stocks.add("NVDA")        # 添加单个元素
+tech_stocks.update(["AMD", "INTC"])  # 添加多个元素
+tech_stocks.remove("INTC")     # 删除元素（如果不存在会报错）
+tech_stocks.discard("IBM")     # 删除元素（如果不存在不会报错）
+popped = tech_stocks.pop()     # 随机移除并返回一个元素
+tech_stocks.clear()            # 清空集合
+# 集合运算
+common_stocks = tech_stocks & blue_chips  # 交集
+all_stocks = tech_stocks | blue_chips     # 并集
+tech_only = tech_stocks - blue_chips      # 差集
+exclusive_stocks = tech_stocks ^ blue_chips  # 对称差集（在其中一个集合中但不在两个集合中）
+# 集合关系
+is_subset = tech_stocks <= blue_chips     # 子集
+is_superset = tech_stocks >= blue_chips   # 超集
+is_disjoint = tech_stocks.isdisjoint(blue_chips)  # 是否没有共同元素</pre>
+            <div class="feature">
+                <h4>金融应用示例：投资组合分析</h4>
+                <pre># 定义不同的投资组合
+tech_portfolio = {"AAPL", "GOOGL", "MSFT", "AMZN", "NVDA"}
+value_portfolio = {"JNJ", "PG", "KO", "JPM", "XOM"}
+growth_portfolio = {"AAPL", "GOOGL", "TSLA", "NVDA", "AMD"}
+# 分析投资组合重叠
+tech_value_overlap = tech_portfolio & value_portfolio
+tech_growth_overlap = tech_portfolio & growth_portfolio
+value_growth_overlap = value_portfolio & growth_portfolio
+# 计算独特持仓
+tech_unique = tech_portfolio - (value_portfolio | growth_portfolio)
+value_unique = value_portfolio - (tech_portfolio | growth_portfolio)
+growth_unique = growth_portfolio - (tech_portfolio | value_portfolio)
+# 所有持仓的并集
+all_holdings = tech_portfolio | value_portfolio | growth_portfolio
+# 打印分析结果
+print("\n投资组合分析:")
+print(f"总持仓数量: {len(all_holdings)}")
+print("\n投资组合重叠:")
+print(f"科技-价值重叠股票: {tech_value_overlap}")
+print(f"科技-成长重叠股票: {tech_growth_overlap}")
+print(f"价值-成长重叠股票: {value_growth_overlap}")
+print("\n独特持仓:")
+print(f"仅科技组合持有: {tech_unique}")
+print(f"仅价值组合持有: {value_unique}")
+print(f"仅成长组合持有: {growth_unique}")
+# 计算投资组合多样化指标
+def calculate_diversity_score(portfolio, all_portfolios):
+    """计算投资组合的多样化得分"""
+    other_stocks = set().union(*[p for p in all_portfolios if p != portfolio])
+    unique_stocks = portfolio - other_stocks
+    overlap_stocks = portfolio & other_stocks
+    diversity_score = len(unique_stocks) / len(portfolio) * 100
+    return diversity_score, unique_stocks, overlap_stocks
+# 分析每个投资组合的多样化程度
+portfolios = {
+    "科技": tech_portfolio,
+    "价值": value_portfolio,
+    "成长": growth_portfolio
+}
+print("\n多样化分析:")
+for name, portfolio in portfolios.items():
+    score, unique, overlap = calculate_diversity_score(
+        portfolio,
+        [p for p in portfolios.values() if p != portfolio]
+    )
+    print(f"\n{name}投资组合:")
+    print(f"多样化得分: {score:.1f}%")
+    print(f"独特股票: {unique}")
+    print(f"重叠股票: {overlap}")</pre>
+            </div>
+            <h3>集合推导式</h3>
+            <pre># 使用集合推导式创建新集合
+prices = {"AAPL": 155.75, "GOOGL": 2550.25, "MSFT": 305.25, "AMZN": 3300.50}
+# 找出所有价格超过1000的股票
+high_price_stocks = {symbol for symbol, price in prices.items() if price > 1000}
+# 从多个列表中提取唯一的交易日期
+trades_day1 = ["AAPL", "GOOGL", "MSFT"]
+trades_day2 = ["AAPL", "AMZN", "GOOGL"]
+trades_day3 = ["MSFT", "AMZN", "AAPL"]
+unique_traded_stocks = {stock for trades in [trades_day1, trades_day2, trades_day3] for stock in trades}</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>字典和集合的比较</h2>
+            <p>让我们比较字典和集合的主要特点，了解它们各自的适用场景。</p>
+            <h3>主要区别</h3>
+            <ul>
+                <li><strong>数据结构</strong>：字典存储键值对，集合只存储单个元素</li>
+                <li><strong>唯一性</strong>：字典的键和集合的元素都必须是唯一的</li>
+                <li><strong>顺序</strong>：两者都是无序的（Python 3.7+中字典会保持插入顺序）</li>
+                <li><strong>用途</strong>：字典用于映射关系，集合用于唯一性检查和集合运算</li>
+            </ul>
+            <div class="feature">
+                <h4>选择指南</h4>
+                <p>在金融应用中，何时使用字典，何时使用集合？</p>
+                <ul>
+                    <li><strong>使用字典的场景</strong>：
+                        <ul>
+                            <li>存储股票价格和其他属性</li>
+                            <li>管理投资组合持仓信息</li>
+                            <li>跟踪交易历史记录</li>
+                            <li>存储金融指标和其对应的值</li>
+                        </ul>
+                    </li>
+                    <li><strong>使用集合的场景</strong>：
+                        <ul>
+                            <li>跟踪唯一的交易股票</li>
+                            <li>识别重复的交易</li>
+                            <li>分析投资组合重叠</li>
+                            <li>快速查找和去重</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>学习了字典和集合的基本概念和操作</li>
+                <li>掌握了如何创建和操作字典</li>
+                <li>理解了集合的特点和集合运算</li>
+                <li>通过金融应用示例，学习了如何在实际中应用这些数据结构</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一课中，我们将学习控制流语句，包括条件语句和循环，这些是构建复杂金融应用程序的基础。</p>
+                <a href="lesson3.html" class="btn btn-large">下一课：控制流语句</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson1.html" class="btn">« 上一课：列表与元组</a>
+            </div>
+            <div>
+                <a href="lesson3.html" class="btn">下一课：控制流语句 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

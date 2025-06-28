@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统计分析练习题 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>练习说明</h2>
+            <p>以下练习将帮助您巩固本模块学到的统计分析方法。建议按顺序完成所有练习，逐步提升难度。</p>
+            <div class="exercise-tips">
+                <h3>练习提示</h3>
+                <ul>
+                    <li>使用Jupyter Notebook完成练习</li>
+                    <li>每个练习都有示例数据和提示</li>
+                    <li>参考课程内容和官方文档</li>
+                    <li>尝试不同的方法和参数</li>
+                </ul>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>基础练习：描述性统计</h2>
+            <div class="exercise">
+                <h3>练习1：基本统计量计算</h3>
+                <p>使用以下数据计算基本统计量：</p>
+                <pre><code class="language-python">import numpy as np
+import pandas as pd
+returns = pd.Series(np.random.normal(0.001, 0.02, 1000), name='收益率')</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算均值、中位数、标准差</li>
+                    <li>计算偏度和峰度</li>
+                    <li>计算5%和95%分位数</li>
+                    <li>绘制直方图并添加正态分布曲线</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习2：滚动统计量</h3>
+                <p>使用以下数据计算滚动统计量：</p>
+                <pre><code class="language-python">dates = pd.date_range('2023-01-01', periods=1000)
+prices = (1 + pd.Series(np.random.normal(0.001, 0.02, 1000)).cumsum()) * 100</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算20日和60日滚动均值</li>
+                    <li>计算20日和60日滚动标准差</li>
+                    <li>计算20日和60日滚动偏度</li>
+                    <li>可视化滚动统计量</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>中级练习：概率分布</h2>
+            <div class="exercise">
+                <h3>练习3：分布拟合</h3>
+                <p>使用以下数据拟合概率分布：</p>
+                <pre><code class="language-python">from scipy.stats import norm, t
+data = np.random.standard_t(5, 1000) * 0.01 + 0.001</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>拟合正态分布并计算参数</li>
+                    <li>拟合t分布并计算自由度</li>
+                    <li>绘制Q-Q图比较两种分布拟合</li>
+                    <li>使用K-S检验评估拟合优度</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习4：蒙特卡洛模拟</h3>
+                <p>模拟股票价格路径：</p>
+                <pre><code class="language-python">S0 = 100       # 初始价格
+mu = 0.1       # 年化收益率
+sigma = 0.2    # 年化波动率
+T = 1          # 1年
+N = 252        # 交易日</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>模拟1000条价格路径</li>
+                    <li>计算最终价格的均值和95%置信区间</li>
+                    <li>绘制部分路径的可视化</li>
+                    <li>计算1年后的预期收益和风险</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>高级练习：假设检验</h2>
+            <div class="exercise">
+                <h3>练习5：均值检验</h3>
+                <p>使用以下数据检验均值差异：</p>
+                <pre><code class="language-python">group_A = np.random.normal(0.001, 0.02, 500)
+group_B = np.random.normal(0.002, 0.02, 500)</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>使用t检验比较两组均值</li>
+                    <li>使用Wilcoxon秩和检验比较两组均值</li>
+                    <li>计算效应量和统计功效</li>
+                    <li>解释检验结果的实际意义</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习6：方差分析</h3>
+                <p>分析三组数据的均值差异：</p>
+                <pre><code class="language-python">group_1 = np.random.normal(0.001, 0.02, 300)
+group_2 = np.random.normal(0.0015, 0.02, 300)
+group_3 = np.random.normal(0.002, 0.02, 300)</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>使用ANOVA检验三组均值</li>
+                    <li>进行事后检验(Tukey HSD)</li>
+                    <li>评估方差齐性</li>
+                    <li>可视化各组分布和均值</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>综合练习：回归分析</h2>
+            <div class="exercise">
+                <h3>练习7：CAPM模型</h3>
+                <p>使用以下数据构建CAPM模型：</p>
+                <pre><code class="language-python">import yfinance as yf
+# 获取股票和市场数据
+data = yf.download(['AAPL', '^GSPC'], start='2020-01-01', end='2023-01-01')['Adj Close']
+returns = data.pct_change().dropna()</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算股票和市场超额收益率</li>
+                    <li>构建CAPM回归模型</li>
+                    <li>解释Alpha和Beta系数的含义</li>
+                    <li>进行残差分析和模型诊断</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习8：多因子模型</h3>
+                <p>扩展练习7的数据，添加以下因子：</p>
+                <pre><code class="language-python"># 模拟因子数据
+factors = pd.DataFrame({
+    'Market': returns['^GSPC'],
+    'Size': np.random.normal(0, 0.01, len(returns)),
+    'Value': np.random.normal(0, 0.01, len(returns))
+}, index=returns.index)</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>构建Fama-French三因子模型</li>
+                    <li>分析各因子显著性</li>
+                    <li>比较CAPM和三因子模型的解释力</li>
+                    <li>评估模型假设是否满足</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercise-solutions">
+            <h2>练习参考答案</h2>
+            <p>完成练习后，可以参考以下代码检查您的实现：</p>
+            <div class="solution">
+                <h3>练习3参考代码</h3>
+                <pre><code class="language-python">from scipy.stats import kstest
+# 拟合正态分布
+mu, sigma = norm.fit(data)
+print(f"正态分布参数: μ={mu:.6f}, σ={sigma:.6f}")
+# 拟合t分布
+df, loc, scale = t.fit(data)
+print(f"t分布参数: df={df:.2f}, loc={loc:.6f}, scale={scale:.6f}")
+# K-S检验
+ks_stat_norm, p_norm = kstest(data, 'norm', args=(mu, sigma))
+ks_stat_t, p_t = kstest(data, 't', args=(df, loc, scale))
+print(f"正态分布K-S检验: stat={ks_stat_norm:.4f}, p={p_norm:.4f}")
+print(f"t分布K-S检验: stat={ks_stat_t:.4f}, p={p_t:.4f}")</code></pre>
+            </div>
+            <div class="solution">
+                <h3>练习7参考代码</h3>
+                <pre><code class="language-python">import statsmodels.api as sm
+# 计算超额收益
+returns['AAPL_Excess'] = returns['AAPL'] - returns['^GSPC']
+# CAPM回归
+X = sm.add_constant(returns['^GSPC'])
+model = sm.OLS(returns['AAPL_Excess'], X)
+results = model.fit()
+# 输出结果
+print(results.summary())
+# 残差分析
+residuals = results.resid
+plt.scatter(results.fittedvalues, residuals)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.title('残差图')
+plt.show()</code></pre>
+            </div>
+        </section>
+        <div class="exercises-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+            <a href="../../index.html" class="btn">下一模块: 金融API与数据获取 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

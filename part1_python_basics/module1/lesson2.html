@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程2: 基本语法与数据类型 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>Python语法基础</h2>
+            <p>Python的语法设计简洁明了，使用缩进来表示代码块，这使得Python代码具有很高的可读性。在开始学习具体的数据类型之前，让我们先了解一些基本的语法规则。</p>
+            <h3>代码结构与缩进</h3>
+            <p>Python使用缩进（通常是4个空格）来表示代码块，而不是使用花括号或关键字。缩进在Python中是语法的一部分，不仅仅是为了美观。</p>
+            <pre># 正确的缩进示例
+if True:
+    print("这是一个缩进的代码块")
+    print("这行也在同一个代码块中")
+print("这行不在if代码块中")
+# 错误的缩进示例
+if True:
+    print("这是正确的缩进")
+  print("这行缩进错误，会导致语法错误")</pre>
+            <h3>语句与行</h3>
+            <p>在Python中，一行通常表示一条语句，语句结束不需要分号。</p>
+            <pre># 每行一条语句
+print("第一条语句")
+print("第二条语句")
+# 长语句可以使用反斜杠(\)换行
+total = 1 + 2 + 3 + \
+        4 + 5 + 6
+# 括号内的表达式可以跨多行，不需要反斜杠
+total = (1 + 2 + 3 +
+         4 + 5 + 6)
+# 多条语句可以写在同一行，使用分号分隔（不推荐）
+a = 1; b = 2; print(a + b)</pre>
+            <h3>注释</h3>
+            <p>Python中的注释以#开头，直到行尾。Python没有多行注释语法，但可以使用多个#或三引号字符串作为文档字符串。</p>
+            <pre># 这是一个单行注释
+# 这是多行注释的第一行
+# 这是多行注释的第二行
+"""
+这是一个文档字符串，
+可以跨多行，
+通常用于函数、类或模块的文档。
+"""</pre>
+            <h3>命名规则</h3>
+            <p>Python中的标识符（变量名、函数名等）必须遵循以下规则：</p>
+            <ul>
+                <li>只能包含字母、数字和下划线</li>
+                <li>不能以数字开头</li>
+                <li>区分大小写</li>
+                <li>不能使用Python的关键字</li>
+            </ul>
+            <pre># 有效的标识符
+name = "John"
+age_2 = 30
+_private = "私有变量"
+# 无效的标识符
+# 2name = "John"  # 不能以数字开头
+# my-name = "John"  # 不能包含连字符
+# class = "Python"  # 不能使用关键字</pre>
+            <h3>Python关键字</h3>
+            <p>以下是Python中的保留关键字，不能用作标识符：</p>
+            <pre>False    await    else     import   pass
+None     break    except   in       raise
+True     class    finally  is       return
+and      continue for      lambda   try
+as       def      from     nonlocal while
+assert   del      global   not      with
+async    elif     if       or       yield</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>Python的数据类型</h2>
+            <p>Python是一种动态类型语言，这意味着变量的类型是在运行时确定的，而不是在编译时。Python有几种内置的数据类型，我们将在本课中介绍最基本的几种。</p>
+            <h3>数字类型</h3>
+            <p>Python支持多种数字类型，包括整数、浮点数和复数。</p>
+            <h4>整数 (int)</h4>
+            <p>整数是没有小数部分的数字。在Python 3中，整数的大小只受可用内存的限制。</p>
+            <pre># 整数示例
+a = 10
+b = -5
+c = 0
+d = 1_000_000  # 可以使用下划线分隔数字，提高可读性
+# 不同进制的整数
+decimal = 42       # 十进制
+binary = 0b101010  # 二进制，等于42
+octal = 0o52       # 八进制，等于42
+hexadecimal = 0x2A # 十六进制，等于42
+print(decimal, binary, octal, hexadecimal)  # 输出: 42 42 42 42</pre>
+            <h4>浮点数 (float)</h4>
+            <p>浮点数是带有小数部分的数字。Python中的浮点数遵循IEEE 754标准。</p>
+            <pre># 浮点数示例
+a = 3.14
+b = -0.001
+c = 2.0
+d = 1e6      # 科学计数法，等于1000000.0
+e = 1.23e-4  # 等于0.000123
+# 浮点数精度问题
+print(0.1 + 0.2)  # 输出: 0.30000000000000004（不精确）
+print(0.1 + 0.2 == 0.3)  # 输出: False
+# 处理浮点数精度问题
+import decimal
+a = decimal.Decimal('0.1')
+b = decimal.Decimal('0.2')
+print(a + b)  # 输出: 0.3
+print(a + b == decimal.Decimal('0.3'))  # 输出: True</pre>
+            <div class="feature">
+                <h4>金融应用中的浮点数</h4>
+                <p>在金融计算中，精度非常重要。由于浮点数的精度问题，处理货币和财务计算时，应该使用decimal模块或将金额转换为整数（以分为单位）进行计算。</p>
+                <pre># 金融计算中的精度问题
+price = 19.99
+quantity = 3
+print(price * quantity)  # 输出: 59.97000000000001（不精确）
+# 使用decimal模块
+from decimal import Decimal
+price = Decimal('19.99')
+quantity = 3
+print(price * quantity)  # 输出: 59.97（精确）
+# 或者使用整数（以分为单位）
+price_cents = 1999  # 19.99美元，以分为单位
+quantity = 3
+total_cents = price_cents * quantity  # 5997分
+total_dollars = total_cents / 100  # 59.97美元
+print(total_dollars)  # 输出: 59.97</pre>
+            </div>
+            <h4>复数 (complex)</h4>
+            <p>复数由实部和虚部组成，虚部以j或J结尾。</p>
+            <pre># 复数示例
+a = 2 + 3j
+b = 1 - 2j
+c = complex(2, 3)  # 等于2 + 3j
+print(a + b)  # 输出: (3+1j)
+print(a * b)  # 输出: (8-1j)
+print(a.real)  # 输出: 2.0（实部）
+print(a.imag)  # 输出: 3.0（虚部）</pre>
+            <h3>字符串类型 (str)</h3>
+            <p>字符串是由字符组成的序列，在Python中用单引号或双引号括起来。</p>
+            <pre># 字符串示例
+name = "Python"
+message = 'Hello, World!'
+multiline = """这是一个
+多行字符串"""
+# 字符串连接
+first_name = "John"
+last_name = "Doe"
+full_name = first_name + " " + last_name  # "John Doe"
+# 字符串重复
+stars = "*" * 10  # "**********"
+# 字符串索引和切片
+text = "Python"
+print(text[0])    # 输出: P（第一个字符）
+print(text[-1])   # 输出: n（最后一个字符）
+print(text[0:2])  # 输出: Py（从索引0到索引1）
+print(text[2:])   # 输出: thon（从索引2到结尾）
+print(text[:3])   # 输出: Pyt（从开始到索引2）
+# 字符串方法
+text = "  Python Programming  "
+print(text.upper())        # 输出: "  PYTHON PROGRAMMING  "
+print(text.lower())        # 输出: "  python programming  "
+print(text.strip())        # 输出: "Python Programming"
+print(text.replace("P", "J"))  # 输出: "  Jython Jrogramming  "
+print(text.split())        # 输出: ['Python', 'Programming']
+print("Python" in text)    # 输出: True
+# 字符串格式化
+name = "Alice"
+age = 30
+# 使用%运算符（旧风格）
+print("My name is %s and I am %d years old." % (name, age))
+# 使用format()方法
+print("My name is {} and I am {} years old.".format(name, age))
+# 使用f-string（Python 3.6+，推荐）
+print(f"My name is {name} and I am {age} years old.")
+# 格式化数字
+pi = 3.14159
+print(f"Pi is approximately {pi:.2f}")  # 输出: Pi is approximately 3.14</pre>
+            <div class="feature">
+                <h4>金融应用中的字符串格式化</h4>
+                <p>在金融应用中，正确格式化货币和百分比非常重要。</p>
+                <pre># 格式化货币
+amount = 1234.56
+print(f"${amount:.2f}")  # 输出: $1234.56
+print(f"${amount:,.2f}")  # 输出: $1,234.56（带千位分隔符）
+# 格式化百分比
+rate = 0.0525
+print(f"{rate:.2%}")  # 输出: 5.25%
+# 对齐和填充
+stocks = [
+    ("AAPL", 150.25, 2.5),
+    ("MSFT", 300.75, 1.2),
+    ("GOOGL", 2800.50, -0.8)
+]
+print(f"{'股票':<6}{'价格':>10}{'变化':>8}")
+print("-" * 24)
+for symbol, price, change in stocks:
+    print(f"{symbol:<6}{price:>10.2f}{change:>7.1f}%")
+# 输出:
+# 股票        价格     变化
+# -------------------------
+# AAPL     150.25    2.5%
+# MSFT     300.75    1.2%
+# GOOGL   2800.50   -0.8%</pre>
+            </div>
+            <h3>布尔类型 (bool)</h3>
+            <p>布尔类型表示真值，只有两个可能的值：True和False。</p>
+            <pre># 布尔值示例
+is_active = True
+is_closed = False
+# 比较运算产生布尔值
+x = 5
+y = 10
+print(x < y)   # 输出: True
+print(x == y)  # 输出: False
+print(x > y)   # 输出: False
+# 逻辑运算
+print(True and False)  # 输出: False
+print(True or False)   # 输出: True
+print(not True)        # 输出: False
+# 条件表达式
+age = 20
+status = "成年" if age >= 18 else "未成年"
+print(status)  # 输出: 成年</pre>
+            <h3>None类型</h3>
+            <p>None是Python中表示"无"或"空"的特殊值，类似于其他语言中的null。</p>
+            <pre># None示例
+result = None
+print(result)  # 输出: None
+print(result is None)  # 输出: True
+# 函数默认返回None
+def say_hello():
+    print("Hello")
+result = say_hello()  # 打印"Hello"
+print(result)  # 输出: None</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>类型转换</h2>
+            <p>Python提供了内置函数，可以将一种数据类型转换为另一种数据类型。</p>
+            <pre># 整数转换
+print(int(3.14))    # 输出: 3（截断小数部分）
+print(int("10"))    # 输出: 10（字符串转整数）
+print(int("0x1A", 16))  # 输出: 26（十六进制字符串转整数）
+print(int(True))    # 输出: 1
+print(int(False))   # 输出: 0
+# 浮点数转换
+print(float(5))     # 输出: 5.0
+print(float("3.14"))  # 输出: 3.14
+print(float("1e3"))  # 输出: 1000.0
+# 字符串转换
+print(str(42))      # 输出: "42"
+print(str(3.14))    # 输出: "3.14"
+print(str(True))    # 输出: "True"
+# 布尔转换
+print(bool(1))      # 输出: True
+print(bool(0))      # 输出: False
+print(bool(""))     # 输出: False（空字符串）
+print(bool("Hello"))  # 输出: True（非空字符串）
+print(bool([]))     # 输出: False（空列表）
+print(bool([1, 2]))  # 输出: True（非空列表）</pre>
+            <div class="feature">
+                <h4>金融应用中的类型转换</h4>
+                <p>在处理金融数据时，经常需要进行类型转换，特别是在处理用户输入或外部数据源时。</p>
+                <pre># 处理用户输入的金额
+user_input = input("请输入投资金额: ")  # 假设用户输入"1000.50"
+try:
+    amount = float(user_input)
+    print(f"您的投资金额是: ${amount:.2f}")
+except ValueError:
+    print("请输入有效的数字金额")
+# 处理百分比
+rate_str = "5.25%"
+try:
+    # 移除百分号并转换为浮点数
+    rate = float(rate_str.strip("%")) / 100
+    print(f"利率是: {rate}")  # 输出: 利率是: 0.0525
+except ValueError:
+    print("请输入有效的百分比")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>变量与常量</h2>
+            <p>在Python中，变量是用来存储数据值的标识符。Python是动态类型语言，这意味着变量的类型可以随时改变。</p>
+            <h3>变量赋值</h3>
+            <pre># 基本赋值
+x = 10
+name = "Python"
+is_active = True
+# 多重赋值
+a, b, c = 1, 2, 3
+print(a, b, c)  # 输出: 1 2 3
+# 交换变量值
+a, b = b, a
+print(a, b)  # 输出: 2 1
+# 增强赋值
+x = 10
+x += 5  # 等同于 x = x + 5
+print(x)  # 输出: 15
+x *= 2  # 等同于 x = x * 2
+print(x)  # 输出: 30</pre>
+            <h3>常量</h3>
+            <p>Python没有内置的常量类型，但按照惯例，使用全大写变量名表示常量，表明这些变量不应该被修改。</p>
+            <pre># 常量命名惯例
+PI = 3.14159
+MAX_CONNECTIONS = 100
+DATABASE_URL = "postgresql://localhost/mydb"
+# 尽管命名为常量，但技术上仍可以修改（不推荐）
+PI = 3.14  # 这是可行的，但不符合惯例</pre>
+            <div class="feature">
+                <h4>金融应用中的常量</h4>
+                <p>在金融应用中，常常需要定义一些常量值，如税率、费率等。</p>
+                <pre># 金融常量示例
+ANNUAL_INTEREST_RATE = 0.0525  # 5.25%年利率
+TAX_RATE = 0.15  # 15%税率
+TRANSACTION_FEE = 4.99  # 交易费用
+MINIMUM_BALANCE = 1000  # 最低余额要求
+# 使用常量进行计算
+def calculate_interest(principal, years):
+    return principal * (1 + ANNUAL_INTEREST_RATE) ** years
+def calculate_after_tax(amount):
+    return amount * (1 - TAX_RATE)
+investment = 10000
+years = 5
+final_amount = calculate_interest(investment, years)
+after_tax = calculate_after_tax(final_amount - investment)  # 只对利息部分征税
+print(f"投资{investment}元，{years}年后的税后收益为{after_tax:.2f}元")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>代码风格与PEP 8</h2>
+            <p>PEP 8是Python的官方代码风格指南，提供了编写Python代码的规范。遵循这些规范可以使代码更加一致、可读和易于维护。</p>
+            <h3>PEP 8的主要规范</h3>
+            <ul>
+                <li><strong>缩进</strong>：使用4个空格进行缩进，不使用制表符</li>
+                <li><strong>行长度</strong>：每行代码不超过79个字符</li>
+                <li><strong>空行</strong>：顶级函数和类定义之间空两行，类内方法定义之间空一行</li>
+                <li><strong>导入</strong>：导入应该分行写，按标准库、第三方库、本地库的顺序分组</li>
+                <li><strong>空格</strong>：运算符两侧使用空格，逗号后使用空格</li>
+                <li><strong>命名</strong>：
+                    <ul>
+                        <li>函数、变量、属性：小写，单词之间用下划线分隔（snake_case）</li>
+                        <li>类：首字母大写（CamelCase）</li>
+                        <li>常量：全大写，单词之间用下划线分隔（UPPER_CASE）</li>
+                    </ul>
+                </li>
+                <li><strong>注释</strong>：注释应该是完整的句子，与代码保持同步</li>
+            </ul>
+            <h3>代码风格示例</h3>
+            <pre># 不符合PEP 8的代码
+def calculateCompoundInterest(principal,rate,time,n):
+    amount=principal*(1+rate/n)**(n*time)
+    return amount
+# 符合PEP 8的代码
+def calculate_compound_interest(principal, rate, time, n):
+    """
+    计算复利。
+    参数:
+        principal: 本金
+        rate: 年利率
+        time: 年数
+        n: 每年复利次数
+    返回:
+        最终金额
+    """
+    amount = principal * (1 + rate / n) ** (n * time)
+    return amount</pre>
+            <h3>使用工具检查代码风格</h3>
+            <p>可以使用工具如flake8、pylint或black来检查和自动格式化代码，确保符合PEP 8规范。</p>
+            <pre># 安装工具
+# pip install flake8 black
+# 使用flake8检查代码风格
+# flake8 your_script.py
+# 使用black自动格式化代码
+# black your_script.py</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>学习了Python的基本语法规则，包括代码结构、缩进和注释</li>
+                <li>探索了Python的核心数据类型：数字（整数、浮点数、复数）、字符串、布尔值和None</li>
+                <li>了解了如何进行类型转换</li>
+                <li>学习了变量赋值和常量的使用</li>
+                <li>了解了Python代码风格指南（PEP 8）</li>
+            </ul>
+            <p>这些基础知识将帮助您编写清晰、可读的Python代码，为后续学习更复杂的概念奠定基础。在下一课中，我们将深入学习变量和运算符的使用。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请尝试使用本课所学的知识编写一些简单的Python程序，熟悉基本语法和数据类型。</p>
+                <a href="lesson3.html" class="btn btn-large">继续学习：变量与运算符</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson1.html" class="btn">« 上一课：Python简介与环境设置</a>
+            </div>
+            <div>
+                <a href="lesson3.html" class="btn">下一课：变量与运算符 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

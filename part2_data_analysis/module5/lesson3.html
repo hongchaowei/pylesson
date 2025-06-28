@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程3: 金融数据处理 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>金融时间序列的表示</h2>
+            <p>在金融分析中，时间序列数据是最常见的数据形式。NumPy数组非常适合表示和处理金融时间序列数据。</p>
+            <h3>创建时间序列数组</h3>
+            <pre><code>import numpy as np
+# 模拟股票价格数据（每日收盘价）
+days = np.arange(1, 31)  # 30个交易日
+prices = 100 + np.cumsum(np.random.normal(0, 1, 30))  # 随机游走模拟价格
+print(prices)</code></pre>
+            <h3>日期时间处理</h3>
+            <p>虽然NumPy本身不提供高级的日期时间处理功能，但它可以与Python的datetime模块结合使用：</p>
+            <pre><code>from datetime import datetime, timedelta
+# 创建日期范围
+start_date = datetime(2023, 1, 1)
+dates = [start_date + timedelta(days=i) for i in range(30)]
+# 将日期转换为NumPy数组
+dates_arr = np.array(dates)
+print(dates_arr[:5])  # 打印前5个日期</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>收益率计算</h2>
+            <p>收益率是金融分析中最基本的指标之一。NumPy可以高效地计算各种类型的收益率。</p>
+            <h3>简单收益率</h3>
+            <pre><code># 计算简单收益率（每日）
+simple_returns = (prices[1:] - prices[:-1]) / prices[:-1]
+print("简单收益率:", simple_returns[:5])  # 打印前5个收益率</code></pre>
+            <h3>对数收益率</h3>
+            <pre><code># 计算对数收益率
+log_returns = np.log(prices[1:] / prices[:-1])
+print("对数收益率:", log_returns[:5])</code></pre>
+            <h3>累积收益率</h3>
+            <pre><code># 计算累积简单收益率
+cum_simple_return = np.prod(1 + simple_returns) - 1
+print("累积简单收益率:", cum_simple_return)
+# 计算累积对数收益率
+cum_log_return = np.sum(log_returns)
+print("累积对数收益率:", cum_log_return)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>移动窗口计算</h2>
+            <p>移动窗口计算是金融时间序列分析中的重要技术，用于计算移动平均、移动波动率等指标。</p>
+            <h3>简单移动平均(SMA)</h3>
+            <pre><code># 计算5日移动平均
+window_size = 5
+weights = np.ones(window_size) / window_size
+sma = np.convolve(prices, weights, mode='valid')
+print("5日移动平均:", sma[:5])</code></pre>
+            <h3>指数移动平均(EMA)</h3>
+            <pre><code># 计算指数移动平均
+def ema(prices, span=5):
+    weights = np.exp(np.linspace(-1, 0, span))
+    weights /= weights.sum()
+    ema = np.convolve(prices, weights, mode='full')[:len(prices)]
+    ema[:span] = ema[span]
+    return ema
+ema_5 = ema(prices, 5)
+print("5日指数移动平均:", ema_5[:10])</code></pre>
+            <h3>移动波动率</h3>
+            <pre><code># 计算20日移动波动率（年化）
+window_size = 20
+volatility = np.zeros(len(simple_returns) - window_size + 1)
+for i in range(len(volatility)):
+    window = simple_returns[i:i+window_size]
+    volatility[i] = np.std(window) * np.sqrt(252)  # 年化波动率
+print("20日移动波动率:", volatility[:5])</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>波动率和相关性计算</h2>
+            <p>波动率和相关性是衡量金融资产风险和关系的重要指标。</p>
+            <h3>历史波动率</h3>
+            <pre><code># 计算年化历史波动率
+annual_volatility = np.std(simple_returns) * np.sqrt(252)
+print("年化历史波动率:", annual_volatility)</code></pre>
+            <h3>相关性计算</h3>
+            <pre><code># 创建第二个资产的价格序列
+prices2 = 50 + np.cumsum(np.random.normal(0, 0.8, 30))
+returns2 = (prices2[1:] - prices2[:-1]) / prices2[:-1]
+# 计算两个资产收益率的相关系数
+correlation = np.corrcoef(simple_returns, returns2)[0, 1]
+print("收益率相关系数:", correlation)</code></pre>
+            <h3>滚动相关性</h3>
+            <pre><code># 计算滚动60日相关性
+window_size = 60
+# 假设我们有更长的数据序列
+long_returns1 = np.random.normal(0.0005, 0.02, 500)
+long_returns2 = 0.7 * long_returns1 + np.random.normal(0, 0.01, 500)
+rolling_corr = np.zeros(len(long_returns1) - window_size + 1)
+for i in range(len(rolling_corr)):
+    window1 = long_returns1[i:i+window_size]
+    window2 = long_returns2[i:i+window_size]
+    rolling_corr[i] = np.corrcoef(window1, window2)[0, 1]
+print("滚动60日相关性:", rolling_corr[:5])</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用：风险分析</h2>
+            <p>让我们应用这些技术进行实际的风险分析。</p>
+            <pre><code># 计算VaR（风险价值） - 历史模拟法
+confidence_level = 0.95
+sorted_returns = np.sort(simple_returns)
+var_index = int((1 - confidence_level) * len(sorted_returns))
+var = sorted_returns[var_index]
+print(f"{confidence_level*100}% VaR:", var)
+# 计算CVaR（条件风险价值）
+cvar = np.mean(sorted_returns[:var_index])
+print(f"{confidence_level*100}% CVaR:", cvar)
+# 计算投资组合风险
+weights = np.array([0.6, 0.4])  # 两个资产的权重
+cov_matrix = np.cov(np.vstack([simple_returns, returns2]))
+portfolio_volatility = np.sqrt(weights.T @ cov_matrix @ weights) * np.sqrt(252)
+print("投资组合年化波动率:", portfolio_volatility)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>学习了如何使用NumPy表示金融时间序列数据</li>
+                <li>掌握了简单收益率和对数收益率的计算方法</li>
+                <li>实现了各种移动窗口计算，包括移动平均和移动波动率</li>
+                <li>计算了波动率和相关性指标</li>
+                <li>应用这些技术进行了实际的风险分析</li>
+            </ul>
+            <p>这些技术是金融数据分析的基础，在量化金融、风险管理和投资组合分析中有广泛应用。在下一课中，我们将学习NumPy的高级数组操作。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请确保您已经：</p>
+                <ul>
+                    <li>理解了金融时间序列的表示方法</li>
+                    <li>掌握了收益率计算的各种方法</li>
+                    <li>能够实现基本的移动窗口计算</li>
+                    <li>尝试运行了本课的所有示例代码</li>
+                </ul>
+                <a href="lesson4.html" class="btn btn-large">继续学习：高级数组操作</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson2.html" class="btn">« 上一课：数组运算与广播</a>
+            </div>
+            <div>
+                <a href="lesson4.html" class="btn">下一课：高级数组操作 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

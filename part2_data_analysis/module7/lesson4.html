@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第4课: 金融数据专用图表 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>金融数据可视化最佳实践</h2>
+            <p>专业的金融图表需要遵循特定的设计原则，以确保信息传达的准确性和效率。</p>
+            <h3>核心原则</h3>
+            <ul>
+                <li><strong>清晰性</strong>: 避免过度装饰，突出核心数据</li>
+                <li><strong>一致性</strong>: 保持颜色、样式和术语的统一</li>
+                <li><strong>上下文</strong>: 提供必要的参考线和背景信息</li>
+                <li><strong>交互性</strong>: 允许用户探索数据细节</li>
+                <li><strong>响应速度</strong>: 确保图表在大数据量下仍能流畅交互</li>
+            </ul>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+import mplfinance as mpf
+import pandas as pd
+# 设置专业金融图表样式
+plt.style.use('seaborn')
+plt.rcParams['figure.figsize'] = [12, 8]
+plt.rcParams['lines.linewidth'] = 1.5</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>专业K线图定制</h2>
+            <h3>1. 高级K线图</h3>
+            <pre><code class="language-python"># 创建示例数据
+np.random.seed(42)
+dates = pd.date_range('2023-01-01', periods=30)
+open_p = np.cumsum(np.random.randn(30) * 0.5) + 100
+high = open_p + np.random.uniform(0.5, 2.0, 30)
+low = open_p - np.random.uniform(0.5, 2.0, 30)
+close = open_p + np.random.randn(30) * 0.2
+volume = np.random.randint(100000, 500000, 30)
+# 创建DataFrame
+data = pd.DataFrame({
+    'Open': open_p,
+    'High': high,
+    'Low': low,
+    'Close': close,
+    'Volume': volume
+}, index=dates)
+# 使用mplfinance创建专业K线图
+mpf.plot(data, type='candle', style='charles',
+         title='AAPL专业K线图',
+         ylabel='价格',
+         volume=True,
+         mav=(5, 20),
+         figratio=(12, 8),
+         figscale=1.2)</code></pre>
+            <h3>2. 多指标组合K线图</h3>
+            <pre><code class="language-python"># 计算技术指标
+data['MA5'] = data['Close'].rolling(5).mean()
+data['MA20'] = data['Close'].rolling(20).mean()
+data['Upper'], data['Middle'], data['Lower'] = talib.BBANDS(data['Close'])
+# 创建自定义指标面板
+add_plot = [
+    mpf.make_addplot(data['MA5'], color='blue'),
+    mpf.make_addplot(data['MA20'], color='orange'),
+    mpf.make_addplot(data['Upper'], color='red'),
+    mpf.make_addplot(data['Lower'], color='green')
+]
+# 绘制带指标的K线图
+mpf.plot(data, type='candle', style='charles',
+         title='AAPL带技术指标的K线图',
+         ylabel='价格',
+         addplot=add_plot,
+         volume=True,
+         figratio=(12, 8))</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>交易量分析图表</h2>
+            <h3>1. 交易量价格分布图</h3>
+            <pre><code class="language-python"># 创建示例数据
+np.random.seed(42)
+price_levels = np.linspace(95, 105, 20)
+volume_dist = np.random.poisson(1000, 20)
+# 绘制交易量分布
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.barh(price_levels, volume_dist, height=0.5, color='skyblue')
+ax.set_title('AAPL交易量价格分布', fontsize=14)
+ax.set_xlabel('交易量', fontsize=12)
+ax.set_ylabel('价格水平', fontsize=12)
+ax.grid(True, linestyle='--', alpha=0.7)
+plt.show()</code></pre>
+            <h3>2. 交易量热力图</h3>
+            <pre><code class="language-python"># 创建时间-价格-交易量数据
+time_bins = pd.date_range('2023-01-01', '2023-01-31', freq='D')
+price_bins = np.linspace(95, 105, 10)
+volume_heat = np.random.randint(100, 1000, (len(time_bins)-1, len(price_bins)-1))
+# 绘制热力图
+fig, ax = plt.subplots(figsize=(12, 6))
+im = ax.imshow(volume_heat.T, cmap='YlOrRd', aspect='auto',
+               extent=[mdates.date2num(time_bins[0]),
+                       mdates.date2num(time_bins[-1]),
+                       price_bins[0], price_bins[-1]])
+# 设置坐标轴
+ax.xaxis_date()
+ax.set_title('AAPL交易量热力图', fontsize=14)
+ax.set_ylabel('价格区间', fontsize=12)
+fig.colorbar(im, label='交易量')
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>资金流向图</h2>
+            <h3>1. 资金流强度图</h3>
+            <pre><code class="language-python"># 计算资金流
+data['Money_Flow'] = ((data['Close'] - data['Open']) /
+                     (data['High'] - data['Low'])) * data['Volume']
+# 绘制资金流
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+# 价格图
+ax1.plot(data.index, data['Close'], color='blue', label='收盘价')
+ax1.set_ylabel('价格', fontsize=12)
+ax1.grid(True, linestyle='--', alpha=0.7)
+# 资金流图
+colors = np.where(data['Money_Flow'] > 0, 'green', 'red')
+ax2.bar(data.index, data['Money_Flow'], color=colors, width=0.8)
+ax2.set_title('资金流强度', fontsize=12)
+ax2.set_ylabel('资金流', fontsize=12)
+ax2.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()</code></pre>
+            <h3>2. 买卖压力图</h3>
+            <pre><code class="language-python"># 计算买卖压力
+data['Buy_Pressure'] = (data['Close'] - data['Low']) / (data['High'] - data['Low'])
+data['Sell_Pressure'] = (data['High'] - data['Close']) / (data['High'] - data['Low'])
+# 绘制买卖压力
+fig, ax = plt.subplots(figsize=(12, 6))
+ax.fill_between(data.index, data['Buy_Pressure'], color='green', alpha=0.5, label='买压')
+ax.fill_between(data.index, -data['Sell_Pressure'], color='red', alpha=0.5, label='卖压')
+ax.axhline(0, color='black', linewidth=0.5)
+ax.set_title('买卖压力分析', fontsize=14)
+ax.set_ylabel('压力强度', fontsize=12)
+ax.legend()
+ax.grid(True, linestyle='--', alpha=0.7)
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>多周期图表联动</h2>
+            <h3>1. 多周期K线联动</h3>
+            <pre><code class="language-python"># 创建不同周期数据
+daily_data = data.copy()
+weekly_data = daily_data.resample('W').agg({
+    'Open': 'first',
+    'High': 'max',
+    'Low': 'min',
+    'Close': 'last',
+    'Volume': 'sum'
+})
+# 创建多周期图表
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+# 日线图
+mpf.plot(daily_data, type='candle', style='charles',
+         title='AAPL日线图',
+         ylabel='价格',
+         ax=ax1,
+         volume=False)
+# 周线图
+mpf.plot(weekly_data, type='candle', style='charles',
+         title='AAPL周线图',
+         ylabel='价格',
+         ax=ax2,
+         volume=False)
+plt.tight_layout()
+plt.show()</code></pre>
+            <h3>2. 时间缩放联动</h3>
+            <pre><code class="language-python">from matplotlib.widgets import Slider
+# 创建基础数据
+all_data = pd.read_csv('stock_data.csv', index_col=0, parse_dates=True)
+# 创建图表和滑块
+fig, ax = plt.subplots(figsize=(12, 7))
+plt.subplots_adjust(bottom=0.25)
+# 初始显示30天数据
+display_days = 30
+current_data = all_data.iloc[-display_days:]
+# 绘制初始图表
+line, = ax.plot(current_data.index, current_data['Close'], 'b-')
+ax.set_title(f'AAPL最近{display_days}天价格走势', fontsize=14)
+ax.grid(True)
+# 创建滑块
+ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
+slider = Slider(ax_slider, '显示天数', 10, 250, valinit=display_days, valstep=10)
+# 更新函数
+def update(val):
+    days = int(slider.val)
+    new_data = all_data.iloc[-days:]
+    line.set_data(new_data.index, new_data['Close'])
+    ax.set_xlim(new_data.index[0], new_data.index[-1])
+    ax.set_title(f'AAPL最近{days}天价格走势', fontsize=14)
+    fig.canvas.draw_idle()
+slider.on_changed(update)
+plt.show()</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson3.html" class="btn">« 上一课: Plotly交互式可视化</a>
+            <a href="project.html" class="btn">金融数据可视化项目 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

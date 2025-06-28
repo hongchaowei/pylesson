@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程2: 函数进阶 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>变量作用域与命名空间</h2>
+            <p>在Python中，变量的作用域决定了变量在代码中的可见性和生命周期。理解变量作用域对于编写复杂的函数和避免命名冲突至关重要。</p>
+            <h3>局部作用域与全局作用域</h3>
+            <pre># 全局变量
+global_var = 100
+def function_example():
+    # 局部变量
+    local_var = 200
+    print(f"在函数内部: global_var = {global_var}, local_var = {local_var}")
+function_example()
+print(f"在函数外部: global_var = {global_var}")
+# print(f"local_var = {local_var}")  # 这会引发错误，因为local_var在这里不可见</pre>
+            <h3>修改全局变量</h3>
+            <pre># 在函数内部修改全局变量
+global_price = 100
+def update_price():
+    global global_price  # 声明使用全局变量
+    global_price = 110
+print(f"修改前: global_price = {global_price}")
+update_price()
+print(f"修改后: global_price = {global_price}")</pre>
+            <h3>嵌套作用域</h3>
+            <pre># 嵌套函数中的作用域
+def outer_function():
+    outer_var = "外部变量"
+    def inner_function():
+        inner_var = "内部变量"
+        print(f"在内部函数中: outer_var = {outer_var}, inner_var = {inner_var}")
+    inner_function()
+    # print(f"inner_var = {inner_var}")  # 这会引发错误
+outer_function()</pre>
+            <div class="feature">
+                <h4>金融应用示例：投资组合管理</h4>
+                <pre># 使用作用域管理投资组合配置
+portfolio_config = {
+    "risk_tolerance": "中等",
+    "investment_horizon": 10,  # 年
+    "target_return": 0.08      # 8%
+}
+def create_portfolio():
+    """创建投资组合"""
+    # 使用全局配置
+    print(f"创建{portfolio_config['risk_tolerance']}风险投资组合")
+    print(f"投资期限: {portfolio_config['investment_horizon']}年")
+    print(f"目标收益率: {portfolio_config['target_return']:.1%}")
+    # 局部变量 - 资产配置
+    asset_allocation = {
+        "股票": 0.6,
+        "债券": 0.3,
+        "现金": 0.1
+    }
+    def adjust_for_market_conditions(market_condition):
+        """根据市场状况调整资产配置"""
+        nonlocal asset_allocation  # 使用外部函数的变量
+        if market_condition == "牛市":
+            asset_allocation["股票"] += 0.1
+            asset_allocation["债券"] -= 0.1
+        elif market_condition == "熊市":
+            asset_allocation["股票"] -= 0.1
+            asset_allocation["债券"] += 0.1
+    # 调整资产配置
+    current_market = "牛市"
+    print(f"\n当前市场状况: {current_market}")
+    print(f"调整前资产配置: {asset_allocation}")
+    adjust_for_market_conditions(current_market)
+    print(f"调整后资产配置: {asset_allocation}")
+    return asset_allocation
+# 创建投资组合
+final_allocation = create_portfolio()</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>闭包与函数工厂</h2>
+            <p>闭包是一个函数，它记住了创建它时的环境。闭包允许函数访问并操作其定义范围之外的变量。</p>
+            <h3>闭包基础</h3>
+            <pre># 简单的闭包示例
+def create_multiplier(factor):
+    """创建一个乘以指定因子的函数"""
+    def multiply(x):
+        return x * factor
+    return multiply
+# 创建特定的乘法器函数
+double = create_multiplier(2)
+triple = create_multiplier(3)
+# 使用这些函数
+print(f"double(5) = {double(5)}")  # 输出: 10
+print(f"triple(5) = {triple(5)}")  # 输出: 15</pre>
+            <h3>函数工厂</h3>
+            <pre># 函数工厂 - 创建特定功能的函数
+def create_price_checker(threshold):
+    """创建一个检查价格是否超过阈值的函数"""
+    def check_price(price):
+        return price > threshold
+    return check_price
+# 创建特定的价格检查器
+is_expensive = create_price_checker(1000)
+is_very_expensive = create_price_checker(10000)
+# 检查不同的价格
+product_price = 5000
+print(f"价格: ${product_price}")
+print(f"是否昂贵: {is_expensive(product_price)}")
+print(f"是否非常昂贵: {is_very_expensive(product_price)}")</pre>
+            <div class="feature">
+                <h4>金融应用示例：自定义金融指标计算器</h4>
+                <pre># 使用闭包创建自定义金融指标计算器
+def create_indicator_calculator(window_size, calculation_method):
+    """
+    创建一个计算金融指标的函数
+    参数:
+        window_size: 计算窗口大小
+        calculation_method: 计算方法函数
+    返回:
+        一个计算指定窗口大小的金融指标的函数
+    """
+    def calculate_indicator(prices):
+        if len(prices) < window_size:
+            return None
+        # 使用闭包中的window_size和calculation_method
+        results = []
+        for i in range(len(prices) - window_size + 1):
+            window = prices[i:i + window_size]
+            result = calculation_method(window)
+            results.append(result)
+        return results
+    return calculate_indicator
+# 定义不同的计算方法
+def simple_moving_average(data):
+    return sum(data) / len(data)
+def exponential_moving_average(data, alpha=0.2):
+    result = data[0]
+    for price in data[1:]:
+        result = alpha * price + (1 - alpha) * result
+    return result
+# 创建不同的指标计算器
+sma_20 = create_indicator_calculator(20, simple_moving_average)
+sma_50 = create_indicator_calculator(50, simple_moving_average)
+# 使用lambda创建EMA计算器
+ema_12 = create_indicator_calculator(12, lambda data: exponential_moving_average(data, 0.15))
+# 模拟价格数据
+import random
+prices = [random.uniform(90, 110) for _ in range(100)]
+# 计算指标
+sma20_values = sma_20(prices)
+sma50_values = sma_50(prices)
+ema12_values = ema_12(prices)
+# 打印结果
+print(f"SMA(20)最后一个值: {sma20_values[-1]:.2f}")
+print(f"SMA(50)最后一个值: {sma50_values[-1]:.2f}")
+print(f"EMA(12)最后一个值: {ema12_values[-1]:.2f}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>装饰器</h2>
+            <p>装饰器是Python中一种强大的功能，它允许我们修改或增强函数的行为，而无需修改函数本身的代码。装饰器在日志记录、性能测量、访问控制等方面非常有用。</p>
+            <h3>装饰器基础</h3>
+            <pre># 简单的装饰器示例
+def simple_decorator(func):
+    """一个简单的装饰器，打印函数的调用信息"""
+    def wrapper(*args, **kwargs):
+        print(f"调用函数: {func.__name__}")
+        result = func(*args, **kwargs)
+        print(f"函数 {func.__name__} 执行完毕")
+        return result
+    return wrapper
+# 使用装饰器
+@simple_decorator
+def greet(name):
+    print(f"你好，{name}！")
+# 调用被装饰的函数
+greet("张三")
+# 上面的@语法等同于:
+# greet = simple_decorator(greet)</pre>
+            <h3>带参数的装饰器</h3>
+            <pre># 带参数的装饰器
+def repeat(n):
+    """一个可以指定重复次数的装饰器"""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            results = []
+            for _ in range(n):
+                results.append(func(*args, **kwargs))
+            return results
+        return wrapper
+    return decorator
+# 使用带参数的装饰器
+@repeat(3)
+def generate_random_price():
+    import random
+    return random.uniform(90, 110)
+# 调用被装饰的函数
+prices = generate_random_price()
+print(f"生成的价格: {prices}")</pre>
+            <div class="feature">
+                <h4>金融应用示例：性能监控与日志记录</h4>
+                <pre># 金融应用中的装饰器示例
+import time
+import functools
+import logging
+# 设置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def log_execution(func):
+    """记录函数执行的装饰器"""
+    @functools.wraps(func)  # 保留原函数的元数据
+    def wrapper(*args, **kwargs):
+        logging.info(f"执行 {func.__name__} 开始")
+        try:
+            result = func(*args, **kwargs)
+            logging.info(f"执行 {func.__name__} 成功")
+            return result
+        except Exception as e:
+            logging.error(f"执行 {func.__name__} 失败: {str(e)}")
+            raise
+    return wrapper
+def measure_time(func):
+    """测量函数执行时间的装饰器"""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        logging.info(f"{func.__name__} 执行时间: {end_time - start_time:.4f} 秒")
+        return result
+    return wrapper
+# 组合多个装饰器
+@log_execution
+@measure_time
+def calculate_portfolio_risk(portfolio):
+    """计算投资组合风险"""
+    print("计算投资组合风险...")
+    # 模拟耗时操作
+    time.sleep(1)
+    return 0.12  # 假设风险值为12%
+@log_execution
+@measure_time
+def optimize_portfolio(portfolio, target_return):
+    """优化投资组合"""
+    print(f"优化投资组合，目标收益率: {target_return:.1%}...")
+    # 模拟耗时操作
+    time.sleep(2)
+    return {"股票": 0.6, "债券": 0.3, "现金": 0.1}
+# 使用被装饰的函数
+portfolio = {"股票A": 5000, "股票B": 3000, "债券C": 2000}
+risk = calculate_portfolio_risk(portfolio)
+print(f"投资组合风险: {risk:.1%}")
+optimized = optimize_portfolio(portfolio, 0.08)
+print(f"优化后的资产配置: {optimized}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>递归函数</h2>
+            <p>递归是一种函数调用自身的编程技术。递归函数通常用于解决可以分解为相似子问题的问题。在金融领域，递归可以用于计算复合增长、构建树状结构等。</p>
+            <h3>递归基础</h3>
+            <pre># 简单的递归函数 - 计算阶乘
+def factorial(n):
+    """计算n的阶乘"""
+    # 基本情况
+    if n == 0 or n == 1:
+        return 1
+    # 递归情况
+    return n * factorial(n - 1)
+# 测试阶乘函数
+for i in range(6):
+    print(f"{i}! = {factorial(i)}")</pre>
+            <h3>递归与迭代的比较</h3>
+            <pre># 递归版本 - 计算复利
+def compound_interest_recursive(principal, rate, time):
+    """递归计算复利"""
+    if time == 0:
+        return principal
+    return compound_interest_recursive(principal, rate, time - 1) * (1 + rate)
+# 迭代版本 - 计算复利
+def compound_interest_iterative(principal, rate, time):
+    """迭代计算复利"""
+    result = principal
+    for _ in range(time):
+        result *= (1 + rate)
+    return result
+# 比较两种方法
+principal = 1000
+rate = 0.05
+time = 10
+recursive_result = compound_interest_recursive(principal, rate, time)
+iterative_result = compound_interest_iterative(principal, rate, time)
+print(f"递归结果: {recursive_result:.2f}")
+print(f"迭代结果: {iterative_result:.2f}")</pre>
+            <div class="feature">
+                <h4>金融应用示例：二叉树期权定价模型</h4>
+                <pre># 使用递归实现二叉树期权定价模型
+def binomial_option_price(S, K, r, u, d, n, is_call=True):
+    """
+    使用二叉树模型计算期权价格
+    参数:
+        S: 当前股票价格
+        K: 期权行权价
+        r: 无风险利率
+        u: 上涨因子
+        d: 下跌因子
+        n: 时间步数
+        is_call: 是否为看涨期权
+    返回:
+        期权价格
+    """
+    # 计算风险中性概率
+    p = (1 + r - d) / (u - d)
+    def calculate_payoff(S_T):
+        """计算期权到期收益"""
+        if is_call:
+            return max(0, S_T - K)  # 看涨期权
+        else:
+            return max(0, K - S_T)  # 看跌期权
+    def calculate_price(s, step):
+        """递归计算期权价格"""
+        # 基本情况 - 到达期权到期日
+        if step == n:
+            return calculate_payoff(s)
+        # 递归情况 - 计算下一步的期权价格
+        up_price = calculate_price(s * u, step + 1)
+        down_price = calculate_price(s * d, step + 1)
+        # 使用风险中性定价
+        return (p * up_price + (1 - p) * down_price) / (1 + r)
+    # 从当前股票价格开始递归计算
+    return calculate_price(S, 0)
+# 测试二叉树期权定价模型
+S = 100    # 当前股票价格
+K = 100    # 行权价
+r = 0.05   # 无风险利率
+u = 1.1    # 上涨因子
+d = 0.9    # 下跌因子
+n = 3      # 时间步数
+call_price = binomial_option_price(S, K, r, u, d, n, is_call=True)
+put_price = binomial_option_price(S, K, r, u, d, n, is_call=False)
+print(f"看涨期权价格: {call_price:.2f}")
+print(f"看跌期权价格: {put_price:.2f}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们学习了：</p>
+            <ul>
+                <li>变量作用域与命名空间的概念和应用</li>
+                <li>闭包的原理及其在函数工厂中的应用</li>
+                <li>装饰器的使用方法及其在金融应用中的实际应用</li>
+                <li>递归函数的基本原理及其在金融模型中的应用</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一课中，我们将学习模块与包，这将帮助我们更好地组织和重用代码。</p>
+                <a href="lesson3.html" class="btn btn-large">下一课：模块与包 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson1.html" class="btn">« 上一课：函数基础</a>
+            </div>
+            <div>
+                <a href="lesson3.html" class="btn">下一课：模块与包 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

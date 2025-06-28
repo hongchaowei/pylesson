@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块4: 面向对象编程 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .module-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            font-weight: 700;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .section-header h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .feature-item {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+        .feature-item i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .feature-item h4 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .lesson-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .lesson-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        .lesson-card h3 i {
+            color: #667eea;
+            margin-right: 0.5rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .btn i {
+            margin-right: 0.5rem;
+        }
+        .prerequisites-card {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        .prerequisites-card h3 {
+            color: #856404;
+            margin-bottom: 1rem;
+        }
+        .prerequisites-card h3 i {
+            color: #f39c12;
+            margin-right: 0.5rem;
+        }
+        .module-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .nav-link {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+        .nav-link:hover {
+            background: #5a6fd8;
+        }
+        .nav-link i {
+            margin: 0 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            .lesson-grid {
+                grid-template-columns: 1fr;
+            }
+            .module-nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<div class="hero-section">
+    <div class="container">
+        <div class="module-badge">第一部分 - Python基础</div>
+        <h1><i class="fas fa-object-group"></i> 模块4: 面向对象编程</h1>
+        <p class="subtitle">掌握面向对象编程思想，构建可维护的金融应用</p>
+    </div>
+</div>
+
+<main class="container">
+        <section class="module-overview">
+            <div class="section-header">
+                <h2>模块概述</h2>
+            </div>
+            <p>在这个模块中，你将学习Python的面向对象编程概念，这是一种强大的编程范式，可以帮助你更好地组织和管理代码。我们将探讨如何使用这些概念来构建金融应用程序。</p>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="fas fa-cube"></i>
+                    <h4>封装性</h4>
+                    <p>将数据和方法封装在类中，提高代码的安全性和可维护性</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-sitemap"></i>
+                    <h4>继承性</h4>
+                    <p>通过继承机制实现代码重用，构建类的层次结构</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-shapes"></i>
+                    <h4>多态性</h4>
+                    <p>同一接口可以有不同的实现，提高代码的灵活性</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <h4>设计模式</h4>
+                    <p>学习常见的设计模式，解决金融应用中的典型问题</p>
+                </div>
+            </div>
+        </section>
+        <section class="module-contents">
+            <div class="section-header">
+                <h2><i class="fas fa-book"></i> 课程内容</h2>
+            </div>
+            <div class="lesson-grid">
+                <div class="lesson-card">
+                    <h3><i class="fas fa-cube"></i> 课程1: 类与对象</h3>
+                    <p>学习如何定义类、创建对象，以及如何使用属性和方法。通过实际的金融应用示例，如股票类和投资组合类，来理解面向对象编程的基础概念。</p>
+                    <a href="lesson1.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="lesson-card">
+                    <h3><i class="fas fa-sitemap"></i> 课程2: 继承与多态</h3>
+                    <p>探索类的继承机制、方法重写和多态性。学习如何创建类的层次结构，以及如何在金融应用中使用这些概念来模型化不同类型的金融工具。</p>
+                    <a href="lesson2.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="lesson-card">
+                    <h3><i class="fas fa-magic"></i> 课程3: 特殊方法和属性</h3>
+                    <p>学习Python的特殊方法（魔术方法）和属性装饰器。了解如何自定义对象的行为，实现运算符重载，以及如何在金融应用中应用这些概念。</p>
+                    <a href="lesson3.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="lesson-card">
+                    <h3><i class="fas fa-puzzle-piece"></i> 课程4: 设计模式</h3>
+                    <p>了解常见的面向对象设计模式，如单例模式、工厂模式、观察者模式和策略模式。学习如何在金融应用中应用这些模式来解决常见的设计问题。</p>
+                    <a href="lesson4.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+            </div>
+        </section>
+        <section class="prerequisites">
+            <div class="prerequisites-card">
+                <h3><i class="fas fa-exclamation-triangle"></i> 预备知识</h3>
+                <p>在开始本模块之前，你应该已经：</p>
+                <ul>
+                    <li>完成了前三个模块的学习</li>
+                    <li>熟悉Python的基本语法和数据类型</li>
+                    <li>了解函数的定义和使用</li>
+                    <li>掌握基本的程序控制流程</li>
+                </ul>
+            </div>
+        </section>
+        <nav class="module-nav">
+            <a href="../module3/index.html" class="nav-link prev"><i class="fas fa-arrow-left"></i> 上一模块：函数与模块</a>
+            <a href="../../part2_data_analysis/index.html" class="nav-link next">下一部分：数据分析 <i class="fas fa-arrow-right"></i></a>
+        </nav>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面标题</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>项目概述</h2>
+            <p>在本项目中，您将使用NumPy分析一组股票的历史价格数据，计算各种金融指标，包括日收益率、波动率、移动平均线和相关性矩阵。通过这个项目，您将应用NumPy的各种功能处理真实的金融数据，为后续更复杂的金融分析打下基础。</p>
+            <h3>学习目标</h3>
+            <p>完成本项目后，您将能够：</p>
+            <ul>
+                <li>使用NumPy数组表示金融时间序列数据</li>
+                <li>计算简单收益率和对数收益率</li>
+                <li>计算历史波动率和移动平均线</li>
+                <li>分析多只股票之间的相关性</li>
+                <li>应用向量化运算提高计算效率</li>
+                <li>使用NumPy进行基本的风险分析</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>项目需求</h2>
+            <p>您的股票收益率分析程序应该能够执行以下分析：</p>
+            <ol>
+                <li><strong>数据加载与预处理</strong>：加载股票历史价格数据并进行基本处理</li>
+                <li><strong>收益率计算</strong>：计算每日简单收益率和对数收益率</li>
+                <li><strong>波动率计算</strong>：计算历史波动率（年化）</li>
+                <li><strong>移动平均线</strong>：计算不同时间窗口的简单移动平均和指数移动平均</li>
+                <li><strong>相关性分析</strong>：计算多只股票收益率之间的相关性矩阵</li>
+                <li><strong>风险分析</strong>：计算基本的风险指标，如VaR（风险价值）</li>
+            </ol>
+            <p>您的程序应该：</p>
+            <ul>
+                <li>使用NumPy数组存储和处理数据</li>
+                <li>应用向量化运算而非循环进行计算</li>
+                <li>提供清晰的输出，展示计算结果</li>
+                <li>包含适当的注释解释关键步骤</li>
+                <li>处理可能的异常情况（如缺失数据）</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>项目步骤</h2>
+            <h3>步骤1：准备数据</h3>
+            <p>首先，我们需要准备股票历史价格数据。您可以使用真实数据或模拟数据。</p>
+            <pre><code>import numpy as np
+# 模拟3只股票的60个交易日收盘价数据
+np.random.seed(42)
+days = np.arange(1, 61)
+stock_a = 100 + np.cumsum(np.random.normal(0.1, 0.8, 60))
+stock_b = 50 + np.cumsum(np.random.normal(0.05, 0.6, 60))
+stock_c = 80 + np.cumsum(np.random.normal(0.08, 0.7, 60))
+# 将数据组合成2D数组 (3只股票 × 60个交易日)
+stock_prices = np.vstack([stock_a, stock_b, stock_c]).T
+print("股票价格数据形状:", stock_prices.shape)</code></pre>
+            <h3>步骤2：计算收益率</h3>
+            <p>计算每只股票的每日简单收益率和对数收益率。</p>
+            <pre><code># 计算简单收益率 (每日)
+simple_returns = (stock_prices[1:] - stock_prices[:-1]) / stock_prices[:-1]
+# 计算对数收益率
+log_returns = np.log(stock_prices[1:] / stock_prices[:-1])
+print("简单收益率示例:\n", simple_returns[:5])
+print("对数收益率示例:\n", log_returns[:5])</code></pre>
+            <h3>步骤3：计算波动率</h3>
+            <p>计算每只股票的历史波动率（年化）。</p>
+            <pre><code># 计算年化波动率 (假设252个交易日)
+annual_volatility = np.std(simple_returns, axis=0) * np.sqrt(252)
+print("年化波动率:", annual_volatility)</code></pre>
+            <h3>步骤4：计算移动平均线</h3>
+            <p>计算20日和50日简单移动平均和指数移动平均。</p>
+            <pre><code># 计算20日简单移动平均
+def moving_average(data, window):
+    weights = np.ones(window) / window
+    return np.apply_along_axis(lambda x: np.convolve(x, weights, mode='valid'),
+                              axis=0, data=data)
+sma_20 = moving_average(stock_prices, 20)
+print("20日移动平均形状:", sma_20.shape)
+# 计算指数移动平均
+def exponential_moving_average(data, span):
+    weights = np.exp(np.linspace(-1, 0, span))
+    weights /= weights.sum()
+    ema = np.zeros_like(data)
+    ema[:span] = data[:span].mean(axis=0)
+    for i in range(span, len(data)):
+        ema[i] = (data[i] * weights[0]) + (ema[i-1] * (1 - weights[0]))
+    return ema
+ema_20 = exponential_moving_average(stock_prices, 20)
+print("20日指数移动平均形状:", ema_20.shape)</code></pre>
+            <h3>步骤5：计算相关性矩阵</h3>
+            <p>分析不同股票收益率之间的相关性。</p>
+            <pre><code># 计算收益率的相关性矩阵
+correlation_matrix = np.corrcoef(simple_returns.T)
+print("收益率相关性矩阵:\n", correlation_matrix)</code></pre>
+            <h3>步骤6：风险分析</h3>
+            <p>计算基本的风险指标，如VaR（风险价值）。</p>
+            <pre><code># 计算95% VaR (历史模拟法)
+confidence_level = 0.95
+sorted_returns = np.sort(simple_returns, axis=0)
+var_index = int((1 - confidence_level) * len(sorted_returns))
+var = sorted_returns[var_index]
+print(f"{confidence_level*100}% VaR:", var)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>完整代码</h2>
+            <p>将上述所有步骤组合起来，形成完整的股票收益率分析程序：</p>
+            <pre><code>import numpy as np
+def main():
+    # 步骤1：准备数据
+    np.random.seed(42)
+    days = np.arange(1, 61)
+    stock_a = 100 + np.cumsum(np.random.normal(0.1, 0.8, 60))
+    stock_b = 50 + np.cumsum(np.random.normal(0.05, 0.6, 60))
+    stock_c = 80 + np.cumsum(np.random.normal(0.08, 0.7, 60))
+    stock_prices = np.vstack([stock_a, stock_b, stock_c]).T
+    print("\n=== 股票收益率分析 ===")
+    print(f"数据形状: {stock_prices.shape} (天数 × 股票数量)")
+    # 步骤2：计算收益率
+    simple_returns = (stock_prices[1:] - stock_prices[:-1]) / stock_prices[:-1]
+    log_returns = np.log(stock_prices[1:] / stock_prices[:-1])
+    print("\n平均日收益率:")
+    print("简单收益率:", np.mean(simple_returns, axis=0))
+    print("对数收益率:", np.mean(log_returns, axis=0))
+    # 步骤3：计算波动率
+    annual_volatility = np.std(simple_returns, axis=0) * np.sqrt(252)
+    print("\n年化波动率:", annual_volatility)
+    # 步骤4：计算移动平均线
+    def moving_average(data, window):
+        weights = np.ones(window) / window
+        return np.apply_along_axis(lambda x: np.convolve(x, weights, mode='valid'),
+                                 axis=0, data=data)
+    sma_20 = moving_average(stock_prices, 20)
+    sma_50 = moving_average(stock_prices, 50)
+    def exponential_moving_average(data, span):
+        weights = np.exp(np.linspace(-1, 0, span))
+        weights /= weights.sum()
+        ema = np.zeros_like(data)
+        ema[:span] = data[:span].mean(axis=0)
+        for i in range(span, len(data)):
+            ema[i] = (data[i] * weights[0]) + (ema[i-1] * (1 - weights[0]))
+        return ema
+    ema_20 = exponential_moving_average(stock_prices, 20)
+    print("\n移动平均计算完成")
+    print("20日SMA形状:", sma_20.shape)
+    print("50日SMA形状:", sma_50.shape)
+    print("20日EMA形状:", ema_20.shape)
+    # 步骤5：计算相关性矩阵
+    correlation_matrix = np.corrcoef(simple_returns.T)
+    print("\n收益率相关性矩阵:")
+    print(correlation_matrix)
+    # 步骤6：风险分析
+    confidence_level = 0.95
+    sorted_returns = np.sort(simple_returns, axis=0)
+    var_index = int((1 - confidence_level) * len(sorted_returns))
+    var = sorted_returns[var_index]
+    print(f"\n{confidence_level*100}% VaR:")
+    print(var)
+if __name__ == "__main__":
+    main()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>项目扩展</h2>
+            <p>完成基本功能后，您可以考虑以下扩展，进一步提升您的股票分析程序：</p>
+            <ol>
+                <li><strong>使用真实数据</strong>：从Yahoo Finance或Alpha Vantage API获取真实股票数据</li>
+                <li><strong>添加可视化</strong>：使用matplotlib绘制价格走势、移动平均线和收益率分布</li>
+                <li><strong>投资组合分析</strong>：计算投资组合的收益率和风险</li>
+                <li><strong>技术指标</strong>：实现更多技术指标，如RSI、MACD等</li>
+                <li><strong>性能优化</strong>：使用NumPy的高级功能优化计算性能</li>
+                <li><strong>交互式界面</strong>：创建命令行或图形界面，让用户选择分析选项</li>
+            </ol>
+        </section>
+        <section class="lesson-content">
+            <h2>提交要求</h2>
+            <p>完成项目后，请提交以下内容：</p>
+            <ol>
+                <li>完整的Python源代码文件（stock_analysis.py）</li>
+                <li>一个简短的报告，包含：
+                    <ul>
+                        <li>程序功能描述</li>
+                        <li>关键计算结果和分析</li>
+                        <li>遇到的挑战和解决方案</li>
+                    </ul>
+                </li>
+                <li>对于扩展功能，请说明您实现了哪些扩展，以及如何使用这些功能</li>
+            </ol>
+            <h3>评分标准</h3>
+            <ul>
+                <li><strong>功能完整性（40%）</strong>：是否实现了所有要求的分析功能</li>
+                <li><strong>NumPy应用（30%）</strong>：是否正确有效地使用了NumPy的各种功能</li>
+                <li><strong>代码质量（20%）</strong>：代码结构、命名规范、注释等</li>
+                <li><strong>扩展功能（10%）</strong>：实现的扩展功能的质量和创新性</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>通过完成这个股票收益率分析项目，您将能够应用模块5中学到的NumPy技能，处理和分析金融时间序列数据。这个项目涵盖了收益率计算、波动率分析、移动平均线和相关性分析等核心金融分析技术，为您后续学习更高级的金融数据分析奠定基础。</p>
+            <div class="get-started">
+                <h3>准备好开始了吗？</h3>
+                <p>在开始项目之前，您可以先复习模块5的课程内容，或查看练习题巩固所学知识。</p>
+                <a href="exercises.html" class="btn btn-large">查看练习题</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson4.html" class="btn">« 上一课：高级数组操作</a>
+            </div>
+            <div>
+                <a href="exercises.html" class="btn">练习题 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

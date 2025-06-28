@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程1: Python简介与环境设置 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>什么是Python？</h2>
+            <p>Python是一种高级、解释型、通用编程语言，由Guido van Rossum于1991年首次发布。Python的设计哲学强调代码的可读性和简洁性，使用缩进而非括号来划分代码块。它是一种动态类型语言，支持多种编程范式，包括面向对象、命令式、函数式和过程式编程。</p>
+            <h3>Python的主要特点</h3>
+            <ul>
+                <li><strong>易于学习和使用</strong>：Python的语法简洁明了，接近自然语言，降低了学习门槛</li>
+                <li><strong>可读性强</strong>：Python代码结构清晰，易于理解和维护</li>
+                <li><strong>丰富的库和框架</strong>：Python拥有大量的标准库和第三方库，可以满足各种应用需求</li>
+                <li><strong>跨平台</strong>：Python可以在Windows、macOS、Linux等多种操作系统上运行</li>
+                <li><strong>解释型语言</strong>：Python代码无需编译，可以直接运行，便于调试和测试</li>
+                <li><strong>强大的社区支持</strong>：Python拥有庞大的用户社区，提供丰富的资源和支持</li>
+            </ul>
+            <h3>Python版本</h3>
+            <p>目前，Python有两个主要的版本：</p>
+            <ul>
+                <li><strong>Python 2.x</strong>：已于2020年1月1日停止支持，不再接收安全更新</li>
+                <li><strong>Python 3.x</strong>：当前活跃开发的版本，引入了许多改进和新特性</li>
+            </ul>
+            <p>在本课程中，我们将使用Python 3，因为它是Python的未来，并且提供了更好的语言特性和库支持。</p>
+        </section>
+        <section class="lesson-content">
+            <h2>Python在金融领域的应用</h2>
+            <p>Python已成为金融行业的主要编程语言之一，被广泛应用于各种金融分析和应用开发。以下是Python在金融领域的一些主要应用：</p>
+            <h3>数据分析与可视化</h3>
+            <p>Python提供了强大的数据分析工具，如NumPy、Pandas和Matplotlib，使金融分析师能够处理和可视化大量金融数据。</p>
+            <ul>
+                <li>市场数据分析</li>
+                <li>财务报表分析</li>
+                <li>投资组合表现评估</li>
+                <li>交易数据可视化</li>
+            </ul>
+            <h3>量化金融与算法交易</h3>
+            <p>Python被广泛用于开发量化交易策略和算法交易系统。</p>
+            <ul>
+                <li>回测交易策略</li>
+                <li>风险管理模型</li>
+                <li>高频交易算法</li>
+                <li>市场微观结构分析</li>
+            </ul>
+            <h3>风险管理</h3>
+            <p>Python可以用于构建风险评估和管理模型。</p>
+            <ul>
+                <li>信用风险建模</li>
+                <li>市场风险分析</li>
+                <li>压力测试</li>
+                <li>VaR (Value at Risk) 计算</li>
+            </ul>
+            <h3>机器学习与人工智能</h3>
+            <p>Python是机器学习和人工智能应用的首选语言，在金融领域有广泛应用。</p>
+            <ul>
+                <li>股票价格预测</li>
+                <li>欺诈检测</li>
+                <li>客户细分与行为分析</li>
+                <li>自动化投资顾问（机器人顾问）</li>
+            </ul>
+            <h3>金融应用开发</h3>
+            <p>Python可以用于开发各种金融应用和工具。</p>
+            <ul>
+                <li>交易平台</li>
+                <li>投资组合管理系统</li>
+                <li>财务分析工具</li>
+                <li>金融数据API接口</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>安装Python</h2>
+            <p>在开始编写Python程序之前，我们需要在计算机上安装Python解释器。以下是在不同操作系统上安装Python的步骤：</p>
+            <h3>Windows系统</h3>
+            <ol>
+                <li>访问Python官方网站：<a href="https://www.python.org/downloads/" target="_blank">https://www.python.org/downloads/</a></li>
+                <li>下载最新版本的Python安装程序（选择Windows版本）</li>
+                <li>运行安装程序，勾选"Add Python to PATH"选项</li>
+                <li>点击"Install Now"开始安装</li>
+                <li>安装完成后，打开命令提示符（CMD）或PowerShell</li>
+                <li>输入<code>python --version</code>验证安装是否成功</li>
+            </ol>
+            <h3>macOS系统</h3>
+            <ol>
+                <li>macOS通常预装了Python 2.x版本，但我们需要安装Python 3.x</li>
+                <li>推荐使用Homebrew安装Python：
+                    <ul>
+                        <li>首先安装Homebrew（如果尚未安装）：<br>
+                            <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></li>
+                        <li>然后安装Python 3：<br>
+                            <code>brew install python3</code></li>
+                    </ul>
+                </li>
+                <li>或者，从Python官方网站下载macOS安装程序</li>
+                <li>安装完成后，打开终端</li>
+                <li>输入<code>python3 --version</code>验证安装是否成功</li>
+            </ol>
+            <h3>Linux系统</h3>
+            <ol>
+                <li>大多数Linux发行版已预装Python，但可能需要更新到最新版本</li>
+                <li>对于Ubuntu/Debian系统：
+                    <ul>
+                        <li><code>sudo apt update</code></li>
+                        <li><code>sudo apt install python3 python3-pip</code></li>
+                    </ul>
+                </li>
+                <li>对于Fedora/RHEL/CentOS系统：
+                    <ul>
+                        <li><code>sudo dnf install python3 python3-pip</code></li>
+                    </ul>
+                </li>
+                <li>安装完成后，打开终端</li>
+                <li>输入<code>python3 --version</code>验证安装是否成功</li>
+            </ol>
+        </section>
+        <section class="lesson-content">
+            <h2>设置开发环境</h2>
+            <p>安装Python后，我们需要设置一个舒适的开发环境。以下是一些常用的Python开发工具：</p>
+            <h3>集成开发环境(IDE)</h3>
+            <p>IDE提供了代码编辑、调试、测试等综合功能，适合大型项目开发。</p>
+            <ul>
+                <li><strong>PyCharm</strong>：功能强大的Python IDE，提供社区版（免费）和专业版
+                    <ul>
+                        <li>下载地址：<a href="https://www.jetbrains.com/pycharm/download/" target="_blank">https://www.jetbrains.com/pycharm/download/</a></li>
+                        <li>提供代码补全、调试、测试、版本控制等功能</li>
+                    </ul>
+                </li>
+                <li><strong>Visual Studio Code (VS Code)</strong>：轻量级但功能强大的编辑器，通过插件支持Python
+                    <ul>
+                        <li>下载地址：<a href="https://code.visualstudio.com/" target="_blank">https://code.visualstudio.com/</a></li>
+                        <li>安装Python扩展：在VS Code中，按Ctrl+Shift+X打开扩展面板，搜索"Python"并安装</li>
+                    </ul>
+                </li>
+            </ul>
+            <h3>Jupyter Notebook</h3>
+            <p>Jupyter Notebook是一个交互式计算环境，特别适合数据分析和可视化，在金融领域广泛使用。</p>
+            <ol>
+                <li>安装Jupyter Notebook：
+                    <ul>
+                        <li>打开命令行/终端</li>
+                        <li>运行：<code>pip install jupyter</code></li>
+                    </ul>
+                </li>
+                <li>启动Jupyter Notebook：
+                    <ul>
+                        <li>在命令行/终端中，导航到您想要保存笔记本的目录</li>
+                        <li>运行：<code>jupyter notebook</code></li>
+                        <li>这将在您的默认浏览器中打开Jupyter Notebook界面</li>
+                    </ul>
+                </li>
+                <li>创建新的笔记本：
+                    <ul>
+                        <li>在Jupyter界面中，点击"New"按钮，然后选择"Python 3"</li>
+                        <li>这将创建一个新的Python笔记本，您可以在其中编写和执行代码</li>
+                    </ul>
+                </li>
+            </ol>
+            <h3>Anaconda发行版</h3>
+            <p>Anaconda是一个Python发行版，包含了Python解释器、Jupyter Notebook和许多常用的科学计算和数据分析库，特别适合金融应用开发。</p>
+            <ol>
+                <li>下载Anaconda：<a href="https://www.anaconda.com/products/individual" target="_blank">https://www.anaconda.com/products/individual</a></li>
+                <li>安装Anaconda：
+                    <ul>
+                        <li>运行下载的安装程序</li>
+                        <li>按照安装向导的指示完成安装</li>
+                    </ul>
+                </li>
+                <li>使用Anaconda Navigator：
+                    <ul>
+                        <li>安装完成后，启动Anaconda Navigator</li>
+                        <li>从Navigator中，您可以启动Jupyter Notebook、Spyder IDE和其他工具</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+        <section class="lesson-content">
+            <h2>Python交互式环境</h2>
+            <p>Python提供了一个交互式环境，允许您直接输入和执行Python代码。这对于学习和测试小段代码非常有用。</p>
+            <h3>使用Python解释器</h3>
+            <ol>
+                <li>打开命令行/终端</li>
+                <li>输入<code>python</code>（Windows）或<code>python3</code>（macOS/Linux）启动Python解释器</li>
+                <li>您将看到Python版本信息和提示符（>>>），表示解释器已准备好接受输入</li>
+                <li>尝试输入一些简单的Python命令：
+                    <pre>>>> print("Hello, Python!")
+Hello, Python!
+>>> 2 + 3
+5
+>>> name = "Python"
+>>> print("Hello, " + name + "!")
+Hello, Python!</pre>
+                </li>
+                <li>要退出解释器，输入<code>exit()</code>或按Ctrl+Z（Windows）或Ctrl+D（macOS/Linux）</li>
+            </ol>
+            <h3>使用Jupyter Notebook</h3>
+            <p>Jupyter Notebook提供了一个更丰富的交互式环境，特别适合数据分析和可视化。</p>
+            <ol>
+                <li>启动Jupyter Notebook（如前所述）</li>
+                <li>创建一个新的Python笔记本</li>
+                <li>在代码单元格中输入Python代码，然后按Shift+Enter执行：
+                    <pre># 这是一个简单的Python代码示例
+print("Hello, Jupyter!")
+# 进行一些计算
+result = 0
+for i in range(1, 11):
+    result += i
+print("1到10的和是:", result)
+# 创建一个简单的图表（需要matplotlib）
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8, 4))
+plt.plot([1, 2, 3, 4, 5], [1, 4, 9, 16, 25], 'ro-')
+plt.title('简单的平方函数图')
+plt.xlabel('x')
+plt.ylabel('x²')
+plt.grid(True)
+plt.show()</pre>
+                </li>
+            </ol>
+        </section>
+        <section class="lesson-content">
+            <h2>第一个Python程序</h2>
+            <p>现在，让我们创建并运行一个简单的Python程序，这将是您Python编程之旅的第一步。</p>
+            <h3>创建Python脚本文件</h3>
+            <ol>
+                <li>打开您选择的文本编辑器或IDE</li>
+                <li>创建一个新文件，命名为<code>hello.py</code></li>
+                <li>输入以下代码：
+                    <pre># 这是我的第一个Python程序
+print("欢迎来到Python金融编程课程!")
+# 获取用户输入
+name = input("请输入您的姓名: ")
+print("您好，" + name + "！很高兴认识您。")
+# 进行简单的金融计算
+principal = 1000  # 本金
+rate = 0.05       # 年利率
+years = 5         # 年数
+# 计算复利
+amount = principal * (1 + rate) ** years
+interest = amount - principal
+print(f"如果您投资{principal}元，年利率为{rate*100}%，")
+print(f"{years}年后，您将获得{amount:.2f}元，其中利息为{interest:.2f}元。")</pre>
+                </li>
+                <li>保存文件</li>
+            </ol>
+            <h3>运行Python脚本</h3>
+            <ol>
+                <li>打开命令行/终端</li>
+                <li>导航到保存<code>hello.py</code>文件的目录</li>
+                <li>运行脚本：
+                    <ul>
+                        <li>Windows：<code>python hello.py</code></li>
+                        <li>macOS/Linux：<code>python3 hello.py</code></li>
+                    </ul>
+                </li>
+                <li>按照提示输入您的姓名，然后查看输出结果</li>
+            </ol>
+            <h3>代码解释</h3>
+            <ul>
+                <li><code># 这是我的第一个Python程序</code>：这是一个注释，不会被执行</li>
+                <li><code>print("欢迎来到Python金融编程课程!")</code>：显示欢迎消息</li>
+                <li><code>name = input("请输入您的姓名: ")</code>：获取用户输入并存储在变量<code>name</code>中</li>
+                <li><code>print("您好，" + name + "！很高兴认识您。")</code>：显示个性化问候</li>
+                <li>接下来的几行代码演示了一个简单的金融计算：计算复利</li>
+                <li><code>f"..."</code>：这是一个f-string（格式化字符串），允许在字符串中嵌入变量值</li>
+                <li><code>{amount:.2f}</code>：格式化数字，保留两位小数</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>了解了Python编程语言的特点和在金融领域的应用</li>
+                <li>学习了如何安装Python和设置开发环境</li>
+                <li>探索了Python交互式环境的使用</li>
+                <li>创建并运行了第一个Python程序</li>
+            </ul>
+            <p>这些基础知识将为您后续的Python学习和金融应用开发奠定基础。在下一课中，我们将深入学习Python的基本语法和数据类型。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请确保您已经：</p>
+                <ul>
+                    <li>成功安装了Python</li>
+                    <li>设置了开发环境（IDE或Jupyter Notebook）</li>
+                    <li>尝试运行了示例代码</li>
+                </ul>
+                <a href="lesson2.html" class="btn btn-large">继续学习：基本语法与数据类型</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="../../index.html" class="btn">« 返回模块1概览</a>
+            </div>
+            <div>
+                <a href="lesson2.html" class="btn">下一课：基本语法与数据类型 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险评估模型 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #3a7bd5 0%, #2c3e50 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2 i {
+            margin-right: 1rem;
+            color: var(--secondary-color);
+        }
+        
+        h3 {
+            color: var(--secondary-color);
+        }
+        
+        .learning-objectives {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+        
+        .learning-objectives h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .learning-objectives h3 i {
+            margin-right: 0.5rem;
+        }
+        
+        .learning-objectives ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .learning-objectives li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 25px;
+            color: #495057;
+        }
+        
+        .learning-objectives li:before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+        }
+        
+        .lesson-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary-color);
+        }
+        
+        .lesson-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .lesson-card h3 a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+        
+        .lesson-card h3 a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        
+        .lesson-card h3 a:before {
+            content: '\f071';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-right: 0.5rem;
+            color: var(--warning-color);
+        }
+        
+        .lesson-card p {
+            color: #495057;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .project, .exercises {
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .project:hover, .exercises:hover {
+            transform: translateY(-5px);
+        }
+        
+        .project h2, .exercises h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .project h2 i, .exercises h2 i {
+            margin-right: 1rem;
+            color: var(--success-color);
+        }
+        
+        .project h2 a, .exercises h2 a {
+            color: var(--success-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .project h2 a:hover, .exercises h2 a:hover {
+            color: var(--primary-color);
+        }
+        
+        .project p, .exercises p {
+            color: #495057;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .module-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .project, .exercises {
+                padding: 2rem;
+            }
+            
+            .lesson-card {
+                padding: 1.5rem;
+            }
+            
+            .module-navigation {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+    <div class="container">
+        <div class="hero">
+            <h2><i class="fas fa-shield-alt"></i> 模块11: 风险评估模型</h2>
+            <p>学习金融风险的识别、度量和管理方法，掌握VaR、压力测试等风险评估技术。</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <section class="module-overview">
+            <h2><i class="fas fa-info-circle"></i>模块概述</h2>
+            <p>本模块将带您深入理解金融风险评估的核心方法，学习如何使用Python量化和管理各类金融风险，包括市场风险、信用风险和操作风险等。</p>
+            <div class="learning-objectives">
+                <h3><i class="fas fa-bullseye"></i>学习目标</h3>
+                <p>完成本模块后，您将能够：</p>
+                <ul>
+                    <li>理解VaR和CVaR等风险度量指标</li>
+                    <li>实现历史模拟法和蒙特卡洛模拟法计算风险价值</li>
+                    <li>进行压力测试和情景分析</li>
+                    <li>评估极端事件风险</li>
+                    <li>构建风险监控系统</li>
+                </ul>
+            </div>
+        </section>
+        <section class="lessons-list">
+            <h2><i class="fas fa-book-open"></i>课程内容</h2>
+            <div class="lesson-card">
+                <h3><a href="lesson1.html">第1课: 风险价值(VaR)模型</a></h3>
+                <p>学习风险价值的概念、计算方法和应用场景。</p>
+            </div>
+            <div class="lesson-card">
+                <h3><a href="lesson2.html">第2课: 条件风险价值(CVaR)</a></h3>
+                <p>掌握条件风险价值的计算方法和优势。</p>
+            </div>
+            <div class="lesson-card">
+                <h3><a href="lesson3.html">第3课: 压力测试与情景分析</a></h3>
+                <p>学习设计压力测试场景和分析测试结果。</p>
+            </div>
+            <div class="lesson-card">
+                <h3><a href="lesson4.html">第4课: 极端事件风险评估</a></h3>
+                <p>了解极值理论和尾部风险建模方法。</p>
+            </div>
+        </section>
+        <section class="project">
+            <h2><i class="fas fa-project-diagram"></i><a href="project.html">风险评估系统项目</a></h2>
+            <p>构建一个完整的风险评估系统，从数据准备到风险计算和监控。</p>
+        </section>
+        <section class="exercises">
+            <h2><i class="fas fa-dumbbell"></i><a href="exercises.html">风险评估练习题</a></h2>
+            <p>通过实践练习巩固风险评估技能。</p>
+        </section>
+        <div class="module-navigation">
+            <a href="../../index.html" class="btn"><i class="fas fa-arrow-left"></i>上一模块: 投资组合分析</a>
+            <a href="../../index.html" class="btn">下一模块: 自动化交易策略<i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

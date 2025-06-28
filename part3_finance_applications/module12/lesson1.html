@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第1课: 交易策略基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <script>
+    // 交易策略演示相关变量
+    let priceData = [];
+    let currentIndicator = 'ma';
+    let trendDirection = 1;
+    let backtestResults = null;
+    
+    // 生成价格数据
+    function generatePriceData(periods, volatility, trendStrength) {
+        const data = [];
+        let price = 100;
+        const vol = volatility / 100;
+        const trend = (trendStrength / 100) * 0.001 * trendDirection;
+        
+        for (let i = 0; i < periods; i++) {
+            const randomChange = d3.randomNormal(trend, vol)();
+            price *= (1 + randomChange);
+            data.push({
+                date: i,
+                price: price,
+                return: randomChange
+            });
+        }
+        return data;
+    }
+    
+    // 计算移动平均线
+    function calculateMA(data, period) {
+        const ma = [];
+        for (let i = 0; i < data.length; i++) {
+            if (i < period - 1) {
+                ma.push(null);
+            } else {
+                const sum = data.slice(i - period + 1, i + 1).reduce((acc, d) => acc + d.price, 0);
+                ma.push(sum / period);
+            }
+        }
+        return ma;
+    }
+    
+    // 计算RSI
+    function calculateRSI(data, period = 14) {
+        const rsi = [];
+        const gains = [];
+        const losses = [];
+        
+        for (let i = 1; i < data.length; i++) {
+            const change = data[i].price - data[i-1].price;
+            gains.push(change > 0 ? change : 0);
+            losses.push(change < 0 ? -change : 0);
+        }
+        
+        for (let i = 0; i < gains.length; i++) {
+            if (i < period - 1) {
+                rsi.push(null);
+            } else {
+                const avgGain = gains.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0) / period;
+                const avgLoss = losses.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0) / period;
+                const rs = avgGain / (avgLoss || 0.001);
+                rsi.push(100 - (100 / (1 + rs)));
+            }
+        }
+        
+        return [null, ...rsi]; // 添加第一个null以匹配价格数据长度
+    }
+    
+    // 计算MACD
+    function calculateMACD(data, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+        const ema12 = calculateEMA(data, fastPeriod);
+        const ema26 = calculateEMA(data, slowPeriod);
+        const macdLine = [];
+        
+        for (let i = 0; i < data.length; i++) {
+            if (ema12[i] !== null && ema26[i] !== null) {
+                macdLine.push(ema12[i] - ema26[i]);
+            } else {
+                macdLine.push(null);
+            }
+        }
+        
+        const signalLine = calculateEMAFromArray(macdLine, signalPeriod);
+        const histogram = [];
+        
+        for (let i = 0; i < macdLine.length; i++) {
+            if (macdLine[i] !== null && signalLine[i] !== null) {
+                histogram.push(macdLine[i] - signalLine[i]);
+            } else {
+                histogram.push(null);
+            }
+        }
+        
+        return { macd: macdLine, signal: signalLine, histogram: histogram };
+    }
+    
+    // 计算EMA
+    function calculateEMA(data, period) {
+        const ema = [];
+        const multiplier = 2 / (period + 1);
+        
+        for (let i = 0; i < data.length; i++) {
+            if (i === 0) {
+                ema.push(data[i].price);
+            } else if (i < period) {
+                const sum = data.slice(0, i + 1).reduce((acc, d) => acc + d.price, 0);
+                ema.push(sum / (i + 1));
+            } else {
+                ema.push((data[i].price * multiplier) + (ema[i-1] * (1 - multiplier)));
+            }
+        }
+        return ema;
+    }
+    
+    // 从数组计算EMA
+    function calculateEMAFromArray(data, period) {
+        const ema = [];
+        const multiplier = 2 / (period + 1);
+        let validStart = -1;
+        
+        for (let i = 0; i < data.length; i++) {
+            if (data[i] === null) {
+                ema.push(null);
+            } else {
+                if (validStart === -1) validStart = i;
+                
+                if (i === validStart) {
+                    ema.push(data[i]);
+                } else {
+                    ema.push((data[i] * multiplier) + (ema[i-1] * (1 - multiplier)));
+                }
+            }
+        }
+        return ema;
+    }
+    
+    // 计算布林带
+    function calculateBollingerBands(data, period = 20, stdDev = 2) {
+        const ma = calculateMA(data, period);
+        const upper = [];
+        const lower = [];
+        
+        for (let i = 0; i < data.length; i++) {
+            if (ma[i] === null) {
+                upper.push(null);
+                lower.push(null);
+            } else {
+                const prices = data.slice(i - period + 1, i + 1).map(d => d.price);
+                const std = d3.deviation(prices);
+                upper.push(ma[i] + (std * stdDev));
+                lower.push(ma[i] - (std * stdDev));
+            }
+        }
+        
+        return { middle: ma, upper: upper, lower: lower };
+    }
+    
+    // 绘制指标图表
+    function drawIndicatorChart() {
+        const container = d3.select('#indicatorChart');
+        container.selectAll('*').remove();
+        
+        const margin = {top: 20, right: 30, bottom: 40, left: 50};
+        const width = 800 - margin.left - margin.right;
+        const height = 400 - margin.bottom - margin.top;
+        
+        const svg = container.append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.bottom + margin.top);
+            
+        const g = svg.append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+        
+        const x = d3.scaleLinear()
+            .domain([0, priceData.length - 1])
+            .range([0, width]);
+        
+        // 根据当前指标绘制不同图表
+        switch(currentIndicator) {
+            case 'ma':
+                drawMAChart(g, x, width, height);
+                break;
+            case 'rsi':
+                drawRSIChart(g, x, width, height);
+                break;
+            case 'macd':
+                drawMACDChart(g, x, width, height);
+                break;
+            case 'bollinger':
+                drawBollingerChart(g, x, width, height);
+                break;
+        }
+    }
+    
+    // 绘制移动平均线图表
+    function drawMAChart(g, x, width, height) {
+        const prices = priceData.map(d => d.price);
+        const ma5 = calculateMA(priceData, 5);
+        const ma20 = calculateMA(priceData, 20);
+        
+        const y = d3.scaleLinear()
+            .domain(d3.extent(prices))
+            .range([height, 0]);
+        
+        const line = d3.line()
+            .x((d, i) => x(i))
+            .y(d => y(d))
+            .defined(d => d !== null);
+        
+        // 绘制价格线
+        g.append('path')
+            .datum(prices)
+            .attr('fill', 'none')
+            .attr('stroke', '#333')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制MA5
+        g.append('path')
+            .datum(ma5)
+            .attr('fill', 'none')
+            .attr('stroke', '#ff6b6b')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制MA20
+        g.append('path')
+            .datum(ma20)
+            .attr('fill', 'none')
+            .attr('stroke', '#4ecdc4')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 添加坐标轴
+        g.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+            
+        g.append('g')
+            .call(d3.axisLeft(y));
+        
+        // 更新指标值
+        const lastPrice = prices[prices.length - 1];
+        const lastMA5 = ma5[ma5.length - 1];
+        const lastMA20 = ma20[ma20.length - 1];
+        
+        document.getElementById('currentPrice').textContent = lastPrice.toFixed(2);
+        document.getElementById('indicatorValue').textContent = `MA5: ${lastMA5?.toFixed(2) || '--'}, MA20: ${lastMA20?.toFixed(2) || '--'}`;
+        document.getElementById('indicatorLabel').textContent = '移动平均线';
+        
+        // 判断交易信号
+        let signal = 'HOLD';
+        if (lastMA5 && lastMA20) {
+            if (lastMA5 > lastMA20 && lastPrice > lastMA5) signal = 'BUY';
+            else if (lastMA5 < lastMA20 && lastPrice < lastMA5) signal = 'SELL';
+        }
+        
+        document.getElementById('currentSignal').innerHTML = `<span class="signal-indicator signal-${signal.toLowerCase()}"></span>${signal}`;
+        document.getElementById('signalStrength').textContent = Math.abs(((lastMA5 || 0) - (lastMA20 || 0)) / (lastMA20 || 1) * 100).toFixed(1) + '%';
+    }
+    
+    // 绘制RSI图表
+    function drawRSIChart(g, x, width, height) {
+        const rsi = calculateRSI(priceData);
+        
+        const y = d3.scaleLinear()
+            .domain([0, 100])
+            .range([height, 0]);
+        
+        const line = d3.line()
+            .x((d, i) => x(i))
+            .y(d => y(d))
+            .defined(d => d !== null);
+        
+        // 绘制RSI线
+        g.append('path')
+            .datum(rsi)
+            .attr('fill', 'none')
+            .attr('stroke', '#9b59b6')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制超买超卖线
+        g.append('line')
+            .attr('x1', 0).attr('x2', width)
+            .attr('y1', y(70)).attr('y2', y(70))
+            .attr('stroke', '#e74c3c')
+            .attr('stroke-dasharray', '5,5');
+            
+        g.append('line')
+            .attr('x1', 0).attr('x2', width)
+            .attr('y1', y(30)).attr('y2', y(30))
+            .attr('stroke', '#27ae60')
+            .attr('stroke-dasharray', '5,5');
+        
+        // 添加坐标轴
+        g.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+            
+        g.append('g')
+            .call(d3.axisLeft(y));
+        
+        // 更新指标值
+        const lastRSI = rsi[rsi.length - 1];
+        document.getElementById('currentPrice').textContent = priceData[priceData.length - 1].price.toFixed(2);
+        document.getElementById('indicatorValue').textContent = lastRSI?.toFixed(2) || '--';
+        document.getElementById('indicatorLabel').textContent = 'RSI';
+        
+        // 判断交易信号
+        let signal = 'HOLD';
+        if (lastRSI) {
+            if (lastRSI < 30) signal = 'BUY';
+            else if (lastRSI > 70) signal = 'SELL';
+        }
+        
+        document.getElementById('currentSignal').innerHTML = `<span class="signal-indicator signal-${signal.toLowerCase()}"></span>${signal}`;
+        document.getElementById('signalStrength').textContent = lastRSI ? Math.abs(50 - lastRSI).toFixed(1) : '--';
+    }
+    
+    // 绘制MACD图表
+    function drawMACDChart(g, x, width, height) {
+        const macdData = calculateMACD(priceData);
+        
+        const allValues = [...macdData.macd, ...macdData.signal, ...macdData.histogram].filter(d => d !== null);
+        const y = d3.scaleLinear()
+            .domain(d3.extent(allValues))
+            .range([height, 0]);
+        
+        const line = d3.line()
+            .x((d, i) => x(i))
+            .y(d => y(d))
+            .defined(d => d !== null);
+        
+        // 绘制MACD线
+        g.append('path')
+            .datum(macdData.macd)
+            .attr('fill', 'none')
+            .attr('stroke', '#3498db')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制信号线
+        g.append('path')
+            .datum(macdData.signal)
+            .attr('fill', 'none')
+            .attr('stroke', '#e74c3c')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制柱状图
+        macdData.histogram.forEach((d, i) => {
+            if (d !== null) {
+                g.append('rect')
+                    .attr('x', x(i) - 1)
+                    .attr('y', d > 0 ? y(d) : y(0))
+                    .attr('width', 2)
+                    .attr('height', Math.abs(y(d) - y(0)))
+                    .attr('fill', d > 0 ? '#27ae60' : '#e74c3c')
+                    .attr('opacity', 0.7);
+            }
+        });
+        
+        // 添加零线
+        g.append('line')
+            .attr('x1', 0).attr('x2', width)
+            .attr('y1', y(0)).attr('y2', y(0))
+            .attr('stroke', '#666')
+            .attr('stroke-dasharray', '3,3');
+        
+        // 添加坐标轴
+        g.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+            
+        g.append('g')
+            .call(d3.axisLeft(y));
+        
+        // 更新指标值
+        const lastMACD = macdData.macd[macdData.macd.length - 1];
+        const lastSignal = macdData.signal[macdData.signal.length - 1];
+        const lastHist = macdData.histogram[macdData.histogram.length - 1];
+        
+        document.getElementById('currentPrice').textContent = priceData[priceData.length - 1].price.toFixed(2);
+        document.getElementById('indicatorValue').textContent = `MACD: ${lastMACD?.toFixed(4) || '--'}`;
+        document.getElementById('indicatorLabel').textContent = 'MACD';
+        
+        // 判断交易信号
+        let signal = 'HOLD';
+        if (lastMACD && lastSignal) {
+            if (lastMACD > lastSignal && lastHist > 0) signal = 'BUY';
+            else if (lastMACD < lastSignal && lastHist < 0) signal = 'SELL';
+        }
+        
+        document.getElementById('currentSignal').innerHTML = `<span class="signal-indicator signal-${signal.toLowerCase()}"></span>${signal}`;
+        document.getElementById('signalStrength').textContent = lastHist ? Math.abs(lastHist).toFixed(4) : '--';
+    }
+    
+    // 绘制布林带图表
+    function drawBollingerChart(g, x, width, height) {
+        const prices = priceData.map(d => d.price);
+        const bollinger = calculateBollingerBands(priceData);
+        
+        const allValues = [...prices, ...bollinger.upper.filter(d => d !== null), ...bollinger.lower.filter(d => d !== null)];
+        const y = d3.scaleLinear()
+            .domain(d3.extent(allValues))
+            .range([height, 0]);
+        
+        const line = d3.line()
+            .x((d, i) => x(i))
+            .y(d => y(d))
+            .defined(d => d !== null);
+        
+        // 绘制布林带区域
+        const area = d3.area()
+            .x((d, i) => x(i))
+            .y0(d => y(d.lower))
+            .y1(d => y(d.upper))
+            .defined(d => d.upper !== null && d.lower !== null);
+        
+        const bandData = bollinger.upper.map((upper, i) => ({
+            upper: upper,
+            lower: bollinger.lower[i]
+        }));
+        
+        g.append('path')
+            .datum(bandData)
+            .attr('fill', '#3498db')
+            .attr('opacity', 0.2)
+            .attr('d', area);
+        
+        // 绘制价格线
+        g.append('path')
+            .datum(prices)
+            .attr('fill', 'none')
+            .attr('stroke', '#333')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制中轨
+        g.append('path')
+            .datum(bollinger.middle)
+            .attr('fill', 'none')
+            .attr('stroke', '#f39c12')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制上下轨
+        g.append('path')
+            .datum(bollinger.upper)
+            .attr('fill', 'none')
+            .attr('stroke', '#3498db')
+            .attr('stroke-width', 1)
+            .attr('stroke-dasharray', '5,5')
+            .attr('d', line);
+            
+        g.append('path')
+            .datum(bollinger.lower)
+            .attr('fill', 'none')
+            .attr('stroke', '#3498db')
+            .attr('stroke-width', 1)
+            .attr('stroke-dasharray', '5,5')
+            .attr('d', line);
+        
+        // 添加坐标轴
+        g.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+            
+        g.append('g')
+            .call(d3.axisLeft(y));
+        
+        // 更新指标值
+        const lastPrice = prices[prices.length - 1];
+        const lastUpper = bollinger.upper[bollinger.upper.length - 1];
+        const lastLower = bollinger.lower[bollinger.lower.length - 1];
+        const lastMiddle = bollinger.middle[bollinger.middle.length - 1];
+        
+        document.getElementById('currentPrice').textContent = lastPrice.toFixed(2);
+        document.getElementById('indicatorValue').textContent = `带宽: ${lastUpper && lastLower ? ((lastUpper - lastLower) / lastMiddle * 100).toFixed(2) + '%' : '--'}`;
+        document.getElementById('indicatorLabel').textContent = '布林带';
+        
+        // 判断交易信号
+        let signal = 'HOLD';
+        if (lastPrice && lastUpper && lastLower && lastMiddle) {
+            if (lastPrice < lastLower) signal = 'BUY';
+            else if (lastPrice > lastUpper) signal = 'SELL';
+        }
+        
+        document.getElementById('currentSignal').innerHTML = `<span class="signal-indicator signal-${signal.toLowerCase()}"></span>${signal}`;
+        
+        const position = lastMiddle ? ((lastPrice - lastMiddle) / (lastUpper - lastMiddle) * 100) : 0;
+        document.getElementById('signalStrength').textContent = Math.abs(position).toFixed(1) + '%';
+    }
+    
+    // 切换指标
+    function switchIndicator(indicator) {
+        currentIndicator = indicator;
+        
+        // 更新按钮状态
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        drawIndicatorChart();
+    }
+    
+    // 更新指标
+    function updateIndicators() {
+        const period = +document.getElementById('dataPeriod').value;
+        const volatility = +document.getElementById('priceVolatility').value;
+        const trendStrength = +document.getElementById('trendStrength').value;
+        
+        document.getElementById('dataPeriodNum').value = period;
+        document.getElementById('priceVolatilityNum').value = volatility;
+        document.getElementById('trendStrengthNum').value = trendStrength;
+        
+        priceData = generatePriceData(period, volatility, trendStrength);
+        drawIndicatorChart();
+    }
+    
+    // 生成新价格数据
+    function generateNewPriceData() {
+        updateIndicators();
+    }
+    
+    // 切换趋势
+    function toggleTrend() {
+        trendDirection *= -1;
+        const button = event.target;
+        button.textContent = trendDirection > 0 ? '切换趋势 (上涨)' : '切换趋势 (下跌)';
+        updateIndicators();
+    }
+    
+    // 运行回测
+    function runBacktest() {
+        const strategy = document.getElementById('strategyType').value;
+        const period = +document.getElementById('backtestPeriod').value;
+        const cost = +document.getElementById('tradingCost').value / 10000; // 转换为小数
+        
+        document.getElementById('backtestPeriodNum').value = period;
+        document.getElementById('tradingCostNum').value = document.getElementById('tradingCost').value;
+        
+        // 生成回测数据
+        const testData = generatePriceData(period, 25, 20);
+        
+        // 根据策略生成信号
+        const signals = generateSignals(testData, strategy);
+        
+        // 计算回测结果
+        backtestResults = calculateBacktestResults(testData, signals, cost);
+        
+        // 绘制回测图表
+        drawBacktestChart(testData, signals, backtestResults);
+        
+        // 更新指标显示
+        updateBacktestMetrics(backtestResults);
+    }
+    
+    // 生成交易信号
+    function generateSignals(data, strategy) {
+        const signals = [];
+        
+        switch(strategy) {
+            case 'ma_crossover':
+                const ma5 = calculateMA(data, 5);
+                const ma20 = calculateMA(data, 20);
+                for (let i = 0; i < data.length; i++) {
+                    if (i === 0 || !ma5[i] || !ma20[i]) {
+                        signals.push(0);
+                    } else {
+                        const prevMA5 = ma5[i-1];
+                        const prevMA20 = ma20[i-1];
+                        if (prevMA5 <= prevMA20 && ma5[i] > ma20[i]) {
+                            signals.push(1); // 买入
+                        } else if (prevMA5 >= prevMA20 && ma5[i] < ma20[i]) {
+                            signals.push(-1); // 卖出
+                        } else {
+                            signals.push(0); // 持有
+                        }
+                    }
+                }
+                break;
+                
+            case 'rsi_reversal':
+                const rsi = calculateRSI(data);
+                for (let i = 0; i < data.length; i++) {
+                    if (!rsi[i]) {
+                        signals.push(0);
+                    } else if (rsi[i] < 30) {
+                        signals.push(1); // 买入
+                    } else if (rsi[i] > 70) {
+                        signals.push(-1); // 卖出
+                    } else {
+                        signals.push(0);
+                    }
+                }
+                break;
+                
+            case 'macd_momentum':
+                const macdData = calculateMACD(data);
+                for (let i = 1; i < data.length; i++) {
+                    if (!macdData.macd[i] || !macdData.signal[i] || !macdData.macd[i-1] || !macdData.signal[i-1]) {
+                        signals.push(0);
+                    } else {
+                        const prevDiff = macdData.macd[i-1] - macdData.signal[i-1];
+                        const currDiff = macdData.macd[i] - macdData.signal[i];
+                        if (prevDiff <= 0 && currDiff > 0) {
+                            signals.push(1); // 买入
+                        } else if (prevDiff >= 0 && currDiff < 0) {
+                            signals.push(-1); // 卖出
+                        } else {
+                            signals.push(0);
+                        }
+                    }
+                }
+                signals.unshift(0); // 添加第一个信号
+                break;
+                
+            case 'bollinger_mean':
+                const bollinger = calculateBollingerBands(data);
+                for (let i = 0; i < data.length; i++) {
+                    if (!bollinger.upper[i] || !bollinger.lower[i]) {
+                        signals.push(0);
+                    } else if (data[i].price < bollinger.lower[i]) {
+                        signals.push(1); // 买入
+                    } else if (data[i].price > bollinger.upper[i]) {
+                        signals.push(-1); // 卖出
+                    } else {
+                        signals.push(0);
+                    }
+                }
+                break;
+        }
+        
+        return signals;
+    }
+    
+    // 计算回测结果
+    function calculateBacktestResults(data, signals, cost) {
+        let position = 0;
+        let cash = 10000;
+        let portfolio = [];
+        let trades = [];
+        
+        for (let i = 0; i < data.length; i++) {
+            const price = data[i].price;
+            const signal = signals[i];
+            
+            if (signal === 1 && position === 0) {
+                // 买入
+                const shares = Math.floor(cash / price);
+                const tradeCost = shares * price * cost;
+                cash -= shares * price + tradeCost;
+                position = shares;
+                trades.push({ type: 'buy', price: price, shares: shares, date: i });
+            } else if (signal === -1 && position > 0) {
+                // 卖出
+                const tradeCost = position * price * cost;
+                cash += position * price - tradeCost;
+                trades.push({ type: 'sell', price: price, shares: position, date: i });
+                position = 0;
+            }
+            
+            const portfolioValue = cash + position * price;
+            portfolio.push(portfolioValue);
+        }
+        
+        // 计算收益率
+        const returns = [];
+        for (let i = 1; i < portfolio.length; i++) {
+            returns.push((portfolio[i] - portfolio[i-1]) / portfolio[i-1]);
+        }
+        
+        // 计算指标
+        const totalReturn = (portfolio[portfolio.length - 1] - 10000) / 10000 * 100;
+        const avgReturn = d3.mean(returns) || 0;
+        const stdReturn = d3.deviation(returns) || 0;
+        const sharpeRatio = stdReturn > 0 ? (avgReturn * 252) / (stdReturn * Math.sqrt(252)) : 0;
+        
+        // 计算最大回撤
+        let maxDrawdown = 0;
+        let peak = portfolio[0];
+        for (let i = 1; i < portfolio.length; i++) {
+            if (portfolio[i] > peak) {
+                peak = portfolio[i];
+            } else {
+                const drawdown = (peak - portfolio[i]) / peak;
+                maxDrawdown = Math.max(maxDrawdown, drawdown);
+            }
+        }
+        
+        // 计算胜率
+        const winningTrades = trades.filter((trade, i) => {
+            if (trade.type === 'sell' && i > 0) {
+                const buyTrade = trades[i-1];
+                return trade.price > buyTrade.price;
+            }
+            return false;
+        }).length;
+        
+        const totalCompleteTrades = Math.floor(trades.length / 2);
+        const winRate = totalCompleteTrades > 0 ? (winningTrades / totalCompleteTrades) * 100 : 0;
+        
+        const calmarRatio = maxDrawdown > 0 ? (totalReturn / 100) / maxDrawdown : 0;
+        
+        return {
+            portfolio: portfolio,
+            trades: trades,
+            totalReturn: totalReturn,
+            sharpeRatio: sharpeRatio,
+            maxDrawdown: maxDrawdown * 100,
+            winRate: winRate,
+            totalTrades: trades.length,
+            calmarRatio: calmarRatio
+        };
+    }
+    
+    // 绘制回测图表
+    function drawBacktestChart(data, signals, results) {
+        const container = d3.select('#backtestChart');
+        container.selectAll('*').remove();
+        
+        const margin = {top: 20, right: 30, bottom: 40, left: 50};
+        const width = 800 - margin.left - margin.right;
+        const height = 400 - margin.bottom - margin.top;
+        
+        const svg = container.append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.bottom + margin.top);
+            
+        const g = svg.append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+        
+        const x = d3.scaleLinear()
+            .domain([0, data.length - 1])
+            .range([0, width]);
+        
+        // 标准化组合价值和价格到相同起点
+        const normalizedPrice = data.map((d, i) => d.price / data[0].price * 10000);
+        const allValues = [...normalizedPrice, ...results.portfolio];
+        
+        const y = d3.scaleLinear()
+            .domain(d3.extent(allValues))
+            .range([height, 0]);
+        
+        const line = d3.line()
+            .x((d, i) => x(i))
+            .y(d => y(d));
+        
+        // 绘制基准价格线
+        g.append('path')
+            .datum(normalizedPrice)
+            .attr('fill', 'none')
+            .attr('stroke', '#bdc3c7')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+        
+        // 绘制策略收益线
+        g.append('path')
+            .datum(results.portfolio)
+            .attr('fill', 'none')
+            .attr('stroke', '#3498db')
+            .attr('stroke-width', 3)
+            .attr('d', line);
+        
+        // 标记交易点
+        results.trades.forEach(trade => {
+            g.append('circle')
+                .attr('cx', x(trade.date))
+                .attr('cy', y(results.portfolio[trade.date]))
+                .attr('r', 4)
+                .attr('fill', trade.type === 'buy' ? '#27ae60' : '#e74c3c');
+        });
+        
+        // 添加坐标轴
+        g.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+            
+        g.append('g')
+            .call(d3.axisLeft(y));
+        
+        // 添加图例
+        const legend = g.append('g')
+            .attr('transform', `translate(${width - 150}, 20)`);
+            
+        legend.append('line')
+            .attr('x1', 0).attr('x2', 20)
+            .attr('y1', 0).attr('y2', 0)
+            .attr('stroke', '#bdc3c7')
+            .attr('stroke-width', 2);
+            
+        legend.append('text')
+            .attr('x', 25).attr('y', 5)
+            .text('基准');
+            
+        legend.append('line')
+            .attr('x1', 0).attr('x2', 20)
+            .attr('y1', 20).attr('y2', 20)
+            .attr('stroke', '#3498db')
+            .attr('stroke-width', 3);
+            
+        legend.append('text')
+            .attr('x', 25).attr('y', 25)
+            .text('策略');
+    }
+    
+    // 更新回测指标
+    function updateBacktestMetrics(results) {
+        document.getElementById('totalReturn').textContent = `${results.totalReturn.toFixed(2)}%`;
+        document.getElementById('sharpeRatio').textContent = results.sharpeRatio.toFixed(3);
+        document.getElementById('maxDrawdown').textContent = `${results.maxDrawdown.toFixed(2)}%`;
+        document.getElementById('winRate').textContent = `${results.winRate.toFixed(1)}%`;
+        document.getElementById('totalTrades').textContent = results.totalTrades;
+        document.getElementById('calmarRatio').textContent = results.calmarRatio.toFixed(3);
+    }
+    
+    // 重置回测
+    function resetBacktest() {
+        backtestResults = null;
+        const container = d3.select('#backtestChart');
+        container.selectAll('*').remove();
+        container.append('div')
+            .style('text-align', 'center')
+            .style('padding', '50px')
+            .style('color', '#666')
+            .text('点击"运行回测"开始分析');
+        
+        document.getElementById('totalReturn').textContent = '--';
+        document.getElementById('sharpeRatio').textContent = '--';
+        document.getElementById('maxDrawdown').textContent = '--';
+        document.getElementById('winRate').textContent = '--';
+        document.getElementById('totalTrades').textContent = '--';
+        document.getElementById('calmarRatio').textContent = '--';
+    }
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        updateIndicators();
+        resetBacktest();
+    });
+    </script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    
+    /* 交易策略演示样式 */
+    .strategy-demo {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin: 30px 0;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .demo-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .control-group {
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .control-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .control-group input[type="range"] {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .control-group input[type="number"] {
+        width: 80px;
+        padding: 5px 8px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 5px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        font-size: 14px;
+    }
+    
+    .control-group select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        font-size: 14px;
+    }
+    
+    .strategy-chart {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+        min-height: 400px;
+    }
+    
+    .metrics-display {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .metric-card {
+        background: rgba(255,255,255,0.15);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 5px 0;
+    }
+    
+    .metric-label {
+        font-size: 12px;
+        opacity: 0.9;
+    }
+    
+    .demo-button {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        padding: 12px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        margin: 5px;
+    }
+    
+    .demo-button:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    .demo-button.active {
+        background: rgba(255,255,255,0.4);
+        border-color: rgba(255,255,255,0.6);
+    }
+    
+    .indicator-tabs {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+    }
+    
+    .tab-button {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+    
+    .tab-button.active {
+        background: rgba(255,255,255,0.3);
+        border-color: rgba(255,255,255,0.6);
+    }
+    
+    .signal-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .signal-buy { background-color: #27ae60; }
+    .signal-sell { background-color: #e74c3c; }
+    .signal-hold { background-color: #f39c12; }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>量化交易概述</h2>
+            <p>量化交易是利用数学模型和计算机程序来识别和执行交易机会的系统化方法。</p>
+            <div class="math-theory">
+                <h3>数学理论基础</h3>
+                <h4>1. 收益率计算</h4>
+                <p>简单收益率：</p>
+                <div class="formula">
+                    \[R_t = \frac{P_t - P_{t-1}}{P_{t-1}}\]
+                </div>
+                <p>对数收益率（连续复利收益率）：</p>
+                <div class="formula">
+                    \[r_t = \ln\left(\frac{P_t}{P_{t-1}}\right) = \ln(1 + R_t)\]
+                </div>
+                <h4>2. 策略绩效指标</h4>
+                <p><strong>夏普比率</strong>：</p>
+                <div class="formula">
+                    \[Sharpe = \frac{E[R_p] - R_f}{\sigma_p}\]
+                </div>
+                <p>其中 \(R_p\) 为投资组合收益率，\(R_f\) 为无风险利率，\(\sigma_p\) 为投资组合收益率标准差。</p>
+                <p><strong>最大回撤</strong>：</p>
+                <div class="formula">
+                    \[MDD = \max_{t \in [0,T]} \left( \max_{s \in [0,t]} V_s - V_t \right) / \max_{s \in [0,t]} V_s\]
+                </div>
+                <p>其中 \(V_t\) 为时刻 \(t\) 的投资组合价值。</p>
+                <p><strong>卡尔马比率</strong>：</p>
+                <div class="formula">
+                    \[Calmar = \frac{年化收益率}{最大回撤}\]
+                </div>
+                <h4>3. 技术指标数学公式</h4>
+                <p><strong>移动平均线</strong>：</p>
+                <div class="formula">
+                    \[MA_n(t) = \frac{1}{n} \sum_{i=0}^{n-1} P_{t-i}\]
+                </div>
+                <p><strong>指数移动平均线</strong>：</p>
+                <div class="formula">
+                    \[EMA_t = \alpha \cdot P_t + (1-\alpha) \cdot EMA_{t-1}\]
+                </div>
+                <p>其中 \(\alpha = \frac{2}{n+1}\) 为平滑因子。</p>
+                <p><strong>相对强弱指数(RSI)</strong>：</p>
+                <div class="formula">
+                    \[RSI = 100 - \frac{100}{1 + RS}\]
+                </div>
+                <div class="formula">
+                    \[RS = \frac{平均上涨幅度}{平均下跌幅度}\]
+                </div>
+                <h4>4. 均值回归策略</h4>
+                <p><strong>Z-Score标准化</strong>：</p>
+                <div class="formula">
+                    \[Z_t = \frac{P_t - \mu}{\sigma}\]
+                </div>
+                <p>其中 \(\mu\) 为历史均值，\(\sigma\) 为历史标准差。</p>
+                <p><strong>布林带</strong>：</p>
+                <div class="formula">
+                    \[上轨 = MA_n + k \cdot \sigma_n\]
+                </div>
+                <div class="formula">
+                    \[下轨 = MA_n - k \cdot \sigma_n\]
+                </div>
+                <p>其中 \(k\) 通常取2，\(\sigma_n\) 为 \(n\) 期标准差。</p>
+                <h4>5. 动量策略</h4>
+                <p><strong>价格动量</strong>：</p>
+                <div class="formula">
+                    \[Momentum_t = \frac{P_t - P_{t-n}}{P_{t-n}}\]
+                </div>
+                <p><strong>MACD指标</strong>：</p>
+                <div class="formula">
+                    \[MACD = EMA_{12} - EMA_{26}\]
+                </div>
+                <div class="formula">
+                    \[Signal = EMA_9(MACD)\]
+                </div>
+                <div class="formula">
+                    \[Histogram = MACD - Signal\]
+                </div>
+            </div>
+            <h3>1. 量化交易的基本特征</h3>
+            <pre><code class="language-python"># 量化交易系统的核心组件
+components = {
+    '数据获取': '实时市场数据、历史数据、替代数据',
+    '策略研究': '统计模型、机器学习、技术分析',
+    '风险控制': '头寸管理、止损策略、波动率控制',
+    '执行系统': '订单路由、交易成本分析、绩效评估'
+}</code></pre>
+            <h3>2. 量化交易的优势</h3>
+            <pre><code class="language-python">advantages = [
+    '消除人为情绪影响',
+    '可回测和验证策略',
+    '能够处理大量数据',
+    '可同时监控多个市场',
+    '执行速度快且一致'
+]</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>常见交易策略类型</h2>
+            <p>量化策略主要分为趋势跟随、均值回归、统计套利等几大类。</p>
+            <h3>1. 均值回归策略</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+def mean_reversion_strategy(prices, window=20, z_threshold=1.5):
+    """
+    简单的均值回归策略
+    当价格偏离移动平均线超过阈值时交易
+    """
+    # 计算滚动均值和标准差
+    rolling_mean = prices.rolling(window=window).mean()
+    rolling_std = prices.rolling(window=window).std()
+    # 计算Z分数
+    z_score = (prices - rolling_mean) / rolling_std
+    # 生成交易信号
+    signals = pd.Series(0, index=prices.index)
+    signals[z_score > z_threshold] = -1  # 卖出信号
+    signals[z_score < -z_threshold] = 1   # 买入信号
+    signals[abs(z_score) < 0.5] = 0       # 平仓信号
+    return signals
+# 示例使用
+prices = pd.Series(np.random.normal(0, 1, 100).cumsum() + 100)
+signals = mean_reversion_strategy(prices)
+print(signals.tail())</code></pre>
+            <h3>2. 动量策略</h3>
+            <pre><code class="language-python">def momentum_strategy(prices, lookback=30, hold_period=5):
+    """
+    简单动量策略
+    基于过去表现买入表现最好的资产
+    """
+    # 计算过去lookback天的收益率
+    returns = prices.pct_change(lookback)
+    # 生成交易信号
+    signals = pd.Series(0, index=prices.index)
+    signals[returns > 0] = 1   # 正向动量买入
+    signals[returns <= 0] = -1  # 负向动量卖出
+    # 保持持仓hold_period天
+    signals = signals.rolling(hold_period).mean()
+    return signals
+# 示例使用
+mom_signals = momentum_strategy(prices)
+print(mom_signals.tail())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>策略设计原则</h2>
+            <p>优秀的交易策略需要遵循一定的设计原则和评估标准。</p>
+            <h3>1. 策略设计检查清单</h3>
+            <pre><code class="language-python">checklist = {
+    '理论基础': '策略是否有合理的市场行为解释',
+    '参数敏感性': '策略表现是否对参数选择过于敏感',
+    '交易成本': '是否考虑了佣金、滑点等交易成本',
+    '风险管理': '是否有明确的风险控制机制',
+    '样本外测试': '策略在未参与训练的数据上表现如何'
+}</code></pre>
+            <h3>2. 策略评估指标</h3>
+            <pre><code class="language-python">def evaluate_strategy(signals, prices):
+    """
+    评估策略表现的基本指标
+    """
+    # 计算每日收益率
+    daily_returns = prices.pct_change()
+    strategy_returns = signals.shift(1) * daily_returns
+    # 计算表现指标
+    total_return = strategy_returns.sum()
+    sharpe_ratio = strategy_returns.mean() / strategy_returns.std() * np.sqrt(252)
+    max_drawdown = (strategy_returns.cumsum().cummax() - strategy_returns.cumsum()).max()
+    return {
+        '总收益率': total_return,
+        '年化夏普比率': sharpe_ratio,
+        '最大回撤': max_drawdown
+    }
+# 评估均值回归策略
+performance = evaluate_strategy(signals, prices)
+print(performance)</code></pre>
+            
+            <div class="strategy-demo">
+                <h4>📊 技术指标实时计算</h4>
+                <p>实时计算和可视化各种技术指标，理解指标的计算原理和交易信号</p>
+                
+                <div class="indicator-tabs">
+                    <button class="tab-button active" onclick="switchIndicator('ma')">移动平均线</button>
+                    <button class="tab-button" onclick="switchIndicator('rsi')">RSI</button>
+                    <button class="tab-button" onclick="switchIndicator('macd')">MACD</button>
+                    <button class="tab-button" onclick="switchIndicator('bollinger')">布林带</button>
+                </div>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>数据周期（天）</label>
+                        <input type="range" id="dataPeriod" min="50" max="500" value="252" oninput="updateIndicators()">
+                        <input type="number" id="dataPeriodNum" min="50" max="500" value="252" onchange="updateIndicators()">
+                    </div>
+                    <div class="control-group">
+                        <label>波动率 (%)</label>
+                        <input type="range" id="priceVolatility" min="10" max="50" value="25" oninput="updateIndicators()">
+                        <input type="number" id="priceVolatilityNum" min="10" max="50" value="25" onchange="updateIndicators()">
+                    </div>
+                    <div class="control-group">
+                        <label>趋势强度</label>
+                        <input type="range" id="trendStrength" min="0" max="100" value="30" oninput="updateIndicators()">
+                        <input type="number" id="trendStrengthNum" min="0" max="100" value="30" onchange="updateIndicators()">
+                    </div>
+                    <div class="control-group">
+                        <button class="demo-button" onclick="generateNewPriceData()">生成新数据</button>
+                        <button class="demo-button" onclick="toggleTrend()">切换趋势</button>
+                    </div>
+                </div>
+                
+                <div class="strategy-chart">
+                    <div id="indicatorChart"></div>
+                </div>
+                
+                <div class="metrics-display">
+                    <div class="metric-card">
+                        <div class="metric-value" id="currentPrice">--</div>
+                        <div class="metric-label">当前价格</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="currentSignal">--</div>
+                        <div class="metric-label">交易信号</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="indicatorValue">--</div>
+                        <div class="metric-label" id="indicatorLabel">指标值</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="signalStrength">--</div>
+                        <div class="metric-label">信号强度</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="strategy-demo">
+                <h4>🎯 策略回测系统</h4>
+                <p>回测不同交易策略的表现，比较策略收益和风险指标</p>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>策略类型</label>
+                        <select id="strategyType" onchange="runBacktest()">
+                            <option value="ma_crossover">双均线策略</option>
+                            <option value="rsi_reversal">RSI反转策略</option>
+                            <option value="macd_momentum">MACD动量策略</option>
+                            <option value="bollinger_mean">布林带均值回归</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>回测期间（天）</label>
+                        <input type="range" id="backtestPeriod" min="100" max="1000" value="500" oninput="runBacktest()">
+                        <input type="number" id="backtestPeriodNum" min="100" max="1000" value="500" onchange="runBacktest()">
+                    </div>
+                    <div class="control-group">
+                        <label>交易成本 (%)</label>
+                        <input type="range" id="tradingCost" min="0" max="50" value="10" step="5" oninput="runBacktest()">
+                        <input type="number" id="tradingCostNum" min="0" max="50" value="10" step="5" onchange="runBacktest()">
+                    </div>
+                    <div class="control-group">
+                        <button class="demo-button" onclick="runBacktest()">运行回测</button>
+                        <button class="demo-button" onclick="resetBacktest()">重置</button>
+                    </div>
+                </div>
+                
+                <div class="strategy-chart">
+                    <div id="backtestChart"></div>
+                </div>
+                
+                <div class="metrics-display">
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalReturn">--</div>
+                        <div class="metric-label">总收益率 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="sharpeRatio">--</div>
+                        <div class="metric-label">夏普比率</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="maxDrawdown">--</div>
+                        <div class="metric-label">最大回撤 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="winRate">--</div>
+                        <div class="metric-label">胜率 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalTrades">--</div>
+                        <div class="metric-label">交易次数</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="calmarRatio">--</div>
+                        <div class="metric-label">卡尔马比率</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <a href="../../index.html" class="btn">« 返回模块首页</a>
+            <a href="lesson2.html" class="btn">下一课: 技术指标与策略设计 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

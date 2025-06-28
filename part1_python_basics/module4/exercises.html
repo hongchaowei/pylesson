@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习：面向对象编程 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="exercises">
+            <h2>练习1：金融账户系统</h2>
+            <div class="lesson-content">
+                <p>创建一个简单的金融账户系统，包含以下要求：</p>
+                <ol>
+                    <li>创建一个基类<code>Account</code>，包含基本的账户信息和操作</li>
+                    <li>创建派生类<code>SavingsAccount</code>和<code>CheckingAccount</code></li>
+                    <li>实现存款、取款和查看余额等功能</li>
+                    <li>添加利息计算和手续费处理</li>
+                </ol>
+                <div class="code-example">
+                    <h4>示例框架：</h4>
+                    <pre>class Account:
+    def __init__(self, account_number, holder_name, balance=0):
+        # 实现初始化方法
+        pass
+    def deposit(self, amount):
+        # 实现存款功能
+        pass
+    def withdraw(self, amount):
+        # 实现取款功能
+        pass
+class SavingsAccount(Account):
+    def __init__(self, account_number, holder_name, balance=0, interest_rate=0.01):
+        # 实现初始化方法
+        pass
+    def calculate_interest(self):
+        # 实现利息计算
+        pass
+class CheckingAccount(Account):
+    def __init__(self, account_number, holder_name, balance=0, transaction_fee=1):
+        # 实现初始化方法
+        pass
+    def withdraw(self, amount):
+        # 重写取款方法，添加手续费处理
+        pass</pre>
+                </div>
+            </div>
+            <h2>练习2：投资组合管理系统</h2>
+            <div class="lesson-content">
+                <p>实现一个投资组合管理系统，要求：</p>
+                <ol>
+                    <li>创建不同类型的金融资产类（股票、债券、基金等）</li>
+                    <li>实现投资组合的添加、删除和查看功能</li>
+                    <li>计算投资组合的总价值和收益率</li>
+                    <li>使用观察者模式实现价格更新通知</li>
+                </ol>
+                <div class="code-example">
+                    <h4>示例框架：</h4>
+                    <pre>from abc import ABC, abstractmethod
+class Asset(ABC):
+    @abstractmethod
+    def get_value(self):
+        pass
+class Stock(Asset):
+    def __init__(self, symbol, shares, price):
+        # 实现初始化方法
+        pass
+    def get_value(self):
+        # 实现价值计算
+        pass
+class Portfolio:
+    def __init__(self):
+        self.assets = {}
+    def add_asset(self, asset):
+        # 实现添加资产
+        pass
+    def remove_asset(self, symbol):
+        # 实现移除资产
+        pass
+    def get_total_value(self):
+        # 实现总价值计算
+        pass</pre>
+                </div>
+            </div>
+            <h2>练习3：交易系统设计</h2>
+            <div class="lesson-content">
+                <p>设计一个简单的交易系统，包含以下功能：</p>
+                <ol>
+                    <li>使用工厂模式创建不同类型的订单（市价单、限价单等）</li>
+                    <li>实现交易执行和订单管理</li>
+                    <li>添加交易日志和错误处理</li>
+                    <li>使用策略模式实现不同的交易策略</li>
+                </ol>
+                <div class="code-example">
+                    <h4>示例框架：</h4>
+                    <pre>class Order:
+    def __init__(self, symbol, quantity, direction):
+        # 实现初始化方法
+        pass
+    @abstractmethod
+    def execute(self):
+        pass
+class MarketOrder(Order):
+    def execute(self):
+        # 实现市价单执行
+        pass
+class LimitOrder(Order):
+    def __init__(self, symbol, quantity, direction, limit_price):
+        # 实现初始化方法
+        pass
+    def execute(self):
+        # 实现限价单执行
+        pass
+class OrderFactory:
+    @staticmethod
+    def create_order(order_type, **kwargs):
+        # 实现订单创建
+        pass</pre>
+                </div>
+            </div>
+            <h2>练习4：金融数据分析工具</h2>
+            <div class="lesson-content">
+                <p>创建一个金融数据分析工具，要求：</p>
+                <ol>
+                    <li>使用单例模式管理数据连接</li>
+                    <li>实现数据获取和缓存机制</li>
+                    <li>添加数据处理和分析功能</li>
+                    <li>使用装饰器实现性能监控</li>
+                </ol>
+                <div class="code-example">
+                    <h4>示例框架：</h4>
+                    <pre>class DataConnection:
+    _instance = None
+    def __new__(cls):
+        # 实现单例模式
+        pass
+    def __init__(self):
+        # 实现初始化方法
+        pass
+    def get_data(self, symbol, start_date, end_date):
+        # 实现数据获取
+        pass
+def performance_monitor(func):
+    def wrapper(*args, **kwargs):
+        # 实现性能监控装饰器
+        pass
+    return wrapper
+class DataAnalyzer:
+    @performance_monitor
+    def analyze_data(self, data):
+        # 实现数据分析
+        pass</pre>
+                </div>
+            </div>
+        </section>
+        <section class="submission">
+            <h2>提交说明</h2>
+            <p>完成练习后，请：</p>
+            <ol>
+                <li>确保代码符合Python编码规范</li>
+                <li>添加适当的注释和文档字符串</li>
+                <li>编写单元测试验证功能</li>
+                <li>创建示例数据演示系统功能</li>
+            </ol>
+            <p>将代码提交到课程平台，并准备在下一次课程中分享你的解决方案。</p>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

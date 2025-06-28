@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程2: 数据清洗与转换 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>数据清洗的重要性</h2>
+            <p>在金融数据分析中，数据清洗是至关重要的一步。原始金融数据通常包含缺失值、异常值、不一致的格式等问题，这些问题会严重影响分析结果的准确性。</p>
+            <h3>金融数据常见问题</h3>
+            <ul>
+                <li><strong>缺失数据</strong>：由于技术故障或数据源问题导致的数据缺失</li>
+                <li><strong>异常值</strong>：市场剧烈波动或数据错误导致的极端值</li>
+                <li><strong>不一致格式</strong>：不同数据源或不同时期的数据格式不一致</li>
+                <li><strong>重复数据</strong>：数据采集或合并过程中产生的重复记录</li>
+                <li><strong>时间不一致</strong>：不同市场或资产的时间戳不匹配</li>
+            </ul>
+            <h3>数据清洗流程</h3>
+            <ol>
+                <li>识别数据问题</li>
+                <li>制定清洗策略</li>
+                <li>执行清洗操作</li>
+                <li>验证清洗结果</li>
+                <li>记录清洗过程</li>
+            </ol>
+        </section>
+        <section class="lesson-content">
+            <h2>处理缺失数据</h2>
+            <p>Pandas提供了多种处理缺失数据的方法，我们需要根据金融数据的特性选择合适的处理方法。</p>
+            <h3>检测缺失值</h3>
+            <pre><code>import pandas as pd
+import numpy as np
+# 创建包含缺失值的DataFrame
+dates = pd.date_range('2023-01-01', periods=10)
+data = {
+    '收盘价': [100, 102, np.nan, 105, 107, 106, 110, np.nan, 112, 115],
+    '成交量': [1000000, np.nan, 800000, 750000, np.nan, 600000, 550000, 500000, 450000, 400000]
+}
+df = pd.DataFrame(data, index=dates)
+# 检查缺失值
+print(df.isna())
+# 统计每列缺失值数量
+print(df.isna().sum())</code></pre>
+            <h3>处理缺失值的方法</h3>
+            <pre><code># 删除包含缺失值的行
+print(df.dropna())
+# 填充缺失值
+print(df.fillna(0))  # 用0填充
+print(df.fillna(method='ffill'))  # 前向填充
+print(df.fillna(method='bfill'))  # 后向填充
+# 用统计量填充
+print(df.fillna(df.mean()))  # 用列均值填充
+print(df.fillna(df.median()))  # 用列中位数填充
+# 金融数据常用方法：线性插值
+print(df.interpolate())</code></pre>
+            <h3>金融数据缺失值处理建议</h3>
+            <ul>
+                <li>价格数据：使用前向填充或插值方法</li>
+                <li>成交量数据：用0填充或删除</li>
+                <li>收益率数据：删除缺失值</li>
+                <li>技术指标：重新计算或删除</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>处理异常值</h2>
+            <p>金融数据中的异常值可能是真实的市场波动，也可能是数据错误，需要谨慎处理。</p>
+            <h3>检测异常值</h3>
+            <pre><code># 创建包含异常值的数据
+returns = pd.Series([0.01, 0.02, -0.01, 0.03, 0.02, -0.02, 0.01, 0.03, -0.15, 0.02])
+# 统计方法检测异常值
+mean = returns.mean()
+std = returns.std()
+threshold = 3 * std
+outliers = returns[(returns < mean - threshold) | (returns > mean + threshold)]
+print("异常值:", outliers)</code></pre>
+            <h3>处理异常值的方法</h3>
+            <pre><code># 删除异常值
+clean_returns = returns[~returns.isin(outliers)]
+print("删除异常值后的数据:", clean_returns)
+# 用边界值替换异常值
+returns_clipped = returns.clip(lower=mean - threshold, upper=mean + threshold)
+print("截断后的数据:", returns_clipped)
+# 用中位数替换异常值
+returns_no_outliers = returns.where(~returns.isin(outliers), returns.median())
+print("替换后的数据:", returns_no_outliers)</code></pre>
+            <h3>金融数据异常值处理建议</h3>
+            <ul>
+                <li>先分析异常值原因，确认是否为数据错误</li>
+                <li>价格数据异常：检查市场事件或数据错误</li>
+                <li>收益率异常：谨慎处理，可能是真实市场波动</li>
+                <li>成交量异常：检查是否有拆分或合并事件</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>数据转换</h2>
+            <p>数据转换是将原始数据转换为更适合分析的形式的过程。</p>
+            <h3>标准化和归一化</h3>
+            <pre><code># 创建金融数据
+data = {
+    '价格': [100, 102, 101, 105, 107],
+    '成交量': [1000000, 800000, 1200000, 750000, 900000]
+}
+df = pd.DataFrame(data)
+# 最小-最大归一化
+df_normalized = (df - df.min()) / (df.max() - df.min())
+print("归一化后的数据:\n", df_normalized)
+# Z-score标准化
+df_standardized = (df - df.mean()) / df.std()
+print("\n标准化后的数据:\n", df_standardized)</code></pre>
+            <h3>离散化和分箱</h3>
+            <pre><code># 创建收益率数据
+returns = pd.Series([0.01, 0.02, -0.01, 0.03, 0.02, -0.02, 0.01, 0.03, -0.01, 0.02])
+# 等宽分箱
+bins = pd.cut(returns, bins=3)
+print("等宽分箱:\n", bins.value_counts())
+# 等频分箱
+bins = pd.qcut(returns, q=4)
+print("\n等频分箱:\n", bins.value_counts())
+# 自定义分箱
+bins = [-np.inf, -0.01, 0.01, 0.03, np.inf]
+labels = ['大幅下跌', '小幅下跌', '小幅上涨', '大幅上涨']
+categories = pd.cut(returns, bins=bins, labels=labels)
+print("\n自定义分箱:\n", categories.value_counts())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用示例</h2>
+            <p>让我们看一个完整的金融数据清洗和转换示例。</p>
+            <pre><code>import pandas as pd
+import numpy as np
+# 创建模拟股票数据（包含缺失值和异常值）
+dates = pd.date_range('2023-01-01', periods=20)
+prices = np.array([
+    100, 102, np.nan, 105, 107, 106, 110, np.nan, 112, 115,
+    116, 118, 117, 119, 120, 121, 123, 122, 124, 125
+])
+volumes = np.array([
+    1000000, np.nan, 800000, 750000, np.nan, 600000, 550000, 500000, 450000, 400000,
+    350000, 300000, 250000, 200000, 150000, 100000, 50000, 5000000, 40000, 30000
+])
+df = pd.DataFrame({
+    '收盘价': prices,
+    '成交量': volumes
+}, index=dates)
+print("原始数据:")
+print(df)
+# 1. 处理缺失值
+# 价格使用线性插值
+df['收盘价'] = df['收盘价'].interpolate()
+# 成交量使用前向填充
+df['成交量'] = df['成交量'].fillna(method='ffill')
+print("\n处理缺失值后:")
+print(df)
+# 2. 处理异常值
+# 检测成交量异常值
+mean_vol = df['成交量'].mean()
+std_vol = df['成交量'].std()
+threshold = 3 * std_vol
+vol_outliers = df['成交量'][
+    (df['成交量'] < mean_vol - threshold) |
+    (df['成交量'] > mean_vol + threshold)
+]
+# 用中位数替换异常值
+df['成交量'] = df['成交量'].where(
+    ~df['成交量'].isin(vol_outliers),
+    df['成交量'].median()
+)
+print("\n处理异常值后:")
+print(df)
+# 3. 计算收益率并标准化
+df['收益率'] = df['收盘价'].pct_change()
+df['标准化收益率'] = (df['收益率'] - df['收益率'].mean()) / df['收益率'].std()
+# 4. 对收益率分箱
+bins = [-np.inf, -0.01, 0, 0.01, np.inf]
+labels = ['大幅下跌', '小幅下跌', '小幅上涨', '大幅上涨']
+df['收益率类别'] = pd.cut(df['收益率'], bins=bins, labels=labels)
+print("\n最终处理后的数据:")
+print(df)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>了解了金融数据清洗的重要性和常见问题</li>
+                <li>学习了处理缺失值的多种方法</li>
+                <li>掌握了检测和处理异常值的技巧</li>
+                <li>探索了数据标准化和归一化方法</li>
+                <li>学习了数据离散化和分箱技术</li>
+                <li>应用这些技术完成了一个完整的金融数据清洗示例</li>
+            </ul>
+            <p>这些技能将帮助您准备高质量的金融数据，为后续分析打下坚实基础。在下一课中，我们将学习金融时间序列操作。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请确保您已经：</p>
+                <ul>
+                    <li>理解了各种数据清洗技术的适用场景</li>
+                    <li>尝试运行了本课的所有示例代码</li>
+                    <li>能够根据数据特性选择合适的清洗方法</li>
+                </ul>
+                <a href="lesson3.html" class="btn btn-large">继续学习：金融时间序列操作</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson1.html" class="btn">« 上一课：Pandas基础</a>
+            </div>
+            <div>
+                <a href="lesson3.html" class="btn">下一课：金融时间序列操作 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

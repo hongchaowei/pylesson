@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面标题</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+
+    <main class="container">
+        <section class="project-overview">
+            <h2>项目概述</h2>
+            <p>在这个项目中，你将创建一个完整的投资组合管理系统，该系统允许用户创建和管理包含多种金融资产的投资组合。你将应用本模块学到的面向对象编程概念，包括类与对象、继承与多态、特殊方法和设计模式。</p>
+            <h3>学习目标</h3>
+            <ul>
+                <li>应用面向对象编程原则设计和实现一个完整的系统</li>
+                <li>使用继承和多态来建模不同类型的金融资产</li>
+                <li>实现特殊方法来增强类的功能</li>
+                <li>应用设计模式解决常见的设计问题</li>
+                <li>创建一个用户友好的命令行界面</li>
+            </ul>
+        </section>
+        <section class="project-requirements">
+            <h2>项目需求</h2>
+            <h3>1. 系统架构</h3>
+            <p>你的系统应该包含以下主要组件：</p>
+            <ul>
+                <li>资产类层次结构（股票、债券、现金等）</li>
+                <li>投资组合类，用于管理资产集合</li>
+                <li>交易系统，用于执行买入和卖出操作</li>
+                <li>市场数据源，提供价格和其他市场数据</li>
+                <li>分析工具，用于计算投资组合的性能指标</li>
+                <li>用户界面，允许用户与系统交互</li>
+            </ul>
+            <h3>2. 功能要求</h3>
+            <p>你的系统应该实现以下功能：</p>
+            <ul>
+                <li>创建和管理多个投资组合</li>
+                <li>添加、删除和更新投资组合中的资产</li>
+                <li>执行买入和卖出交易</li>
+                <li>查看投资组合的当前价值和持有情况</li>
+                <li>计算投资组合的收益率、风险和其他性能指标</li>
+                <li>生成投资组合报告</li>
+                <li>模拟市场价格变动并观察对投资组合的影响</li>
+            </ul>
+            <h3>3. 技术要求</h3>
+            <p>你的实现应该包含以下技术元素：</p>
+            <ul>
+                <li>至少5个类，形成有意义的继承层次结构</li>
+                <li>使用抽象基类定义接口</li>
+                <li>实现适当的特殊方法（如<code>__str__</code>、<code>__repr__</code>、<code>__eq__</code>等）</li>
+                <li>使用属性装饰器控制属性访问</li>
+                <li>实现至少2种设计模式（如单例、工厂、观察者、策略等）</li>
+                <li>包含适当的错误处理和输入验证</li>
+                <li>提供详细的文档和注释</li>
+            </ul>
+        </section>
+        <section class="project-structure">
+            <h2>项目结构</h2>
+            <p>以下是建议的项目文件结构：</p>
+            <pre>portfolio_system/
+├── assets/
+│   ├── __init__.py
+│   ├── asset.py          # 资产基类
+│   ├── stock.py          # 股票类
+│   ├── bond.py           # 债券类
+│   └── cash.py           # 现金类
+├── portfolio/
+│   ├── __init__.py
+│   └── portfolio.py      # 投资组合类
+├── trading/
+│   ├── __init__.py
+│   ├── order.py          # 订单类
+│   └── exchange.py       # 交易所类
+├── market/
+│   ├── __init__.py
+│   └── market_data.py    # 市场数据类
+├── analysis/
+│   ├── __init__.py
+│   └── analyzer.py       # 分析工具类
+├── ui/
+│   ├── __init__.py
+│   └── cli.py            # 命令行界面
+├── utils/
+│   ├── __init__.py
+│   └── helpers.py        # 辅助函数
+├── main.py               # 主程序入口
+└── README.md             # 项目文档</pre>
+        </section>
+        <section class="implementation-guide">
+            <h2>实现指南</h2>
+            <h3>步骤1：设计类层次结构</h3>
+            <p>首先，设计你的类层次结构。考虑不同类型的资产有哪些共同属性和行为，以及它们的特定属性和行为。</p>
+            <div class="code-example">
+                <h4>示例：资产类层次结构</h4>
+                <pre>from abc import ABC, abstractmethod
+class Asset(ABC):
+    """资产抽象基类"""
+    def __init__(self, name, symbol):
+        self.name = name
+        self.symbol = symbol
+    @abstractmethod
+    def get_value(self):
+        """获取资产当前价值"""
+        pass
+    @abstractmethod
+    def get_risk(self):
+        """获取资产风险指标"""
+        pass
+class Stock(Asset):
+    """股票类"""
+    def __init__(self, name, symbol, price, shares=0):
+        super().__init__(name, symbol)
+        self.price = price
+        self.shares = shares
+    def get_value(self):
+        return self.price * self.shares
+    def get_risk(self):
+        # 简化的风险计算
+        return 0.2  # 假设股票风险为20%
+class Bond(Asset):
+    """债券类"""
+    def __init__(self, name, symbol, face_value, coupon_rate, years_to_maturity):
+        super().__init__(name, symbol)
+        self.face_value = face_value
+        self.coupon_rate = coupon_rate
+        self.years_to_maturity = years_to_maturity
+        self.market_price = face_value  # 初始市场价格等于面值
+    def get_value(self):
+        return self.market_price
+    def get_risk(self):
+        # 简化的风险计算，基于到期年限
+        return 0.05 + 0.01 * self.years_to_maturity</pre>
+            </div>
+            <h3>步骤2：实现投资组合类</h3>
+            <p>接下来，实现投资组合类，用于管理资产集合。</p>
+            <div class="code-example">
+                <h4>示例：投资组合类</h4>
+                <pre>class Portfolio:
+    """投资组合类"""
+    def __init__(self, name):
+        self.name = name
+        self.assets = {}  # symbol -> asset
+    def add_asset(self, asset):
+        """添加资产到投资组合"""
+        if asset.symbol in self.assets:
+            # 如果已存在，更新资产
+            if isinstance(asset, type(self.assets[asset.symbol])):
+                self.assets[asset.symbol] = asset
+            else:
+                raise TypeError(f"资产类型不匹配: {asset.symbol}")
+        else:
+            # 添加新资产
+            self.assets[asset.symbol] = asset
+    def remove_asset(self, symbol):
+        """从投资组合中移除资产"""
+        if symbol in self.assets:
+            del self.assets[symbol]
+            return True
+        return False
+    def get_asset(self, symbol):
+        """获取特定资产"""
+        return self.assets.get(symbol)
+    def get_total_value(self):
+        """计算投资组合总价值"""
+        return sum(asset.get_value() for asset in self.assets.values())
+    def get_asset_allocation(self):
+        """计算资产配置比例"""
+        total_value = self.get_total_value()
+        if total_value == 0:
+            return {}
+        allocation = {}
+        for symbol, asset in self.assets.items():
+            allocation[symbol] = asset.get_value() / total_value
+        return allocation
+    def __str__(self):
+        """字符串表示"""
+        return f"{self.name} (总价值: ${self.get_total_value():,.2f})"</pre>
+            </div>
+            <h3>步骤3：实现交易系统</h3>
+            <p>实现交易系统，包括订单类和交易所类。</p>
+            <div class="code-example">
+                <h4>示例：订单和交易所</h4>
+                <pre>class Order:
+    """订单基类"""
+    def __init__(self, symbol, quantity, direction):
+        self.symbol = symbol
+        self.quantity = quantity
+        self.direction = direction  # "buy" 或 "sell"
+        self.status = "pending"
+    def execute(self, exchange):
+        """执行订单"""
+        self.status = "executed"
+        return True
+    def __str__(self):
+        return f"{self.direction.capitalize()} {self.quantity} {self.symbol} ({self.status})"
+class Exchange:
+    """交易所类（单例模式）"""
+    _instance = None
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    def __init__(self):
+        if not hasattr(self, '_initialized') or not self._initialized:
+            self.market_data = {}  # symbol -> price
+            self._initialized = True
+    def get_price(self, symbol):
+        """获取资产价格"""
+        return self.market_data.get(symbol)
+    def set_price(self, symbol, price):
+        """设置资产价格"""
+        self.market_data[symbol] = price
+    def execute_order(self, order, portfolio):
+        """执行订单"""
+        symbol = order.symbol
+        quantity = order.quantity
+        if order.direction == "buy":
+            # 买入资产
+            price = self.get_price(symbol)
+            if price is None:
+                return False, "无法获取价格"
+            # 创建新资产或更新现有资产
+            asset = portfolio.get_asset(symbol)
+            if asset is None:
+                # 假设是股票
+                asset = Stock(symbol, symbol, price, quantity)
+            else:
+                # 更新现有资产
+                asset.shares += quantity
+            portfolio.add_asset(asset)
+            return True, f"买入 {quantity} 股 {symbol} @ ${price:.2f}"
+        elif order.direction == "sell":
+            # 卖出资产
+            asset = portfolio.get_asset(symbol)
+            if asset is None:
+                return False, f"投资组合中不存在资产 {symbol}"
+            if not hasattr(asset, 'shares') or asset.shares < quantity:
+                return False, f"持有数量不足: 需要 {quantity}，实际 {getattr(asset, 'shares', 0)}"
+            # 更新资产
+            asset.shares -= quantity
+            if asset.shares == 0:
+                # 如果数量为0，从投资组合中移除
+                portfolio.remove_asset(symbol)
+            else:
+                portfolio.add_asset(asset)
+            price = self.get_price(symbol)
+            return True, f"卖出 {quantity} 股 {symbol} @ ${price:.2f}"
+        return False, "无效的交易方向"</pre>
+            </div>
+            <h3>步骤4：实现市场数据源</h3>
+            <p>实现市场数据源，用于提供和更新资产价格。</p>
+            <div class="code-example">
+                <h4>示例：市场数据源</h4>
+                <pre>class MarketDataSource:
+    """市场数据源（观察者模式）"""
+    def __init__(self):
+        self._observers = set()
+        self._data = {}  # symbol -> price
+    def attach(self, observer):
+        """添加观察者"""
+        self._observers.add(observer)
+    def detach(self, observer):
+        """移除观察者"""
+        self._observers.discard(observer)
+    def notify(self, symbol, price):
+        """通知所有观察者"""
+        for observer in self._observers:
+            observer.update_price(symbol, price)
+    def set_price(self, symbol, price):
+        """设置价格并通知观察者"""
+        self._data[symbol] = price
+        self.notify(symbol, price)
+    def get_price(self, symbol):
+        """获取价格"""
+        return self._data.get(symbol)
+    def update_prices(self, price_dict):
+        """批量更新价格"""
+        for symbol, price in price_dict.items():
+            self.set_price(symbol, price)
+class PriceObserver:
+    """价格观察者接口"""
+    def update_price(self, symbol, price):
+        """接收价格更新"""
+        pass
+class PortfolioManager(PriceObserver):
+    """投资组合管理器，实现价格观察者接口"""
+    def __init__(self):
+        self.portfolios = {}  # name -> portfolio
+        self.exchange = Exchange()
+    def add_portfolio(self, portfolio):
+        """添加投资组合"""
+        self.portfolios[portfolio.name] = portfolio
+    def remove_portfolio(self, name):
+        """移除投资组合"""
+        if name in self.portfolios:
+            del self.portfolios[name]
+            return True
+        return False
+    def update_price(self, symbol, price):
+        """实现观察者接口，接收价格更新"""
+        # 更新交易所价格
+        self.exchange.set_price(symbol, price)
+        # 打印价格更新信息
+        print(f"价格更新: {symbol} @ ${price:.2f}")
+        # 更新所有投资组合中的资产价格
+        for portfolio in self.portfolios.values():
+            asset = portfolio.get_asset(symbol)
+            if asset and hasattr(asset, 'price'):
+                asset.price = price</pre>
+            </div>
+            <h3>步骤5：实现分析工具</h3>
+            <p>实现分析工具，用于计算投资组合的性能指标。</p>
+            <div class="code-example">
+                <h4>示例：分析工具</h4>
+                <pre>class PortfolioAnalyzer:
+    """投资组合分析工具（策略模式）"""
+    def __init__(self, strategy=None):
+        self.strategy = strategy
+    def analyze(self, portfolio):
+        """分析投资组合"""
+        if self.strategy:
+            return self.strategy.analyze(portfolio)
+        return {}
+class AnalysisStrategy(ABC):
+    """分析策略抽象基类"""
+    @abstractmethod
+    def analyze(self, portfolio):
+        """分析投资组合"""
+        pass
+class RiskReturnAnalysis(AnalysisStrategy):
+    """风险收益分析策略"""
+    def analyze(self, portfolio):
+        """计算风险和收益指标"""
+        # 计算总价值
+        total_value = portfolio.get_total_value()
+        # 计算加权风险
+        weighted_risk = 0
+        for asset in portfolio.assets.values():
+            weight = asset.get_value() / total_value if total_value > 0 else 0
+            weighted_risk += asset.get_risk() * weight
+        # 假设收益率
+        expected_return = 0.08  # 8%的预期收益率
+        # 计算夏普比率（简化版）
+        risk_free_rate = 0.02  # 2%的无风险利率
+        sharpe_ratio = (expected_return - risk_free_rate) / weighted_risk if weighted_risk > 0 else 0
+        return {
+            "total_value": total_value,
+            "weighted_risk": weighted_risk,
+            "expected_return": expected_return,
+            "sharpe_ratio": sharpe_ratio
+        }
+class DiversificationAnalysis(AnalysisStrategy):
+    """多样化分析策略"""
+    def analyze(self, portfolio):
+        """分析投资组合的多样化程度"""
+        # 获取资产配置
+        allocation = portfolio.get_asset_allocation()
+        # 计算集中度（赫芬达尔指数）
+        herfindahl_index = sum(weight**2 for weight in allocation.values())
+        # 资产类型多样性
+        asset_types = set(type(asset).__name__ for asset in portfolio.assets.values())
+        return {
+            "allocation": allocation,
+            "herfindahl_index": herfindahl_index,
+            "asset_types": list(asset_types),
+            "diversity_score": 1 - herfindahl_index  # 多样化得分
+        }</pre>
+            </div>
+            <h3>步骤6：实现用户界面</h3>
+            <p>最后，实现一个简单的命令行界面，允许用户与系统交互。</p>
+            <div class="code-example">
+                <h4>示例：命令行界面</h4>
+                <pre>class PortfolioManagerCLI:
+    """投资组合管理系统的命令行界面"""
+    def __init__(self):
+        self.manager = PortfolioManager()
+        self.market_data = MarketDataSource()
+        self.analyzer = PortfolioAnalyzer()
+        # 将市场数据源与投资组合管理器连接
+        self.market_data.attach(self.manager)
+        # 设置默认分析策略
+        self.analyzer.strategy = RiskReturnAnalysis()
+    def run(self):
+        """运行命令行界面"""
+        print("欢迎使用投资组合管理系统")
+        while True:
+            print("\n可用命令:")
+            print("1. 创建投资组合")
+            print("2. 查看投资组合")
+            print("3. 添加资产")
+            print("4. 执行交易")
+            print("5. 更新价格")
+            print("6. 分析投资组合")
+            print("7. 退出")
+            choice = input("\n请选择操作: ")
+            if choice == "1":
+                self._create_portfolio()
+            elif choice == "2":
+                self._view_portfolios()
+            elif choice == "3":
+                self._add_asset()
+            elif choice == "4":
+                self._execute_trade()
+            elif choice == "5":
+                self._update_prices()
+            elif choice == "6":
+                self._analyze_portfolio()
+            elif choice == "7":
+                print("感谢使用投资组合管理系统")
+                break
+            else:
+                print("无效的选择，请重试")
+    def _create_portfolio(self):
+        """创建新的投资组合"""
+        name = input("请输入投资组合名称: ")
+        if name in self.manager.portfolios:
+            print(f"投资组合 '{name}' 已存在")
+            return
+        portfolio = Portfolio(name)
+        self.manager.add_portfolio(portfolio)
+        print(f"已创建投资组合: {name}")
+    def _view_portfolios(self):
+        """查看投资组合"""
+        if not self.manager.portfolios:
+            print("没有投资组合")
+            return
+        print("\n投资组合列表:")
+        for name, portfolio in self.manager.portfolios.items():
+            print(f"- {portfolio}")
+            if portfolio.assets:
+                print("  资产:")
+                for symbol, asset in portfolio.assets.items():
+                    print(f"  - {symbol}: ${asset.get_value():,.2f}")
+            else:
+                print("  没有资产")
+    # 其他方法的实现省略...</pre>
+            </div>
+        </section>
+        <section class="testing-documentation">
+            <h2>测试和文档</h2>
+            <h3>测试</h3>
+            <p>为你的系统编写测试是确保其正确性的重要步骤。考虑以下测试策略：</p>
+            <ul>
+                <li>为每个主要类编写单元测试</li>
+                <li>测试边界条件和错误处理</li>
+                <li>创建集成测试，验证不同组件之间的交互</li>
+                <li>使用模拟数据进行系统测试</li>
+            </ul>
+            <h3>文档</h3>
+            <p>良好的文档对于项目的可维护性至关重要。你的文档应包括：</p>
+            <ul>
+                <li>README文件，描述项目的目的、功能和使用方法</li>
+                <li>类和方法的文档字符串，说明其功能、参数和返回值</li>
+                <li>系统架构图，展示组件之间的关系</li>
+                <li>用户手册，说明如何使用系统</li>
+            </ul>
+        </section>
+        <section class="submission-guidelines">
+            <h2>提交指南</h2>
+            <p>完成项目后，请提交以下内容：</p>
+            <ol>
+                <li>完整的源代码，按照建议的项目结构组织</li>
+                <li>README文件，包含项目说明和使用指南</li>
+                <li>简短的演示视频，展示系统的主要功能</li>
+                <li>项目报告，描述你的设计决策、实现挑战和解决方案</li>
+            </ol>
+            <p>评分标准：</p>
+            <ul>
+                <li>代码质量和组织（30%）</li>
+                <li>面向对象设计原则的应用（25%）</li>
+                <li>功能完整性和正确性（25%）</li>
+                <li>文档和测试（15%）</li>
+                <li>创新性和扩展功能（5%）</li>
+            </ul>
+        </section>
+        <div class="project-navigation">
+            <div>
+                <a href="exercises.html" class="btn">« 返回练习</a>
+            </div>
+            <div>
+                <a href="../../index.html" class="btn">进入数据分析部分 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

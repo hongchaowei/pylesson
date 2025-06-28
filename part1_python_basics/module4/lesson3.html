@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程3: 特殊方法和属性 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>特殊方法（魔术方法）</h2>
+            <p>Python中的特殊方法（也称为魔术方法）是以双下划线开头和结尾的方法，如<code>__init__</code>、<code>__str__</code>等。这些方法允许我们自定义类的行为，使其能够响应Python的内置操作。</p>
+            <h3>字符串表示</h3>
+            <p>两个常用的特殊方法是<code>__str__</code>和<code>__repr__</code>，它们用于定义对象的字符串表示：</p>
+            <ul>
+                <li><code>__str__</code>：定义对象的"非正式"字符串表示，用于<code>str()</code>和<code>print()</code></li>
+                <li><code>__repr__</code>：定义对象的"正式"字符串表示，用于<code>repr()</code>和交互式解释器</li>
+            </ul>
+            <div class="code-example">
+                <h4>示例：股票类的字符串表示</h4>
+                <pre>class Stock:
+    """表示股票的类"""
+    def __init__(self, name, symbol, price, shares=0):
+        self.name = name
+        self.symbol = symbol
+        self.price = price
+        self.shares = shares
+    def __str__(self):
+        """返回对象的字符串表示，用于print()"""
+        return f"{self.name} ({self.symbol}): ${self.price:.2f}"
+    def __repr__(self):
+        """返回对象的"官方"字符串表示，用于调试"""
+        return f"Stock('{self.name}', '{self.symbol}', {self.price}, {self.shares})"
+# 使用字符串表示
+apple = Stock("苹果公司", "AAPL", 150.25, 100)
+print(apple)  # 调用__str__
+print(repr(apple))  # 调用__repr__
+# 在列表中
+stocks = [
+    Stock("苹果公司", "AAPL", 150.25, 100),
+    Stock("微软公司", "MSFT", 320.50, 50)
+]
+print(stocks)  # 列表中的对象使用__repr__</pre>
+            </div>
+            <h3>运算符重载</h3>
+            <p>Python允许我们通过定义特殊方法来重载运算符，使我们的类能够响应各种运算符操作。</p>
+            <div class="code-example">
+                <h4>示例：货币类的运算符重载</h4>
+                <pre>class Money:
+    """表示货币的类"""
+    def __init__(self, amount, currency="USD"):
+        self.amount = amount
+        self.currency = currency
+    def __str__(self):
+        """字符串表示"""
+        if self.currency == "USD":
+            return f"${self.amount:,.2f}"
+        elif self.currency == "EUR":
+            return f"€{self.amount:,.2f}"
+        elif self.currency == "CNY":
+            return f"¥{self.amount:,.2f}"
+        else:
+            return f"{self.amount:,.2f} {self.currency}"
+    def __add__(self, other):
+        """加法运算符 +"""
+        if isinstance(other, Money):
+            if self.currency != other.currency:
+                raise ValueError(f"不能直接相加不同货币: {self.currency} 和 {other.currency}")
+            return Money(self.amount + other.amount, self.currency)
+        elif isinstance(other, (int, float)):
+            return Money(self.amount + other, self.currency)
+        else:
+            raise TypeError(f"不支持的操作数类型: {type(other)}")
+    def __sub__(self, other):
+        """减法运算符 -"""
+        if isinstance(other, Money):
+            if self.currency != other.currency:
+                raise ValueError(f"不能直接相减不同货币: {self.currency} 和 {other.currency}")
+            return Money(self.amount - other.amount, self.currency)
+        elif isinstance(other, (int, float)):
+            return Money(self.amount - other, self.currency)
+        else:
+            raise TypeError(f"不支持的操作数类型: {type(other)}")
+    def __mul__(self, other):
+        """乘法运算符 *"""
+        if isinstance(other, (int, float)):
+            return Money(self.amount * other, self.currency)
+        else:
+            raise TypeError(f"不支持的操作数类型: {type(other)}")
+    def __truediv__(self, other):
+        """除法运算符 /"""
+        if isinstance(other, (int, float)):
+            return Money(self.amount / other, self.currency)
+        else:
+            raise TypeError(f"不支持的操作数类型: {type(other)}")
+    def __eq__(self, other):
+        """相等运算符 =="""
+        if isinstance(other, Money):
+            return self.currency == other.currency and self.amount == other.amount
+        return False
+    def __lt__(self, other):
+        """小于运算符 <"""
+        if isinstance(other, Money):
+            if self.currency != other.currency:
+                raise ValueError(f"不能直接比较不同货币: {self.currency} 和 {other.currency}")
+            return self.amount < other.amount
+        raise TypeError(f"不支持的操作数类型: {type(other)}")
+# 使用运算符重载
+usd100 = Money(100, "USD")
+usd50 = Money(50, "USD")
+eur100 = Money(100, "EUR")
+print(f"usd100 = {usd100}")
+print(f"usd50 = {usd50}")
+print(f"eur100 = {eur100}")
+# 加法
+print(f"usd100 + usd50 = {usd100 + usd50}")
+print(f"usd100 + 25 = {usd100 + 25}")
+# 减法
+print(f"usd100 - usd50 = {usd100 - usd50}")
+# 乘法
+print(f"usd50 * 2 = {usd50 * 2}")
+# 除法
+print(f"usd100 / 2 = {usd100 / 2}")
+# 比较
+print(f"usd100 == usd100: {usd100 == usd100}")
+print(f"usd100 > usd50: {usd100 > usd50}")
+# 不同货币
+try:
+    result = usd100 + eur100
+except ValueError as e:
+    print(f"错误: {e}")</pre>
+            </div>
+            <div class="feature">
+                <h4>金融应用示例：投资组合比较</h4>
+                <pre>class Portfolio:
+    """表示投资组合的类"""
+    def __init__(self, name):
+        self.name = name
+        self.holdings = {}  # 股票代码 -> 持有数量
+        self.prices = {}    # 股票代码 -> 当前价格
+    def add_stock(self, symbol, shares, price):
+        """添加股票到投资组合"""
+        if symbol in self.holdings:
+            self.holdings[symbol] += shares
+        else:
+            self.holdings[symbol] = shares
+        self.prices[symbol] = price
+    def get_value(self):
+        """计算投资组合的总价值"""
+        return sum(self.holdings[symbol] * self.prices[symbol]
+                  for symbol in self.holdings)
+    def __str__(self):
+        """字符串表示"""
+        return f"{self.name} (价值: ${self.get_value():,.2f})"
+    def __eq__(self, other):
+        """相等运算符 =="""
+        if isinstance(other, Portfolio):
+            return self.get_value() == other.get_value()
+        return False
+    def __lt__(self, other):
+        """小于运算符 <"""
+        if isinstance(other, Portfolio):
+            return self.get_value() < other.get_value()
+        raise TypeError(f"不支持的操作数类型: {type(other)}")
+    def __add__(self, other):
+        """加法运算符 +，合并两个投资组合"""
+        if isinstance(other, Portfolio):
+            result = Portfolio(f"{self.name} + {other.name}")
+            # 复制第一个投资组合的持有
+            for symbol, shares in self.holdings.items():
+                result.add_stock(symbol, shares, self.prices[symbol])
+            # 添加第二个投资组合的持有
+            for symbol, shares in other.holdings.items():
+                if symbol in result.holdings:
+                    result.holdings[symbol] += shares
+                else:
+                    result.add_stock(symbol, shares, other.prices[symbol])
+            return result
+        raise TypeError(f"不支持的操作数类型: {type(other)}")
+# 使用Portfolio类
+tech_portfolio = Portfolio("科技股")
+tech_portfolio.add_stock("AAPL", 100, 150.25)
+tech_portfolio.add_stock("MSFT", 50, 320.50)
+finance_portfolio = Portfolio("金融股")
+finance_portfolio.add_stock("JPM", 75, 160.10)
+finance_portfolio.add_stock("BAC", 200, 40.50)
+print(f"科技股投资组合: {tech_portfolio}")
+print(f"金融股投资组合: {finance_portfolio}")
+# 比较投资组合
+if tech_portfolio > finance_portfolio:
+    print("科技股投资组合价值更高")
+else:
+    print("金融股投资组合价值更高")
+# 合并投资组合
+combined = tech_portfolio + finance_portfolio
+print(f"合并后的投资组合: {combined}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>属性装饰器</h2>
+            <p>Python提供了<code>@property</code>装饰器，它允许我们将方法转换为属性，从而实现更优雅的属性访问和控制。</p>
+            <div class="code-example">
+                <h4>示例：使用属性装饰器</h4>
+                <pre>class Stock:
+    """表示股票的类，使用属性装饰器"""
+    def __init__(self, name, symbol, price, shares=0):
+        self.name = name
+        self.symbol = symbol
+        self._price = price  # 使用下划线表示"私有"属性
+        self.shares = shares
+    @property
+    def price(self):
+        """获取股票价格"""
+        return self._price
+    @price.setter
+    def price(self, value):
+        """设置股票价格，并验证"""
+        if value < 0:
+            raise ValueError("价格不能为负数")
+        self._price = value
+    @property
+    def value(self):
+        """计算股票总价值"""
+        return self.shares * self._price
+# 使用属性装饰器
+apple = Stock("苹果公司", "AAPL", 150.25, 100)
+# 访问属性
+print(f"股票价格: ${apple.price:.2f}")
+</body>
+</html>

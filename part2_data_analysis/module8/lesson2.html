@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2课: 概率分布基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>常见概率分布</h2>
+            <p>金融数据分析中常用的概率分布及其特性。</p>
+            <h3>1. 正态分布</h3>
+            <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+# 生成正态分布数据
+mu, sigma = 0.001, 0.02  # 均值和标准差
+data = np.random.normal(mu, sigma, 1000)
+# 绘制概率密度函数(PDF)
+x = np.linspace(mu - 3*sigma, mu + 3*sigma, 100)
+plt.plot(x, norm.pdf(x, mu, sigma), 'r-', lw=2, label='正态分布PDF')
+plt.hist(data, bins=30, density=True, alpha=0.6, color='g', label='模拟数据')
+plt.title('正态分布(μ=0.001, σ=0.02)')
+plt.legend()
+plt.show()</code></pre>
+            <h3>2. t分布</h3>
+            <pre><code class="language-python">from scipy.stats import t
+# 生成t分布数据(自由度df=5)
+df = 5
+t_data = np.random.standard_t(df, 1000)
+# 绘制PDF
+x = np.linspace(-4, 4, 100)
+plt.plot(x, t.pdf(x, df), 'r-', lw=2, label=f't分布(df={df})')
+plt.hist(t_data, bins=30, density=True, alpha=0.6, color='b', label='模拟数据')
+plt.title('t分布与正态分布比较')
+plt.plot(x, norm.pdf(x), 'g--', lw=2, label='标准正态分布')
+plt.legend()
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>分布参数估计</h2>
+            <h3>1. 最大似然估计(MLE)</h3>
+            <pre><code class="language-python">from scipy.stats import norm, t
+from scipy.optimize import minimize
+# 使用MLE估计正态分布参数
+def neg_log_likelihood(params, data):
+    mu, sigma = params
+    return -np.sum(norm.logpdf(data, loc=mu, scale=sigma))
+# 初始猜测
+initial_guess = [np.mean(data), np.std(data)]
+result = minimize(neg_log_likelihood, initial_guess, args=(data,))
+mu_mle, sigma_mle = result.x
+print(f"真实参数: μ={mu}, σ={sigma}")
+print(f"MLE估计: μ={mu_mle:.6f}, σ={sigma_mle:.6f}")</code></pre>
+            <h3>2. 矩估计</h3>
+            <pre><code class="language-python"># 使用矩估计t分布参数
+sample_mean = np.mean(t_data)
+sample_var = np.var(t_data, ddof=1)
+# t分布方差 = df/(df-2)
+df_moment = 2*sample_var/(sample_var - 1) if sample_var > 1 else np.inf
+print(f"真实自由度: {df}")
+print(f"矩估计自由度: {df_moment:.2f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>分布拟合检验</h2>
+            <h3>1. Kolmogorov-Smirnov检验</h3>
+            <pre><code class="language-python">from scipy.stats import kstest
+# 检验数据是否来自正态分布
+ks_stat, p_value = kstest(data, 'norm', args=(mu, sigma))
+print(f"KS统计量: {ks_stat:.4f}, p值: {p_value:.4f}")
+alpha = 0.05
+if p_value > alpha:
+    print("不能拒绝正态分布假设")
+else:
+    print("拒绝正态分布假设")</code></pre>
+            <h3>2. QQ图检验</h3>
+            <pre><code class="language-python">import statsmodels.api as sm
+# 正态QQ图
+sm.qqplot(data, line='45', fit=True)
+plt.title('正态QQ图')
+plt.show()
+# t分布QQ图
+sm.qqplot(t_data, dist=t, distargs=(df,), line='45')
+plt.title('t分布QQ图')
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融中的分布应用</h2>
+            <h3>1. 收益率分布分析</h3>
+            <pre><code class="language-python">import yfinance as yf
+# 获取股票数据
+stock = yf.download('AAPL', start='2020-01-01', end='2023-01-01')
+returns = stock['Close'].pct_change().dropna()
+# 拟合正态分布
+mu, sigma = norm.fit(returns)
+# 绘制拟合结果
+plt.hist(returns, bins=50, density=True, alpha=0.6, color='g')
+x = np.linspace(returns.min(), returns.max(), 100)
+plt.plot(x, norm.pdf(x, mu, sigma), 'r-', lw=2)
+plt.title('AAPL收益率分布与正态拟合')
+plt.show()</code></pre>
+            <h3>2. 风险价值(VaR)计算</h3>
+            <pre><code class="language-python"># 正态分布VaR
+var_normal = norm.ppf(0.05, mu, sigma)
+# 历史VaR
+var_historical = np.percentile(returns, 5)
+# t分布VaR
+df, loc, scale = t.fit(returns)
+var_t = t.ppf(0.05, df, loc, scale)
+print(f"正态VaR(95%): {var_normal:.4f}")
+print(f"历史VaR(95%): {var_historical:.4f}")
+print(f"t分布VaR(95%): {var_t:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>蒙特卡洛模拟基础</h2>
+            <h3>1. 股票价格模拟</h3>
+            <pre><code class="language-python"># 几何布朗运动模拟
+def gbm_simulation(S0, mu, sigma, T, N, n_simulations):
+    dt = T/N
+    paths = np.zeros((N+1, n_simulations))
+    paths[0] = S0
+    for t in range(1, N+1):
+        z = np.random.standard_normal(n_simulations)
+        paths[t] = paths[t-1] * np.exp((mu - 0.5*sigma**2)*dt + sigma*np.sqrt(dt)*z)
+    return paths
+# 参数设置
+S0 = 100      # 初始价格
+mu = 0.1      # 年化收益率
+sigma = 0.2   # 年化波动率
+T = 1         # 1年
+N = 252       # 交易日
+n_simulations = 5  # 模拟路径数
+# 运行模拟
+paths = gbm_simulation(S0, mu, sigma, T, N, n_simulations)
+# 可视化
+plt.plot(paths)
+plt.title('股票价格蒙特卡洛模拟')
+plt.xlabel('交易日')
+plt.ylabel('价格')
+plt.show()</code></pre>
+            <h3>2. 期权定价模拟</h3>
+            <pre><code class="language-python"># 欧式看涨期权定价
+def monte_carlo_option(S0, K, T, r, sigma, n_simulations, n_steps):
+    dt = T/n_steps
+    discount = np.exp(-r*T)
+    # 模拟股票路径
+    z = np.random.standard_normal((n_steps, n_simulations))
+    stock_path = S0 * np.exp(np.cumsum((r - 0.5*sigma**2)*dt + sigma*np.sqrt(dt)*z, axis=0))
+    stock_path = np.vstack([np.ones(n_simulations)*S0, stock_path])
+    # 计算期权收益
+    payoff = np.maximum(stock_path[-1] - K, 0)
+    option_price = discount * np.mean(payoff)
+    return option_price, stock_path
+# 参数设置
+K = 105       # 行权价
+r = 0.05      # 无风险利率
+n_simulations = 10000  # 模拟次数
+n_steps = 252  # 时间步数
+# 计算期权价格
+price, _ = monte_carlo_option(S0, K, T, r, sigma, n_simulations, n_steps)
+print(f"蒙特卡洛估计的期权价格: {price:.2f}")</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson1.html" class="btn">« 上一课: 描述性统计分析</a>
+            <a href="lesson3.html" class="btn">下一课: 假设检验 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

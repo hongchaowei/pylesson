@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程2: 继承与多态 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>继承基础</h2>
+            <p><strong>继承</strong>是面向对象编程的一个核心概念，它允许我们基于现有的类创建新的类，从而实现代码的重用和层次结构。</p>
+            <h3>基类与派生类</h3>
+            <p>在继承关系中，被继承的类称为<strong>基类</strong>（或父类、超类），而继承基类的类称为<strong>派生类</strong>（或子类）。派生类自动获得基类的所有属性和方法，同时可以添加新的属性和方法，或者重写基类的方法。</p>
+            <div class="code-example">
+                <h4>示例：金融资产类层次结构</h4>
+                <pre>class Asset:
+    """表示金融资产的基类"""
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+    def get_value(self):
+        """获取资产价值"""
+        return self.value
+    def display_info(self):
+        """显示资产信息"""
+        print(f"资产名称: {self.name}")
+        print(f"资产价值: ${self.value:,.2f}")
+# 派生类：股票
+class Stock(Asset):
+    """表示股票的类，继承自Asset"""
+    def __init__(self, name, symbol, price, shares):
+        # 调用基类的__init__方法
+        super().__init__(name, price * shares)
+        self.symbol = symbol
+        self.price = price
+        self.shares = shares
+    def display_info(self):
+        """重写基类的display_info方法"""
+        print(f"股票名称: {self.name} ({self.symbol})")
+        print(f"股票价格: ${self.price:.2f}")
+        print(f"持有数量: {self.shares}股")
+        print(f"总价值: ${self.value:,.2f}")
+# 派生类：债券
+class Bond(Asset):
+    """表示债券的类，继承自Asset"""
+    def __init__(self, name, face_value, coupon_rate, maturity):
+        super().__init__(name, face_value)
+        self.face_value = face_value
+        self.coupon_rate = coupon_rate
+        self.maturity = maturity
+        self.annual_interest = face_value * coupon_rate
+    def display_info(self):
+        """重写基类的display_info方法"""
+        print(f"债券名称: {self.name}")
+        print(f"面值: ${self.face_value:,.2f}")
+        print(f"票面利率: {self.coupon_rate:.2%}")
+        print(f"到期日: {self.maturity}")
+        print(f"年利息: ${self.annual_interest:,.2f}")
+# 使用基类和派生类
+apple_stock = Stock("苹果公司", "AAPL", 150.25, 100)
+govt_bond = Bond("美国国债", 10000, 0.035, "2030-12-31")
+print("股票信息:")
+apple_stock.display_info()
+print("\n债券信息:")
+govt_bond.display_info()</pre>
+            </div>
+            <h3>方法重写</h3>
+            <p>派生类可以<strong>重写</strong>（覆盖）基类的方法，以提供特定于派生类的实现。在重写方法时，我们可以使用<code>super()</code>函数调用基类的方法。</p>
+            <div class="code-example">
+                <h4>示例：现金类</h4>
+                <pre>class Cash(Asset):
+    """表示现金的类，继承自Asset"""
+    def __init__(self, name, amount, currency="USD"):
+        super().__init__(name, amount)
+        self.currency = currency
+    def display_info(self):
+        """重写基类的display_info方法"""
+        # 先调用基类的display_info方法
+        super().display_info()
+        # 再添加特定于Cash的信息
+        print(f"货币: {self.currency}")
+# 使用Cash类
+savings = Cash("储蓄", 5000, "USD")
+print("\n现金信息:")
+savings.display_info()</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>多态性</h2>
+            <p><strong>多态性</strong>是面向对象编程的另一个核心概念，它允许我们以统一的方式处理不同类型的对象。在Python中，多态性主要通过"鸭子类型"（duck typing）实现。</p>
+            <div class="code-example">
+                <h4>示例：资产价值计算</h4>
+                <pre>def print_asset_value(asset):
+    """打印资产价值，无论资产类型如何"""
+    print(f"{asset.name}的价值为${asset.get_value():,.2f}")
+# 对不同类型的资产使用相同的函数
+apple_stock = Stock("苹果公司", "AAPL", 150.25, 100)
+govt_bond = Bond("美国国债", 10000, 0.035, "2030-12-31")
+savings = Cash("储蓄", 5000, "USD")
+print_asset_value(apple_stock)  # 股票
+print_asset_value(govt_bond)    # 债券
+print_asset_value(savings)      # 现金</pre>
+            </div>
+            <h3>多重继承</h3>
+            <p>Python支持<strong>多重继承</strong>，即一个类可以继承多个基类。这使得我们可以组合多个类的功能。</p>
+            <div class="code-example">
+                <h4>示例：可交易和可分红的资产</h4>
+                <pre>class Tradable:
+    """表示可交易资产的类"""
+    def __init__(self, symbol, exchange):
+        self.symbol = symbol
+        self.exchange = exchange
+    def place_order(self, order_type, quantity):
+        """下单交易"""
+        print(f"在{self.exchange}交易所{order_type}{quantity}单位的{self.symbol}")
+class Dividend:
+    """表示可分红资产的类"""
+    def __init__(self, dividend_yield):
+        self.dividend_yield = dividend_yield
+    def calculate_annual_dividend(self, value):
+        """计算年度分红"""
+        return value * self.dividend_yield
+# 多重继承
+class DividendStock(Stock, Dividend):
+    """表示可分红的股票，继承自Stock和Dividend"""
+    def __init__(self, name, symbol, price, shares, dividend_yield, exchange="NYSE"):
+        Stock.__init__(self, name, symbol, price, shares)
+        Dividend.__init__(self, dividend_yield)
+        self.exchange = exchange
+    def display_info(self):
+        """显示股票信息，包括分红"""
+        super().display_info()  # 调用Stock的display_info
+        annual_dividend = self.calculate_annual_dividend(self.value)
+        print(f"股息率: {self.dividend_yield:.2%}")
+        print(f"年度分红: ${annual_dividend:.2f}")
+# 使用多重继承
+apple_stock = DividendStock("苹果公司", "AAPL", 150.25, 100, 0.0065)
+print("分红股票信息:")
+apple_stock.display_info()
+# 使用来自不同基类的方法
+apple_stock.place_order("买入", 50)</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>抽象类与接口</h2>
+            <p>在面向对象编程中，<strong>抽象类</strong>是不能被实例化的类，它们通常包含一个或多个抽象方法（没有实现的方法）。抽象类的目的是为子类提供一个通用的接口。</p>
+            <div class="code-example">
+                <h4>示例：金融工具抽象类</h4>
+                <pre>from abc import ABC, abstractmethod
+class FinancialInstrument(ABC):
+    """金融工具抽象基类"""
+    def __init__(self, name):
+        self.name = name
+    @abstractmethod
+    def get_value(self):
+        """获取金融工具的价值（抽象方法）"""
+        pass
+    @abstractmethod
+    def calculate_return(self, period):
+        """计算金融工具的回报（抽象方法）"""
+        pass
+    def display_name(self):
+        """显示金融工具名称（具体方法）"""
+        print(f"金融工具: {self.name}")
+# 实现抽象类
+class FixedIncome(FinancialInstrument):
+    """固定收益类金融工具"""
+    def __init__(self, name, principal, interest_rate):
+        super().__init__(name)
+        self.principal = principal
+        self.interest_rate = interest_rate
+    def get_value(self):
+        """实现抽象方法"""
+        return self.principal
+    def calculate_return(self, period):
+        """实现抽象方法"""
+        return self.principal * self.interest_rate * period
+# 使用实现的类
+bond = FixedIncome("公司债券", 10000, 0.05)
+bond.display_name()
+print(f"债券价值: ${bond.get_value():,.2f}")
+print(f"一年回报: ${bond.calculate_return(1):,.2f}")</pre>
+            </div>
+            <div class="feature">
+                <h4>金融应用示例：投资策略框架</h4>
+                <pre>from abc import ABC, abstractmethod
+import random
+class InvestmentStrategy(ABC):
+    """投资策略抽象基类"""
+    @abstractmethod
+    def select_assets(self, available_assets):
+        """选择资产"""
+        pass
+    @abstractmethod
+    def allocate_weights(self, selected_assets):
+        """平均分配权重"""
+        count = len(selected_assets)
+        return [1/count] * count
+class ValueInvestingStrategy(InvestmentStrategy):
+    """价值投资策略"""
+    def select_assets(self, available_assets):
+        """选择价值被低估的资产（示例中简化为随机选择）"""
+        # 在实际应用中，应该基于估值指标选择
+        return random.sample(available_assets, min(3, len(available_assets)))
+    def allocate_weights(self, selected_assets):
+        """根据价值分配权重（示例中简化）"""
+        # 在实际应用中，应该基于估值指标分配
+        weights = [random.uniform(0.1, 0.6) for _ in selected_assets]
+        total = sum(weights)
+        return [w/total for w in weights]
+# 使用投资策略
+assets = [
+    Stock("苹果公司", "AAPL", 150.25, 0),
+    Stock("微软公司", "MSFT", 320.50, 0),
+    Stock("谷歌公司", "GOOG", 2500.75, 0),
+    Bond("美国国债", 10000, 0.035, "2030-12-31"),
+    Bond("公司债券", 5000, 0.045, "2025-06-30")
+]
+diversification = DiversificationStrategy()
+value_investing = ValueInvestingStrategy()
+diversification.execute_strategy(assets)
+value_investing.execute_strategy(assets)</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们学习了：</p>
+            <ul>
+                <li>继承的基本概念和使用方法</li>
+                <li>方法重写和<code>super()</code>函数的使用</li>
+                <li>多态性及其在Python中的实现</li>
+                <li>多重继承及其应用</li>
+                <li>抽象类和接口的概念及实现</li>
+                <li>如何在金融应用中应用这些概念</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一课中，我们将学习Python的特殊方法和属性，这些方法和属性可以让我们的类更加强大和灵活。</p>
+                <a href="lesson3.html" class="btn btn-large">下一课：特殊方法和属性 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson1.html" class="btn">« 上一课：类与对象</a>
+            </div>
+            <div>
+                <a href="lesson3.html" class="btn">下一课：特殊方法和属性 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+分配权重"""
+        pass
+    def execute_strategy(self, available_assets):
+        """执行策略（模板方法）"""
+        selected_assets = self.select_assets(available_assets)
+        weights = self.allocate_weights(selected_assets)
+        print(f"\n执行{self.__class__.__name__}策略:")
+        print(f"选择了{len(selected_assets)}个资产:")
+        total_investment = 0
+        for asset, weight in zip(selected_assets, weights):
+            investment = 10000 * weight  # 假设总投资10000
+            total_investment += investment
+            print(f"  {asset.name}: ${investment:,.2f} ({weight:.1%})")
+        print(f"总投资: ${total_investment:,.2f}")
+        return selected_assets, weights
+class DiversificationStrategy(InvestmentStrategy):
+    """多元化投资策略"""
+    def select_assets(self, available_assets):
+        """选择所有可用资产"""
+        return available_assets
+    def allocate_weights(self, selected_assets):
+        """
+</body>
+</html>

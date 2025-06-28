@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块3: 函数与模块 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .module-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            font-weight: 700;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .section-header h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .feature-item {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+        .feature-item i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .feature-item h4 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .course-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .course-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        .course-card h3 i {
+            color: #667eea;
+            margin-right: 0.5rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .btn i {
+            margin-right: 0.5rem;
+        }
+        .project-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+        .project-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .project-card h3 i {
+            color: #28a745;
+            margin-right: 0.5rem;
+        }
+        .btn-secondary {
+            background: #28a745;
+        }
+        .btn-secondary:hover {
+            background: #218838;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .resource-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .module-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .nav-link {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+        .nav-link:hover {
+            background: #5a6fd8;
+        }
+        .nav-link i {
+            margin: 0 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+            .module-nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<div class="hero-section">
+    <div class="container">
+        <div class="module-badge">第一部分 - Python基础</div>
+        <h1><i class="fas fa-cube"></i> 模块3: 函数与模块</h1>
+        <p class="subtitle">学会组织和重用代码，构建模块化的金融应用</p>
+    </div>
+</div>
+
+<main class="container">
+        <section class="module-intro">
+            <div class="section-header">
+                <h2>模块概述</h2>
+            </div>
+            <p>在本模块中，您将学习如何使用函数和模块来组织和重用代码。函数是Python编程的基础构建块，而模块则允许您将相关功能组织在一起，便于管理和重用。</p>
+            <p>通过掌握这些概念，您将能够编写更加模块化、可维护和可扩展的金融应用程序。</p>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <h4>代码重用</h4>
+                    <p>通过函数和模块实现代码的重复利用，提高开发效率</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-layer-group"></i>
+                    <h4>模块化设计</h4>
+                    <p>将复杂的金融应用分解为独立的功能模块</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-tools"></i>
+                    <h4>代码维护</h4>
+                    <p>良好的函数和模块设计让代码更易于维护和扩展</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-share-alt"></i>
+                    <h4>团队协作</h4>
+                    <p>模块化的代码结构便于团队成员之间的协作开发</p>
+                </div>
+            </div>
+        </section>
+        <section class="module-courses">
+            <div class="section-header">
+                <h2><i class="fas fa-book"></i> 课程内容</h2>
+            </div>
+            <div class="course-grid">
+                <div class="course-card">
+                    <h3><i class="fas fa-code"></i> 课程1: 函数基础</h3>
+                    <p>学习如何定义和调用函数，掌握参数传递和返回值的基本概念。</p>
+                    <ul>
+                        <li>函数的定义与调用</li>
+                        <li>参数与参数传递</li>
+                        <li>返回值</li>
+                        <li>函数文档</li>
+                    </ul>
+                    <a href="lesson1.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-cogs"></i> 课程2: 函数进阶</h3>
+                    <p>深入学习函数的高级特性，包括作用域、闭包和装饰器。</p>
+                    <ul>
+                        <li>变量作用域与命名空间</li>
+                        <li>闭包与函数工厂</li>
+                        <li>装饰器</li>
+                        <li>递归函数</li>
+                    </ul>
+                    <a href="lesson2.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-cube"></i> 课程3: 模块与包</h3>
+                    <p>学习如何使用模块和包组织代码，提高代码的可维护性和可重用性。</p>
+                    <ul>
+                        <li>模块的导入与使用</li>
+                        <li>创建自定义模块</li>
+                        <li>包的结构与组织</li>
+                        <li>模块搜索路径</li>
+                    </ul>
+                    <a href="lesson3.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-book-open"></i> 课程4: 标准库概览</h3>
+                    <p>探索Python标准库中对金融编程有用的模块，学习如何利用它们解决实际问题。</p>
+                    <ul>
+                        <li>datetime与time模块</li>
+                        <li>math与statistics模块</li>
+                        <li>csv与json模块</li>
+                        <li>os与sys模块</li>
+                    </ul>
+                    <a href="lesson4.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+            </div>
+        </section>
+        <section class="module-resources">
+            <div class="section-header">
+                <h2><i class="fas fa-book-open"></i> 学习资源</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3><i class="fas fa-bookmark"></i> 推荐阅读</h3>
+                    <ul>
+                        <li>《Python Cookbook》第7章：函数</li>
+                        <li>《Fluent Python》第5-7章：函数与模块</li>
+                        <li>Python官方文档：<a href="https://docs.python.org/zh-cn/3/tutorial/modules.html" target="_blank">模块</a></li>
+                    </ul>
+                </div>
+                <div class="resource-card">
+                    <h3><i class="fas fa-project-diagram"></i> 练习项目</h3>
+                    <ul>
+                        <li>创建一个金融计算工具包</li>
+                        <li>实现一个模块化的投资组合分析系统</li>
+                        <li>开发一个可重用的技术指标库</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <nav class="module-nav">
+            <a href="../module2/index.html" class="nav-link prev"><i class="fas fa-arrow-left"></i> 上一模块：数据结构与控制流</a>
+            <a href="../module4/index.html" class="nav-link next">下一模块：面向对象编程 <i class="fas fa-arrow-right"></i></a>
+        </nav>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

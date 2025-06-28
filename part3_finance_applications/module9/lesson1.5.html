@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第1.5课: 使用akshare获取金融数据 - 模块9: 金融API与数据获取</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>akshare简介</h2>
+            <p>akshare是一个基于Python的开源金融数据接口库，提供了丰富的金融数据获取功能，包括但不限于：</p>
+            <ul>
+                <li>股票市场数据（A股、港股、美股）</li>
+                <li>宏观经济数据</li>
+                <li>基金数据</li>
+                <li>期货数据</li>
+                <li>外汇数据</li>
+                <li>债券数据</li>
+            </ul>
+            <h2>安装方法</h2>
+            <pre><code class="language-bash"># 使用pip安装
+pip install akshare --upgrade
+# 或者使用conda安装
+conda install -c conda-forge akshare</code></pre>
+            <h2>基本使用方法</h2>
+            <h3>1. 获取A股实时行情数据</h3>
+            <pre><code class="language-python">import akshare as ak
+# 获取A股实时行情数据
+stock_zh_a_spot = ak.stock_zh_a_spot()
+print(stock_zh_a_spot.head())</code></pre>
+            <h3>2. 获取股票历史数据</h3>
+            <pre><code class="language-python"># 获取贵州茅台(600519)的历史行情数据
+stock_zh_a_daily = ak.stock_zh_a_daily(symbol="sh600519", adjust="hfq")
+print(stock_zh_a_daily.tail())</code></pre>
+            <h3>3. 获取宏观经济数据</h3>
+            <pre><code class="language-python"># 获取中国CPI数据
+macro_china_cpi = ak.macro_china_cpi()
+print(macro_china_cpi.tail())</code></pre>
+            <h2>实际应用案例</h2>
+            <h3>案例1: 获取行业板块数据并分析</h3>
+            <pre><code class="language-python"># 获取行业板块数据
+stock_board_industry_cons_em = ak.stock_board_industry_cons_em(symbol="汽车整车")
+print(stock_board_industry_cons_em)
+# 可以进一步使用Pandas进行数据分析
+import pandas as pd
+df = pd.DataFrame(stock_board_industry_cons_em)
+print(df.describe())</code></pre>
+            <h3>案例2: 获取基金数据并可视化</h3>
+            <pre><code class="language-python"># 获取基金数据
+fund_em_open_fund_info = ak.fund_em_open_fund_info(fund="000001", indicator="单位净值走势")
+print(fund_em_open_fund_info.head())
+# 使用Matplotlib可视化
+import matplotlib.pyplot as plt
+fund_em_open_fund_info.plot(x='净值日期', y='单位净值')
+plt.title('基金净值走势')
+plt.show()</code></pre>
+            <h2>注意事项</h2>
+            <ul>
+                <li>akshare的数据来源于网络公开接口，使用时请遵守相关网站的使用条款</li>
+                <li>部分接口可能需要设置请求头(headers)来模拟浏览器访问</li>
+                <li>数据获取频率不宜过高，避免对数据源服务器造成压力</li>
+                <li>建议将获取的数据缓存到本地数据库或文件中，减少重复请求</li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

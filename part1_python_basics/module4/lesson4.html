@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程4: 设计模式 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>单例模式</h2>
+            <p><strong>单例模式</strong>确保一个类只有一个实例，并提供一个全局访问点。这在需要控制资源访问或共享状态的场景中非常有用。</p>
+            <div class="code-example">
+                <h4>示例：交易所连接管理器</h4>
+                <pre>class ExchangeConnection:
+    """交易所连接的单例实现"""
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        """控制实例创建"""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    def __init__(self, api_key=None):
+        """初始化连接"""
+        if not self._initialized:
+            self.api_key = api_key
+            self._connection = None
+            self._initialized = True
+    def connect(self):
+        """建立连接"""
+        if self._connection is None:
+            print(f"使用API密钥 {self.api_key} 建立交易所连接")
+            # 模拟连接建立
+            self._connection = {"status": "connected"}
+        return self._connection
+    def disconnect(self):
+        """断开连接"""
+        if self._connection is not None:
+            print("断开交易所连接")
+            self._connection = None
+    def execute_order(self, symbol, quantity, order_type):
+        """执行订单"""
+        if self._connection is None:
+            raise RuntimeError("未建立交易所连接")
+        print(f"执行订单: {order_type} {quantity}股 {symbol}")
+        return {"symbol": symbol, "quantity": quantity, "status": "executed"}
+# 使用单例
+conn1 = ExchangeConnection("API_KEY_123")
+conn1.connect()
+# 尝试创建第二个实例
+conn2 = ExchangeConnection("API_KEY_456")  # 不会覆盖第一个实例的API密钥
+print(f"conn1和conn2是同一个实例: {conn1 is conn2}")
+# 使用连接
+conn1.execute_order("AAPL", 100, "buy")
+conn1.disconnect()</pre>
+            </div>
+            <div class="feature">
+                <h4>金融应用示例：市场数据源</h4>
+                <pre>class MarketDataSource:
+    """市场数据源的单例实现"""
+    _instance = None
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._data = {}
+            cls._instance._subscribers = set()
+        return cls._instance
+    def update_data(self, symbol, price):
+        """更新市场数据"""
+        self._data[symbol] = price
+        self._notify_subscribers(symbol, price)
+    def get_data(self, symbol):
+        """获取市场数据"""
+        return self._data.get(symbol)
+    def subscribe(self, subscriber):
+        """订阅数据更新"""
+        self._subscribers.add(subscriber)
+    def unsubscribe(self, subscriber):
+        """取消订阅"""
+        self._subscribers.discard(subscriber)
+    def _notify_subscribers(self, symbol, price):
+        """通知所有订阅者"""
+        for subscriber in self._subscribers:
+            subscriber.on_market_update(symbol, price)
+# 使用市场数据源
+data_source = MarketDataSource()
+# 模拟数据更新
+data_source.update_data("AAPL", 150.25)
+data_source.update_data("MSFT", 320.50)
+print(f"AAPL价格: {data_source.get_data('AAPL')}")
+print(f"MSFT价格: {data_source.get_data('MSFT')}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>工厂模式</h2>
+            <p><strong>工厂模式</strong>提供了一种创建对象的接口，但允许子类决定实例化哪个类。这有助于将对象的创建与使用分离。</p>
+            <div class="code-example">
+                <h4>示例：金融工具工厂</h4>
+                <pre>from abc import ABC, abstractmethod
+class FinancialInstrument(ABC):
+    """金融工具抽象基类"""
+    def __init__(self, name):
+        self.name = name
+    @abstractmethod
+    def get_value(self):
+        pass
+class Stock(FinancialInstrument):
+    """股票类"""
+    def __init__(self, name, symbol, price, shares):
+        super().__init__(name)
+        self.symbol = symbol
+        self.price = price
+        self.shares = shares
+    def get_value(self):
+        return self.price * self.shares
+class Bond(FinancialInstrument):
+    """债券类"""
+    def __init__(self, name, face_value, coupon_rate, years):
+        super().__init__(name)
+        self.face_value = face_value
+        self.coupon_rate = coupon_rate
+        self.years = years
+    def get_value(self):
+        return self.face_value
+class FinancialInstrumentFactory:
+    """金融工具工厂类"""
+    @staticmethod
+    def create_instrument(instrument_type, **kwargs):
+        """创建金融工具"""
+        if instrument_type == "stock":
+            return Stock(
+                kwargs.get("name"),
+                kwargs.get("symbol"),
+                kwargs.get("price"),
+                kwargs.get("shares")
+            )
+        elif instrument_type == "bond":
+            return Bond(
+                kwargs.get("name"),
+                kwargs.get("face_value"),
+                kwargs.get("coupon_rate"),
+                kwargs.get("years")
+            )
+        else:
+            raise ValueError(f"未知的金融工具类型: {instrument_type}")
+# 使用工厂创建金融工具
+stock = FinancialInstrumentFactory.create_instrument(
+    "stock",
+    name="苹果公司",
+    symbol="AAPL",
+    price=150.25,
+    shares=100
+)
+bond = FinancialInstrumentFactory.create_instrument(
+    "bond",
+    name="美国国债",
+    face_value=10000,
+    coupon_rate=0.035,
+    years=10
+)
+print(f"股票价值: ${stock.get_value():,.2f}")
+print(f"债券价值: ${bond.get_value():,.2f}")</pre>
+            </div>
+            <div class="feature">
+                <h4>金融应用示例：订单工厂</h4>
+                <pre>class Order:
+    """订单基类"""
+    def __init__(self, symbol, quantity):
+        self.symbol = symbol
+        self.quantity = quantity
+    def execute(self):
+        raise NotImplementedError
+class MarketOrder(Order):
+    """市价订单"""
+    def execute(self):
+        print(f"以市价执行订单: {self.quantity}股 {self.symbol}")
+class LimitOrder(Order):
+    """限价订单"""
+    def __init__(self, symbol, quantity, limit_price):
+        super().__init__(symbol, quantity)
+        self.limit_price = limit_price
+    def execute(self):
+        print(f"以限价{self.limit_price}执行订单: {self.quantity}股 {self.symbol}")
+class StopOrder(Order):
+    """止损订单"""
+    def __init__(self, symbol, quantity, stop_price):
+        super().__init__(symbol, quantity)
+        self.stop_price = stop_price
+    def execute(self):
+        print(f"以止损价{self.stop_price}执行订单: {self.quantity}股 {self.symbol}")
+class OrderFactory:
+    """订单工厂"""
+    @staticmethod
+    def create_order(order_type, symbol, quantity, **kwargs):
+        """创建订单"""
+        if order_type == "market":
+            return MarketOrder(symbol, quantity)
+        elif order_type == "limit":
+            return LimitOrder(symbol, quantity, kwargs.get("limit_price"))
+        elif order_type == "stop":
+            return StopOrder(symbol, quantity, kwargs.get("stop_price"))
+        else:
+            raise ValueError(f"未知的订单类型: {order_type}")
+# 使用订单工厂
+market_order = OrderFactory.create_order("market", "AAPL", 100)
+limit_order = OrderFactory.create_order("limit", "MSFT", 50, limit_price=320.50)
+stop_order = OrderFactory.create_order("stop", "GOOG", 10, stop_price=2500.00)
+market_order.execute()
+limit_order.execute()
+stop_order.execute()</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>观察者模式</h2>
+            <p><strong>观察者模式</strong>定义了一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都会得到通知并自动更新。</p>
+            <div class="code-example">
+                <h4>示例：股票价格观察者</h4>
+                <pre>class StockPricePublisher:
+    """股票价格发布者（主题）"""
+    def __init__(self):
+        self._observers = set()
+        self._price = None
+    def attach(self, observer):
+        """添加观察者"""
+        self._observers.add(observer)
+    def detach(self, observer):
+        """移除观察者"""
+        self._observers.discard(observer)
+    def notify(self):
+        """通知所有观察者"""
+        for observer in self._observers:
+            observer.update(self._price)
+    @property
+    def price(self):
+        """获取价格"""
+        return self._price
+    @price.setter
+    def price(self, value):
+        """设置价格并通知观察者"""
+        self._price = value
+        self.notify()
+class StockPriceObserver:
+    """股票价格观察者"""
+    def __init__(self, name):
+        self.name = name
+    def update(self, price):
+        """接收更新"""
+        print(f"{self.name}: 收到价格更新 - {price}")
+# 使用观察者模式
+publisher = StockPricePublisher()
+# 创建观察者
+trader1 = StockPriceObserver("交易员1")
+trader2 = StockPriceObserver("交易员2")
+algorithm = StockPriceObserver("算法交易系统")
+# 注册观察者
+publisher.attach(trader1)
+publisher.attach(trader2)
+publisher.attach(algorithm)
+# 更新价格
+publisher.price = 150.25
+# 移除一个观察者
+publisher.detach(trader2)
+# 再次更新价格
+publisher.price = 152.50</pre>
+            </div>
+            <div class="feature">
+                <h4>金融应用示例：投资组合监控</h4>
+                <pre>class PortfolioMonitor:
+    """投资组合监控（主题）"""
+    def __init__(self):
+        self._investors = set()
+        self._portfolio_value = None
+    def add_investor(self, investor):
+        """添加投资者"""
+        self._investors.add(investor)
+    def remove_investor(self, investor):
+        """移除投资者"""
+        self._investors.discard(investor)
+    def notify_investors(self):
+        """通知所有投资者"""
+        for investor in self._investors:
+            investor.update_portfolio(self._portfolio_value)
+    def update_value(self, new_value):
+        """更新投资组合价值并通知"""
+        self._portfolio_value = new_value
+        self.notify_investors()
+class Investor:
+    """投资者（观察者）"""
+    def __init__(self, name, threshold):
+        self.name = name
+        self.threshold = threshold
+    def update_portfolio(self, value):
+        """接收投资组合更新"""
+        print(f"{self.name}: 当前投资组合价值为 ${value:,.2f}")
+        if value < self.threshold:
+            print(f"警告: 投资组合价值低于阈值 ${self.threshold:,.2f}")
+# 使用观察者模式监控投资组合
+monitor = PortfolioMonitor()
+# 创建投资者
+investor1 = Investor("张三", 50000)
+investor2 = Investor("李四", 100000)
+investor3 = Investor("王五", 75000)
+# 注册投资者
+monitor.add_investor(investor1)
+monitor.add_investor(investor2)
+monitor.add_investor(investor3)
+# 模拟投资组合价值变化
+monitor.update_value(120000)
+monitor.update_value(80000)
+monitor.update_value(45000)
+# 移除一个投资者
+monitor.remove_investor(investor2)
+# 再次更新
+monitor.update_value(60000)</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>策略模式</h2>
+            <p><strong>策略模式</strong>定义了一系列算法，并将每个算法封装起来，使它们可以互相替换。策略模式让算法的变化独立于使用它的客户端。</p>
+            <div class="code-example">
+                <h4>示例：交易策略</h4>
+                <pre>from abc import ABC, abstractmethod
+class TradingStrategy(ABC):
+    """交易策略抽象基类"""
+    @abstractmethod
+    def execute(self, symbol, price):
+        """执行交易策略"""
+        pass
+class MeanReversionStrategy(TradingStrategy):
+    """均值回归策略"""
+    def __init__(self, window_size=20, threshold=1.5):
+        self.window_size = window_size
+        self.threshold = threshold
+        self.prices = []
+    def execute(self, symbol, price):
+        """执行均值回归策略"""
+        self.prices.append(price)
+        if len(self.prices) > self.window_size:
+            self.prices.pop(0)
+        if len(self.prices) == self.window_size:
+            avg = sum(self.prices) / len(self.prices)
+            std = (sum((p - avg)**2 for p in self.prices) / len(self.prices))**0.5
+            if price > avg + self.threshold * std:
+                print(f"{symbol}: 价格高于均值+{self.threshold}标准差，卖出信号")
+            elif price < avg - self.threshold * std:
+                print(f"{symbol}: 价格低于均值-{self.threshold}标准差，买入信号")
+class MomentumStrategy(TradingStrategy):
+    """动量策略"""
+    def __init__(self, window_size=10, threshold=0.05):
+        self.window_size = window_size
+        self.threshold = threshold
+        self.prices = []
+    def execute(self, symbol, price):
+        """执行动量策略"""
+        self.prices.append(price)
+        if len(self.prices) > self.window_size:
+            self.prices.pop(0)
+        if len(self.prices) == self.window_size:
+            returns = (price - self.prices[0]) / self.prices[0]
+            if returns > self.threshold:
+                print(f"{symbol}: 过去{self.window_size}期收益率{returns:.2%}，买入信号")
+            elif returns < -self.threshold:
+                print(f"{symbol}: 过去{self.window_size}期收益率{returns:.2%}，卖出信号")
+class TradingSystem:
+    """交易系统"""
+    def __init__(self, strategy=None):
+        self._strategy = strategy
+    @property
+    def strategy(self):
+        """获取当前策略"""
+        return self._strategy
+    @strategy.setter
+    def strategy(self, strategy):
+        """设置交易策略"""
+        self._strategy = strategy
+    def process_price(self, symbol, price):
+        """处理价格更新"""
+        if self._strategy:
+            self._strategy.execute(symbol, price)
+        else:
+            print("未设置交易策略")
+# 使用策略模式
+trading_system = TradingSystem()
+# 使用均值回归策略
+mean_reversion = MeanReversionStrategy(window_size=5, threshold=1.0)
+trading_system.strategy = mean_reversion
+# 模拟价格数据
+prices = [100, 102, 105, 103, 98, 95, 110]
+for price in prices:
+    trading_system.process_price("AAPL", price)
+print("\n切换到动量策略")
+# 切换到动量策略
+momentum = MomentumStrategy(window_size=5, threshold=0.03)
+trading_system.strategy = momentum
+# 使用相同的价格数据
+for price in prices:
+    trading_system.process_price("AAPL", price)</pre>
+            </div>
+            <div class="feature">
+                <h4>金融应用示例：投资组合优化策略</h4>
+                <pre>import random
+class PortfolioOptimizationStrategy(ABC):
+    """投资组合优化策略抽象基类"""
+    @abstractmethod
+    def optimize(self, assets, constraints):
+        """优化投资组合"""
+        pass
+class EqualWeightStrategy(PortfolioOptimizationStrategy):
+    """等权重策略"""
+    def optimize(self, assets, constraints):
+        """实现等权重分配"""
+        n = len(assets)
+        weight = 1.0 / n
+        weights = {asset: weight for asset in assets}
+        return weights
+class MinimumVarianceStrategy(PortfolioOptimizationStrategy):
+    """最小方差策略"""
+    def optimize(self, assets, constraints):
+        """实现最小方差优化（简化版）"""
+        # 在实际应用中，这里应该使用协方差矩阵和二次规划
+        # 这里使用简化的实现
+        total_volatility = sum(asset.volatility for asset in assets)
+        weights = {}
+        for asset in assets:
+            # 波动率越低，权重越高
+            weight = (1 - asset.volatility / total_volatility) / (len(assets) - 1)
+            weights[asset] = max(0, weight)  # 确保权重非负
+        # 归一化权重
+        total = sum(weights.values())
+        return {asset: w/total for asset, w in weights.items()}
+class MaximumSharpeStrategy(PortfolioOptimizationStrategy):
+    """最大夏普比率策略"""
+    def optimize(self, assets, constraints):
+        """实现最大夏普比率优化（简化版）"""
+        # 在实际应用中，这里应该使用预期收益、风险和无风险利率
+        # 这里使用简化的实现
+        weights = {}
+        for asset in assets:
+            # 使用预期收益与波动率的比率作为权重基础
+            ratio = asset.expected_return / asset.volatility if asset.volatility > 0 else 0
+            weights[asset] = ratio
+        # 归一化权重
+        total = sum(weights.values())
+        return {asset: w/total for asset, w in weights.items()}
+class Asset:
+    """资产类"""
+    def __init__(self, name, expected_return, volatility):
+        self.name = name
+        self.expected_return = expected_return
+        self.volatility = volatility
+class PortfolioOptimizer:
+    """投资组合优化器"""
+    def __init__(self, strategy=None):
+        self.strategy = strategy
+    def optimize_portfolio(self, assets, constraints=None):
+        """优化投资组合"""
+        if not self.strategy:
+            raise ValueError("未设置优化策略")
+        weights = self.strategy.optimize(assets, constraints)
+        print("\n投资组合优化结果:")
+        for asset, weight in weights.items():
+            print(f"{asset.name}: {weight:.2%}")
+        # 计算组合预期收益和风险
+        portfolio_return = sum(asset.expected_return * weight
+                             for asset, weight in weights.items())
+        print(f"组合预期收益率: {portfolio_return:.2%}")
+        return weights
+# 使用投资组合优化策略
+assets = [
+    Asset("AAPL", 0.15, 0.25),
+    Asset("MSFT", 0.12, 0.20),
+    Asset("GOOG", 0.18, 0.30),
+    Asset("BRK.A", 0.10, 0.15)
+]
+optimizer = PortfolioOptimizer()
+print("使用等权重策略")
+optimizer.strategy = EqualWeightStrategy()
+optimizer.optimize_portfolio(assets)
+print("\n使用最小方差策略")
+optimizer.strategy = MinimumVarianceStrategy()
+optimizer.optimize_portfolio(assets)
+print("\n使用最大夏普比率策略")
+optimizer.strategy = MaximumSharpeStrategy()
+optimizer.optimize_portfolio(assets)</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们学习了几种重要的设计模式：</p>
+            <ul>
+                <li>单例模式：确保一个类只有一个实例</li>
+                <li>工厂模式：提供创建对象的接口</li>
+                <li>观察者模式：定义对象间的一对多依赖关系</li>
+                <li>策略模式：定义一系列算法并使其可互换</li>
+            </ul>
+            <p>这些设计模式在金融应用开发中非常有用：</p>
+            <ul>
+                <li>单例模式适用于管理共享资源，如数据库连接或API客户端</li>
+                <li>工厂模式适用于创建不同类型的金融工具或订单</li>
+                <li>观察者模式适用于市场数据更新和投资组合监控</li>
+                <li>策略模式适用于实现不同的交易策略和投资组合优化方法</li>
+            </ul>
+            <div class="get-started">
+                <h3>恭喜完成Python基础部分！</h3>
+                <p>现在你已经掌握了Python编程的基础知识，包括面向对象编程和设计模式。接下来，我们将进入数据分析部分，学习如何使用NumPy和Pandas处理金融数据。</p>
+                <a href="../../index.html" class="btn btn-large">进入数据分析部分 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson3.html" class="btn">« 上一课：特殊方法和属性</a>
+            </div>
+            <div>
+                <a href="../../index.html" class="btn">下一部分：数据分析 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

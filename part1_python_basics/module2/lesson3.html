@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程3: 控制流语句 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>条件语句</h2>
+            <p>条件语句允许程序根据不同的条件执行不同的代码块。在金融应用中，条件语句常用于交易决策、风险评估和投资组合管理。</p>
+            <h3>if语句基础</h3>
+            <pre># 基本的if语句
+price = 150.25
+if price > 100:
+    print("股价超过100")
+# if-else语句
+if price > 200:
+    print("股价偏高")
+else:
+    print("股价在合理范围")
+# if-elif-else语句
+if price > 200:
+    print("股价偏高")
+elif price > 100:
+    print("股价适中")
+else:
+    print("股价偏低")</pre>
+            <div class="feature">
+                <h4>金融应用示例：交易信号生成</h4>
+                <pre># 基于价格和成交量的交易信号生成器
+def generate_trading_signal(price, volume, ma_50, ma_200, avg_volume):
+    """
+    基于价格和成交量生成交易信号
+    参数:
+    price: 当前价格
+    volume: 当前成交量
+    ma_50: 50日移动平均线
+    ma_200: 200日移动平均线
+    avg_volume: 平均成交量
+    """
+    signal = "观望"
+    strength = "一般"
+    # 价格突破分析
+    if price > ma_50 and ma_50 > ma_200:
+        if volume > 1.5 * avg_volume:
+            signal = "买入"
+            strength = "强烈"
+        elif volume > avg_volume:
+            signal = "买入"
+            strength = "中等"
+    elif price < ma_50 and ma_50 < ma_200:
+        if volume > 1.5 * avg_volume:
+            signal = "卖出"
+            strength = "强烈"
+        elif volume > avg_volume:
+            signal = "卖出"
+            strength = "中等"
+    # 价格接近支撑/阻力位分析
+    price_ma50_diff = abs(price - ma_50) / ma_50 * 100
+    if price_ma50_diff < 1:  # 价格在MA50 1%范围内
+        if price > ma_50:
+            signal = "突破观察" if signal == "观望" else signal
+        else:
+            signal = "支撑观察" if signal == "观望" else signal
+    return signal, strength
+# 示例使用
+price = 155.75
+volume = 1200000
+ma_50 = 150.25
+ma_200 = 145.50
+avg_volume = 1000000
+signal, strength = generate_trading_signal(price, volume, ma_50, ma_200, avg_volume)
+print(f"\n交易信号分析:")
+print(f"当前价格: ${price:.2f}")
+print(f"当前成交量: {volume:,}")
+print(f"50日均线: ${ma_50:.2f}")
+print(f"200日均线: ${ma_200:.2f}")
+print(f"平均成交量: {avg_volume:,}")
+print(f"信号: {signal}")
+print(f"强度: {strength}")</pre>
+            </div>
+            <h3>条件表达式（三元运算符）</h3>
+            <pre># 基本语法
+result = "上涨" if price > previous_price else "下跌"
+# 在金融计算中使用
+position_type = "多头" if shares > 0 else "空头" if shares < 0 else "平仓"
+risk_level = "高" if volatility > 0.2 else "中" if volatility > 0.1 else "低"</pre>
+            <h3>复合条件</h3>
+            <pre># 使用and、or和not
+is_bullish = price > ma_50 and volume > avg_volume
+is_bearish = price < ma_50 or volume < avg_volume * 0.5
+is_not_trading = not (is_bullish or is_bearish)
+# 嵌套条件
+if price > ma_50:
+    if volume > avg_volume:
+        print("强势上涨")
+    else:
+        print("弱势上涨")
+else:
+    if volume > avg_volume:
+        print("强势下跌")
+    else:
+        print("弱势下跌")</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>循环语句</h2>
+            <p>循环语句允许重复执行代码块。在金融应用中，循环常用于处理历史数据、回测交易策略和批量处理交易。</p>
+            <h3>for循环</h3>
+            <pre># 遍历列表
+prices = [100.25, 101.50, 99.75, 102.25]
+for price in prices:
+    print(f"价格: ${price:.2f}")
+# 遍历字典
+portfolio = {"AAPL": 100, "GOOGL": 50, "MSFT": 200}
+for symbol, shares in portfolio.items():
+    print(f"{symbol}: {shares}股")
+# 使用range()
+for i in range(5):
+    print(f"第{i+1}次交易")
+# 带索引的遍历
+for i, price in enumerate(prices):
+    print(f"第{i+1}天: ${price:.2f}")</pre>
+            <div class="feature">
+                <h4>金融应用示例：回测交易策略</h4>
+                <pre># 简单的移动平均线交易策略回测
+def backtest_ma_strategy(prices, short_window=10, long_window=50):
+    """
+    回测简单的移动平均线交易策略
+    参数:
+    prices: 历史价格列表
+    short_window: 短期移动平均线窗口
+    long_window: 长期移动平均线窗口
+    """
+    if len(prices) < long_window:
+        return "数据不足以进行回测"
+    # 计算移动平均线
+    short_ma = []
+    long_ma = []
+    for i in range(len(prices)):
+        if i >= short_window:
+            short_ma.append(sum(prices[i-short_window:i]) / short_window)
+        else:
+            short_ma.append(None)
+        if i >= long_window:
+            long_ma.append(sum(prices[i-long_window:i]) / long_window)
+        else:
+            long_ma.append(None)
+    # 模拟交易
+    position = 0  # 0表示空仓，1表示持仓
+    trades = []
+    portfolio_value = 100000  # 初始资金
+    shares = 0
+    for i in range(long_window, len(prices)):
+        if short_ma[i] > long_ma[i] and position == 0:
+            # 买入信号
+            shares = portfolio_value // prices[i]
+            cost = shares * prices[i]
+            portfolio_value -= cost
+            position = 1
+            trades.append({
+                "type": "买入",
+                "price": prices[i],
+                "shares": shares,
+                "value": cost,
+                "portfolio": portfolio_value + shares * prices[i]
+            })
+        elif short_ma[i] < long_ma[i] and position == 1:
+            # 卖出信号
+            value = shares * prices[i]
+            portfolio_value += value
+            position = 0
+            trades.append({
+                "type": "卖出",
+                "price": prices[i],
+                "shares": shares,
+                "value": value,
+                "portfolio": portfolio_value
+            })
+            shares = 0
+    # 计算最终持仓价值
+    final_value = portfolio_value + shares * prices[-1]
+    total_return = (final_value - 100000) / 100000 * 100
+    # 打印回测结果
+    print("\n策略回测结果:")
+    print(f"初始资金: $100,000")
+    print(f"最终价值: ${final_value:,.2f}")
+    print(f"总收益率: {total_return:+.2f}%")
+    print(f"\n交易记录:")
+    for trade in trades:
+        print(f"\n{trade['type']}:")
+        print(f"价格: ${trade['price']:.2f}")
+        print(f"数量: {trade['shares']}")
+        print(f"交易额: ${trade['value']:,.2f}")
+        print(f"组合价值: ${trade['portfolio']:,.2f}")
+    return trades, final_value, total_return
+# 示例使用
+historical_prices = [
+    100.00, 101.25, 102.50, 101.75, 103.00, 104.25, 103.50, 102.75,
+    101.50, 100.25, 99.50, 98.75, 97.50, 96.25, 97.00, 98.25, 99.75,
+    101.00, 102.25, 103.50, 104.75, 106.00, 107.25, 108.50, 109.75
+]
+backtest_ma_strategy(historical_prices, short_window=5, long_window=10)</pre>
+            </div>
+            <h3>while循环</h3>
+            <pre># 基本while循环
+price = 100
+while price < 120:
+    price *= 1.05  # 每次增加5%
+    print(f"当前价格: ${price:.2f}")
+# 带break的while循环
+balance = 10000
+target = 15000
+risk = 0.02  # 2%风险率
+while balance < target:
+    trade_result = make_trade(balance * risk)
+    balance += trade_result
+    if balance < 5000:  # 止损点
+        print("触发止损")
+        break
+# 带continue的while循环
+while True:
+    price = get_current_price()
+    if price is None:
+        print("等待价格更新")
+        continue
+    if analyze_price(price):
+        execute_trade(price)
+        break</pre>
+            <div class="feature">
+                <h4>金融应用示例：风险管理系统</h4>
+                <pre># 风险管理系统示例
+class RiskManagementSystem:
+    def __init__(self, initial_capital, max_drawdown_pct=20, daily_loss_limit_pct=5):
+        self.initial_capital = initial_capital
+        self.current_capital = initial_capital
+        self.peak_capital = initial_capital
+        self.max_drawdown_pct = max_drawdown_pct
+        self.daily_loss_limit_pct = daily_loss_limit_pct
+        self.daily_loss = 0
+        self.trades_today = 0
+    def can_trade(self, position_size):
+        """检查是否可以进行交易"""
+        # 检查最大回撤
+        drawdown = (self.peak_capital - self.current_capital) / self.peak_capital * 100
+        if drawdown > self.max_drawdown_pct:
+            return False, "超过最大回撤限制"
+        # 检查日内亏损限制
+        if self.daily_loss / self.initial_capital * 100 > self.daily_loss_limit_pct:
+            return False, "超过日内亏损限制"
+        # 检查仓位大小
+        if position_size > self.current_capital * 0.1:  # 单笔交易不超过资金的10%
+            return False, "仓位过大"
+        return True, "交易允许"
+    def update_capital(self, trade_result):
+        """更新资金状况"""
+        self.current_capital += trade_result
+        # 更新峰值资金
+        if self.current_capital > self.peak_capital:
+            self.peak_capital = self.current_capital
+        # 更新日内亏损
+        if trade_result < 0:
+            self.daily_loss += abs(trade_result)
+        self.trades_today += 1
+        return self.current_capital
+    def reset_daily_stats(self):
+        """重置日内统计数据"""
+        self.daily_loss = 0
+        self.trades_today = 0
+    def get_status(self):
+        """获取当前状态"""
+        drawdown = (self.peak_capital - self.current_capital) / self.peak_capital * 100
+        return {
+            "initial_capital": self.initial_capital,
+            "current_capital": self.current_capital,
+            "peak_capital": self.peak_capital,
+            "drawdown_pct": drawdown,
+            "daily_loss_pct": self.daily_loss / self.initial_capital * 100,
+            "trades_today": self.trades_today
+        }
+# 示例使用
+risk_system = RiskManagementSystem(100000)  # 初始资金10万
+# 模拟一系列交易
+trades = [5000, -2000, 3000, -8000, 2000, -1000]
+day_counter = 1
+for trade in trades:
+    can_trade, message = risk_system.can_trade(abs(trade))
+    if can_trade:
+        risk_system.update_capital(trade)
+        status = risk_system.get_status()
+        print(f"\n交易 {day_counter}:")
+        print(f"交易结果: ${trade:+,.2f}")
+        print(f"当前资金: ${status['current_capital']:,.2f}")
+        print(f"当前回撤: {status['drawdown_pct']:.2f}%")
+        print(f"日内亏损: {status['daily_loss_pct']:.2f}%")
+    else:
+        print(f"\n交易 {day_counter} 被拒绝: {message}")
+    day_counter += 1
+    # 模拟新的交易日
+    if day_counter % 3 == 0:
+        print("\n--- 新交易日 ---")
+        risk_system.reset_daily_stats()</pre>
+            </div>
+            <h3>循环控制语句</h3>
+            <pre># break语句 - 立即退出循环
+for price in prices:
+    if price > 200:
+        print(f"价格 ${price:.2f} 超过阈值，停止分析")
+        break
+    analyze_price(price)
+# continue语句 - 跳过当前迭代
+for symbol, data in market_data.items():
+    if data["volume"] < min_volume:
+        print(f"{symbol} 成交量过低，跳过分析")
+        continue
+    analyze_stock(symbol, data)
+# else子句 - 循环正常完成时执行
+for price in prices:
+    if price < 0:
+        print("发现无效价格")
+        break
+    process_price(price)
+else:
+    print("所有价格处理完成，未发现异常")</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>推导式</h2>
+            <p>推导式是Python中创建列表、字典和集合的简洁方法。在金融应用中，推导式可以用于数据转换、过滤和计算。</p>
+            <h3>列表推导式</h3>
+            <pre># 基本列表推导式
+prices = [100.25, 101.50, 99.75, 102.25, 98.50]
+price_changes = [prices[i] - prices[i-1] for i in range(1, len(prices))]
+# 带条件的列表推导式
+positive_changes = [change for change in price_changes if change > 0]
+# 嵌套列表推导式
+portfolio = [
+    {"symbol": "AAPL", "prices": [150.25, 151.50, 149.75]},
+    {"symbol": "GOOGL", "prices": [2500.75, 2520.50, 2495.25]}
+]
+all_prices = [price for stock in portfolio for price in stock["prices"]]</pre>
+            <h3>字典推导式</h3>
+            <pre># 基本字典推导式
+symbols = ["AAPL", "GOOGL", "MSFT"]
+prices = [155.75, 2550.25, 305.25]
+stock_prices = {symbol: price for symbol, price in zip(symbols, prices)}
+# 带条件的字典推导式
+high_value_stocks = {symbol: price for symbol, price in stock_prices.items() if price > 1000}</pre>
+            <h3>集合推导式</h3>
+            <pre># 基本集合推导式
+price_points = {int(price) for price in prices}
+# 带条件的集合推导式
+resistance_levels = {price for price in historical_highs if price > current_price}</pre>
+            <div class="feature">
+                <h4>金融应用示例：数据转换与分析</h4>
+                <pre># 股票数据转换与分析
+stocks_data = [
+    {"symbol": "AAPL", "price": 155.75, "pe": 28.5, "sector": "Technology"},
+    {"symbol": "GOOGL", "price": 2550.25, "pe": 25.2, "sector": "Technology"},
+    {"symbol": "MSFT", "price": 305.25, "pe": 32.1, "sector": "Technology"},
+    {"symbol": "JNJ", "price": 165.30, "pe": 18.7, "sector": "Healthcare"},
+    {"symbol": "PG", "price": 145.50, "pe": 22.3, "sector": "Consumer Staples"},
+    {"symbol": "JPM", "price": 155.20, "pe": 12.5, "sector": "Financials"},
+    {"symbol": "XOM", "price": 65.25, "pe": 15.8, "sector": "Energy"}
+]
+# 使用推导式进行数据转换和分析
+symbols = [stock["symbol"] for stock in stocks_data]
+price_by_symbol = {stock["symbol"]: stock["price"] for stock in stocks_data}
+tech_stocks = [stock for stock in stocks_data if stock["sector"] == "Technology"]
+high_pe_symbols = {stock["symbol"] for stock in stocks_data if stock["pe"] > 25}
+sector_stocks = {sector: [stock["symbol"] for stock in stocks_data if stock["sector"] == sector]
+                for sector in {stock["sector"] for stock in stocks_data}}
+# 计算每个行业的平均PE和价格
+sector_metrics = {
+    sector: {
+        "avg_pe": sum(stock["pe"] for stock in stocks_data if stock["sector"] == sector) /
+                 len([stock for stock in stocks_data if stock["sector"] == sector]),
+        "avg_price": sum(stock["price"] for stock in stocks_data if stock["sector"] == sector) /
+                    len([stock for stock in stocks_data if stock["sector"] == sector]),
+        "count": len([stock for stock in stocks_data if stock["sector"] == sector])
+    }
+    for sector in {stock["sector"] for stock in stocks_data}
+}
+# 打印分析结果
+print("\n股票数据分析:")
+print(f"所有股票: {', '.join(symbols)}")
+print(f"高PE股票: {', '.join(high_pe_symbols)}")
+print("\n行业分布:")
+for sector, stocks in sector_stocks.items():
+    print(f"{sector}: {', '.join(stocks)}")
+print("\n行业指标:")
+for sector, metrics in sector_metrics.items():
+    print(f"\n{sector}:")
+    print(f"平均PE: {metrics['avg_pe']:.2f}")
+    print(f"平均价格: ${metrics['avg_price']:.2f}")
+    print(f"股票数量: {metrics['count']}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>异常处理</h2>
+            <p>异常处理允许程序优雅地处理错误和异常情况。在金融应用中，异常处理对于确保数据完整性和程序稳定性至关重要。</p>
+            <h3>try-except语句</h3>
+            <pre># 基本的try-except
+try:
+    price = float(price_str)
+except ValueError:
+    print("无效的价格格式")
+    price = 0.0
+# 处理多个异常
+try:
+    data = get_market_data(symbol)
+    price = data["price"]
+    change = (price - data["previous_close"]) / data["previous_close"] * 100
+except KeyError:
+    print("数据缺失关键字段")
+except ZeroDivisionError:
+    print("前收盘价为零，无法计算变化百分比")
+except Exception as e:
+    print(f"发生错误: {e}")
+# try-except-else-finally
+try:
+    trade_result = execute_trade(symbol, shares, price)
+except ConnectionError:
+    print("交易执行失败：连接错误")
+except ValueError as e:
+    print(f"交易执行失败：{e}")
+else:
+    print("交易执行成功")
+    update_portfolio(trade_result)
+finally:
+    log_trade_attempt(symbol, shares, price)</pre>
+            <div class="feature">
+                <h4>金融应用示例：数据验证与处理</h4>
+                <pre># 金融数据验证与处理
+def process_stock_data(data_file):
+    """处理股票数据文件，验证数据并计算指标"""
+    results = []
+    errors = []
+    try:
+        with open(data_file, 'r') as file:
+            # 假设文件格式：symbol,date,open,high,low,close,volume
+            lines = file.readlines()
+            header = lines[0].strip().split(',')
+            for i, line in enumerate(lines[1:], 2):
+                try:
+                    fields = line.strip().split(',')
+                    if len(fields) != 7:
+                        raise ValueError(f"字段数量不正确: {len(fields)}")
+                    symbol, date, open_price, high, low, close, volume = fields
+                    # 转换数据类型
+                    try:
+                        open_price = float(open_price)
+                        high = float(high)
+                        low = float(low)
+                        close = float(close)
+                        volume = int(volume)
+                    except ValueError:
+                        raise ValueError("数值转换失败")
+                    # 数据验证
+                    if not (low <= open_price <= high and low <= close <= high):
+                        raise ValueError("价格关系不合理")
+                    if volume < 0:
+                        raise ValueError("成交量为负")
+                    # 计算指标
+                    price_range = high - low
+                    price_change = close - open_price
+                    price_change_pct = (price_change / open_price) * 100 if open_price > 0 else 0
+                    # 添加到结果
+                    results.append({
+                        "symbol": symbol,
+                        "date": date,
+                        "open": open_price,
+                        "high": high,
+                        "low": low,
+                        "close": close,
+                        "volume": volume,
+                        "range": price_range,
+                        "change": price_change,
+                        "change_pct": price_change_pct
+                    })
+                except Exception as e:
+                    errors.append(f"行 {i}: {e}")
+    except FileNotFoundError:
+        errors.append(f"文件不存在: {data_file})
+    except Exception as e:
+        errors.append(f"处理文件时出错: {e}")
+    return results, errors
+# 示例使用
+results, errors = process_stock_data("stock_data.csv")
+if errors:
+    print("\n处理过程中发现以下错误:")
+    for error in errors:
+        print(f"- {error}")
+if results:
+    print(f"\n成功处理 {len(results)} 条记录")
+    # 计算汇总统计
+    symbols = set(item["symbol"] for item in results)
+    print(f"包含的股票: {', '.join(symbols)}")
+    avg_change = sum(item["change_pct"] for item in results) / len(results)
+    print(f"平均价格变化: {avg_change:+.2f}%")
+    max_range = max(results, key=lambda x: x["range"])
+    print(f"最大波动: {max_range['symbol']} 在 {max_range['date']}, 波动: ${max_range['range']:.2f}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>学习了条件语句的基本用法和复合条件</li>
+                <li>掌握了for循环和while循环的使用</li>
+                <li>理解了推导式的语法和应用场景</li>
+                <li>学习了异常处理的基本方法</li>
+                <li>通过金融应用示例，学习了如何在实际中应用这些控制流结构</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一课中，我们将学习推导式和生成器，这些是Python中处理大量数据的高效工具。</p>
+                <a href="lesson4.html" class="btn btn-large">下一课：函数与模块</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson2.html" class="btn">« 上一课：字典与集合</a>
+            </div>
+            <div>
+                <a href="lesson4.html" class="btn">下一课：函数与模块 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

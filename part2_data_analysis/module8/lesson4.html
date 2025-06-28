@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第4课: 相关性与回归分析 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>相关性分析</h2>
+            <p>衡量变量间线性或单调关系的统计方法。</p>
+            <h3>1. Pearson相关系数</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+from scipy import stats
+# 生成相关数据
+np.random.seed(42)
+x = np.random.normal(0, 1, 100)
+y = 2 * x + np.random.normal(0, 0.5, 100)
+# 计算Pearson相关系数
+corr, p_value = stats.pearsonr(x, y)
+print(f"Pearson相关系数: {corr:.4f}, p值: {p_value:.4f}")</code></pre>
+            <h3>2. 非参数相关系数</h3>
+            <pre><code class="language-python"># Spearman秩相关
+spearman_corr, p_value = stats.spearmanr(x, y)
+print(f"Spearman相关系数: {spearman_corr:.4f}, p值: {p_value:.4f}")
+# Kendall's tau
+kendall_tau, p_value = stats.kendalltau(x, y)
+print(f"Kendall's tau: {kendall_tau:.4f}, p值: {p_value:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>线性回归模型</h2>
+            <h3>1. 简单线性回归</h3>
+            <pre><code class="language-python">import statsmodels.api as sm
+# 添加常数项
+X = sm.add_constant(x)
+model = sm.OLS(y, X)
+results = model.fit()
+# 回归结果
+print(results.summary())
+# 可视化回归线
+import matplotlib.pyplot as plt
+plt.scatter(x, y, alpha=0.6)
+plt.plot(x, results.fittedvalues, 'r-', label='回归线')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.legend()
+plt.show()</code></pre>
+            <h3>2. 多元线性回归</h3>
+            <pre><code class="language-python"># 生成多元数据
+z = np.random.normal(0, 1, 100)
+X = sm.add_constant(np.column_stack((x, z)))
+# 多元回归
+model = sm.OLS(y, X)
+results = model.fit()
+print(results.summary())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>回归诊断</h2>
+            <h3>1. 残差分析</h3>
+            <pre><code class="language-python"># 计算残差
+residuals = results.resid
+# 残差图
+plt.scatter(results.fittedvalues, residuals)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel('拟合值')
+plt.ylabel('残差')
+plt.title('残差图')
+plt.show()
+# Q-Q图
+sm.qqplot(residuals, line='45', fit=True)
+plt.title('残差Q-Q图')
+plt.show()</code></pre>
+            <h3>2. 假设检验</h3>
+            <pre><code class="language-python"># 异方差检验(Breusch-Pagan)
+from statsmodels.stats.diagnostic import het_breuschpagan
+bp_test = het_breuschpagan(residuals, results.model.exog)
+print(f"Breusch-Pagan检验: LM统计量={bp_test[0]:.4f}, p值={bp_test[1]:.4f}")
+# 自相关检验(Durbin-Watson)
+from statsmodels.stats.stattools import durbin_watson
+dw = durbin_watson(residuals)
+print(f"Durbin-Watson统计量: {dw:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>逻辑回归</h2>
+            <h3>1. 二分类模型</h3>
+            <pre><code class="language-python"># 生成分类数据
+y_binary = np.where(y > np.median(y), 1, 0)
+# 逻辑回归
+logit_model = sm.Logit(y_binary, sm.add_constant(x))
+logit_results = logit_model.fit()
+print(logit_results.summary())
+# 预测概率
+pred_probs = logit_results.predict(sm.add_constant(x))
+# ROC曲线
+from sklearn.metrics import roc_curve, roc_auc_score
+fpr, tpr, thresholds = roc_curve(y_binary, pred_probs)
+auc = roc_auc_score(y_binary, pred_probs)
+plt.plot(fpr, tpr, label=f'ROC曲线 (AUC = {auc:.2f})')
+plt.plot([0, 1], [0, 1], 'k--')
+plt.xlabel('假阳性率')
+plt.ylabel('真阳性率')
+plt.title('ROC曲线')
+plt.legend()
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用案例</h2>
+            <h3>1. 因子模型</h3>
+            <pre><code class="language-python">import yfinance as yf
+import pandas as pd
+# 获取股票和市场数据
+stocks = yf.download(['AAPL', 'MSFT', '^GSPC'], start='2020-01-01', end='2023-01-01')['Adj Close']
+returns = stocks.pct_change().dropna()
+# 计算超额收益
+returns['AAPL_Excess'] = returns['AAPL'] - returns['^GSPC']
+returns['MSFT_Excess'] = returns['MSFT'] - returns['^GSPC']
+# CAPM回归
+X = sm.add_constant(returns['^GSPC'])
+model_aapl = sm.OLS(returns['AAPL_Excess'], X)
+results_aapl = model_aapl.fit()
+model_msft = sm.OLS(returns['MSFT_Excess'], X)
+results_msft = model_msft.fit()
+print("AAPL CAPM结果:")
+print(results_aapl.summary())
+print("\nMSFT CAPM结果:")
+print(results_msft.summary())</code></pre>
+            <h3>2. 多因子模型</h3>
+            <pre><code class="language-python"># 获取因子数据(示例)
+factors = pd.DataFrame({
+    'Market': returns['^GSPC'],
+    'SMB': np.random.normal(0, 0.01, len(returns)),  # 模拟小市值因子
+    'HML': np.random.normal(0, 0.01, len(returns))   # 模拟价值因子
+}, index=returns.index)
+# Fama-French三因子模型
+X = sm.add_constant(factors)
+model_ff = sm.OLS(returns['AAPL_Excess'], X)
+results_ff = model_ff.fit()
+print("Fama-French三因子模型结果:")
+print(results_ff.summary())</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson3.html" class="btn">« 上一课: 假设检验</a>
+            <a href="project.html" class="btn">金融统计应用项目 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

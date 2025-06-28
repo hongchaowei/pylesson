@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="hero">
+            <h2>🐍 Python基础课程</h2>
+            <p>本部分将带您从零开始学习Python编程语言，涵盖语法基础、数据类型、控制流程、函数、模块等核心概念。通过系统性的学习，您将具备进行金融数据分析和建模的编程基础。</p>
+            <div class="course-overview">
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <h4>🎯 学习目标</h4>
+                        <ul>
+                            <li>掌握Python基础语法和编程思维</li>
+                            <li>熟练使用Python数据类型和结构</li>
+                            <li>理解函数式和面向对象编程</li>
+                            <li>具备独立开发小型程序的能力</li>
+                        </ul>
+                    </div>
+                    <div class="overview-item">
+                        <h4>📋 先修要求</h4>
+                        <ul>
+                            <li>无编程经验要求，完全零基础</li>
+                            <li>具备基本的计算机操作能力</li>
+                            <li>有学习新技能的耐心和毅力</li>
+                            <li>建议具备高中数学基础</li>
+                        </ul>
+                    </div>
+                    <div class="overview-item">
+                        <h4>⏰ 时间安排</h4>
+                        <ul>
+                            <li>总学时：约40-50小时</li>
+                            <li>建议学习周期：4-6周</li>
+                            <li>每周学习时间：8-12小时</li>
+                            <li>每日学习建议：1-2小时</li>
+                        </ul>
+                    </div>
+                    <div class="overview-item">
+                        <h4>🏆 技能收获</h4>
+                        <ul>
+                            <li>Python编程语言熟练运用</li>
+                            <li>算法思维和逻辑分析能力</li>
+                            <li>代码调试和问题解决技能</li>
+                            <li>为金融编程打下坚实基础</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="course-parts">
+            <h2>📚 课程模块</h2>
+            <div class="part-grid">
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>📚 模块1: Python入门</h3>
+                        <span class="lesson-count">4个课程 • 预计8-10小时</span>
+                    </div>
+                    <p class="part-description">Python简介、环境设置、基础语法和数据类型</p>
+                    <div class="module-details">
+                        <h5>📖 详细内容：</h5>
+                        <ul class="detailed-topics">
+                            <li><strong>Python历史与特点</strong> - 了解Python语言的发展历程和优势</li>
+                            <li><strong>开发环境配置</strong> - 安装Python、IDE选择、包管理器使用</li>
+                            <li><strong>基础语法规则</strong> - 缩进、注释、标识符命名规范</li>
+                            <li><strong>数据类型系统</strong> - 数字、字符串、布尔值的使用和转换</li>
+                            <li><strong>变量与常量</strong> - 变量赋值、作用域、内存管理</li>
+                            <li><strong>条件与循环</strong> - if语句、for/while循环、break/continue</li>
+                        </ul>
+                        <div class="learning-outcomes">
+                            <h6>🎯 学习成果：</h6>
+                            <p>完成本模块后，您将能够编写简单的Python程序，理解基本语法规则，掌握变量使用和控制流程。</p>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li><a href="module1/lesson1.html">课程1: Python简介与环境设置</a></li>
+                        <li><a href="module1/lesson2.html">课程2: Python基础语法</a></li>
+                        <li><a href="module1/lesson3.html">课程3: 数据类型与变量</a></li>
+                        <li><a href="module1/lesson4.html">课程4: 控制流程</a></li>
+                    </ul>
+                    <div class="part-actions">
+                        <a href="module1/lesson1.html" class="btn btn-primary">开始学习</a>
+                        <a href="module1/exercises.html" class="btn btn-secondary">练习题</a>
+                        <a href="module1/project.html" class="btn btn-accent">项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>🔧 模块2: 函数与模块</h3>
+                        <span class="lesson-count">4个课程 • 预计10-12小时</span>
+                    </div>
+                    <p class="part-description">函数定义、模块导入、异常处理和文件操作</p>
+                    <div class="module-details">
+                        <h5>📖 详细内容：</h5>
+                        <ul class="detailed-topics">
+                            <li><strong>函数设计原理</strong> - 函数定义、参数传递、返回值处理</li>
+                            <li><strong>高级函数特性</strong> - 默认参数、可变参数、关键字参数、匿名函数</li>
+                            <li><strong>模块化编程</strong> - 模块导入、包结构、命名空间管理</li>
+                            <li><strong>标准库使用</strong> - 常用内置模块、第三方库安装和使用</li>
+                            <li><strong>异常处理机制</strong> - try/except语句、异常类型、自定义异常</li>
+                            <li><strong>文件I/O操作</strong> - 文件读写、路径处理、CSV/JSON数据处理</li>
+                        </ul>
+                        <div class="learning-outcomes">
+                            <h6>🎯 学习成果：</h6>
+                            <p>掌握函数式编程思想，能够编写模块化代码，具备处理文件和异常的能力，为复杂程序开发奠定基础。</p>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li><a href="module2/lesson1.html">课程1: 函数定义与调用</a></li>
+                        <li><a href="module2/lesson2.html">课程2: 模块与包</a></li>
+                        <li><a href="module2/lesson3.html">课程3: 异常处理</a></li>
+                        <li><a href="module2/lesson4.html">课程4: 文件操作</a></li>
+                    </ul>
+                    <div class="part-actions">
+                        <a href="module2/lesson1.html" class="btn btn-primary">开始学习</a>
+                        <a href="module2/exercises.html" class="btn btn-secondary">练习题</a>
+                        <a href="module2/project.html" class="btn btn-accent">项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>📊 模块3: 数据结构</h3>
+                        <span class="lesson-count">4个课程 • 预计10-12小时</span>
+                    </div>
+                    <p class="part-description">列表、字典、集合等数据结构的使用</p>
+                    <div class="module-details">
+                        <h5>📖 详细内容：</h5>
+                        <ul class="detailed-topics">
+                            <li><strong>序列类型深入</strong> - 列表、元组的创建、索引、切片操作</li>
+                            <li><strong>列表高级操作</strong> - 列表推导式、排序、过滤、映射</li>
+                            <li><strong>映射类型应用</strong> - 字典创建、键值操作、嵌套字典处理</li>
+                            <li><strong>集合运算</strong> - 集合创建、交并差运算、去重操作</li>
+                            <li><strong>字符串处理技巧</strong> - 格式化、正则表达式、编码解码</li>
+                            <li><strong>数据结构选择</strong> - 不同场景下的最优数据结构选择策略</li>
+                        </ul>
+                        <div class="learning-outcomes">
+                            <h6>🎯 学习成果：</h6>
+                            <p>熟练掌握Python核心数据结构，能够根据实际需求选择合适的数据类型，为数据处理和算法实现打下基础。</p>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li><a href="module3/lesson1.html">课程1: 列表与元组</a></li>
+                        <li><a href="module3/lesson2.html">课程2: 字典与集合</a></li>
+                        <li><a href="module3/lesson3.html">课程3: 字符串处理</a></li>
+                        <li><a href="module3/lesson4.html">课程4: 数据结构综合应用</a></li>
+                    </ul>
+                    <div class="part-actions">
+                        <a href="module3/lesson1.html" class="btn btn-primary">开始学习</a>
+                        <a href="module3/exercises.html" class="btn btn-secondary">练习题</a>
+                        <a href="module3/project.html" class="btn btn-accent">项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>🎯 模块4: 面向对象编程</h3>
+                        <span class="lesson-count">4个课程 • 预计12-15小时</span>
+                    </div>
+                    <p class="part-description">类、对象、继承等面向对象编程概念</p>
+                    <div class="module-details">
+                        <h5>📖 详细内容：</h5>
+                        <ul class="detailed-topics">
+                            <li><strong>面向对象基础</strong> - 类的定义、对象实例化、属性和方法</li>
+                            <li><strong>封装与访问控制</strong> - 私有属性、属性装饰器、getter/setter</li>
+                            <li><strong>继承机制</strong> - 单继承、多继承、方法重写、super()使用</li>
+                            <li><strong>多态性实现</strong> - 抽象类、接口设计、鸭子类型</li>
+                            <li><strong>特殊方法应用</strong> - 魔术方法、运算符重载、上下文管理器</li>
+                            <li><strong>设计模式入门</strong> - 单例、工厂、观察者等常用设计模式</li>
+                        </ul>
+                        <div class="learning-outcomes">
+                            <h6>🎯 学习成果：</h6>
+                            <p>理解面向对象编程思想，能够设计和实现复杂的类结构，掌握代码重用和模块化设计技巧。</p>
+                        </div>
+                    </div>
+                    <ul class="lesson-list">
+                        <li><a href="module4/lesson1.html">课程1: 类与对象</a></li>
+                        <li><a href="module4/lesson2.html">课程2: 继承与多态</a></li>
+                        <li><a href="module4/lesson3.html">课程3: 特殊方法</a></li>
+                        <li><a href="module4/lesson4.html">课程4: 设计模式</a></li>
+                    </ul>
+                    <div class="part-actions">
+                        <a href="module4/lesson1.html" class="btn btn-primary">开始学习</a>
+                        <a href="module4/exercises.html" class="btn btn-secondary">练习题</a>
+                        <a href="module4/project.html" class="btn btn-accent">项目实战</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="learning-path">
+            <h2>📈 学习路径建议</h2>
+            <div class="path-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>基础入门</h4>
+                        <p>从模块1开始，掌握Python基本语法和数据类型</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>函数编程</h4>
+                        <p>学习模块2，理解函数、模块和异常处理</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>数据处理</h4>
+                        <p>掌握模块3，熟练使用各种数据结构</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>高级特性</h4>
+                        <p>完成模块4，理解面向对象编程思想</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="navigation-section">
+            <div class="nav-buttons">
+                <a href="../part2_data_analysis/index.html" class="btn btn-primary">下一部分: 数据分析 →</a>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

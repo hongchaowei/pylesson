@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据获取练习题 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>练习说明</h2>
+            <p>以下练习将帮助您巩固本模块学到的金融数据获取与处理技能。建议按顺序完成所有练习。</p>
+            <div class="exercise-tips">
+                <h3>练习提示</h3>
+                <ul>
+                    <li>使用Jupyter Notebook完成练习</li>
+                    <li>参考课程内容和官方文档</li>
+                    <li>尝试不同的方法和参数</li>
+                    <li>记录遇到的问题和解决方案</li>
+                </ul>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>基础练习：API使用</h2>
+            <div class="exercise">
+                <h3>练习1：Yahoo Finance数据获取</h3>
+                <p>使用yfinance库完成以下任务：</p>
+                <pre><code class="language-python">import yfinance as yf</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>获取AAPL(苹果公司)2022年全年的日线数据</li>
+                    <li>计算日收益率和对数收益率</li>
+                    <li>绘制收盘价和交易量的双轴图</li>
+                    <li>计算20日移动平均线并添加到图中</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习2：Alpha Vantage API使用</h3>
+                <p>使用Alpha Vantage API完成以下任务：</p>
+                <pre><code class="language-python">from alpha_vantage.timeseries import TimeSeries</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>获取MSFT(微软)的日线数据(全量数据)</li>
+                    <li>比较调整收盘价和普通收盘价的差异</li>
+                    <li>计算每周收益率</li>
+                    <li>找出交易量最大的5个交易日</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>中级练习：数据清洗</h2>
+            <div class="exercise">
+                <h3>练习3：缺失值处理</h3>
+                <p>给定以下有缺失值的数据集：</p>
+                <pre><code class="language-python">import numpy as np
+import pandas as pd
+# 创建有缺失值的数据
+dates = pd.date_range('2023-01-01', periods=100)
+data = pd.DataFrame({
+    'price': np.random.normal(100, 10, 100),
+    'volume': np.random.randint(10000, 50000, 100)
+}, index=dates)
+# 随机添加缺失值
+for col in data.columns:
+    data.loc[data.sample(frac=0.1).index, col] = np.nan</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>统计各列的缺失值比例</li>
+                    <li>使用三种不同方法填充缺失值并比较结果</li>
+                    <li>评估每种填充方法对数据分布的影响</li>
+                    <li>编写函数自动选择最佳填充方法</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习4：异常值检测</h3>
+                <p>使用以下包含异常值的数据：</p>
+                <pre><code class="language-python"># 创建有异常值的数据
+np.random.seed(42)
+normal_data = np.random.normal(100, 5, 90)
+outliers = np.random.uniform(150, 200, 10)
+price_data = pd.Series(np.concatenate([normal_data, outliers]))</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>使用Z-score方法检测异常值</li>
+                    <li>使用IQR方法检测异常值</li>
+                    <li>比较两种方法的检测结果</li>
+                    <li>实现动态阈值异常值检测函数</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>高级练习：数据存储</h2>
+            <div class="exercise">
+                <h3>练习5：SQLite数据库操作</h3>
+                <p>使用SQLite数据库完成以下任务：</p>
+                <pre><code class="language-python">import sqlite3</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>设计金融数据数据库表结构</li>
+                    <li>实现批量数据插入函数</li>
+                    <li>编写高效查询函数(按日期范围、按股票代码)</li>
+                    <li>实现数据库备份和恢复功能</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习6：时间序列数据库</h3>
+                <p>使用InfluxDB完成以下任务：</p>
+                <pre><code class="language-python">from influxdb_client import InfluxDBClient</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>设计金融时间序列数据模式</li>
+                    <li>实现高效写入和查询接口</li>
+                    <li>计算并存储滚动统计量</li>
+                    <li>实现数据降采样功能</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>综合练习：完整数据流水线</h2>
+            <div class="exercise">
+                <h3>练习7：构建数据获取系统</h3>
+                <p>综合应用所学知识完成以下任务：</p>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>从至少两个数据源获取股票数据</li>
+                    <li>实现数据清洗流水线</li>
+                    <li>设计并实现数据存储方案</li>
+                    <li>添加数据质量检查功能</li>
+                    <li>实现简单的可视化报表</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习8：实时数据处理系统</h3>
+                <p>构建实时数据处理系统：</p>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>使用WebSocket获取实时数据</li>
+                    <li>实现实时数据清洗和转换</li>
+                    <li>设计实时数据存储方案</li>
+                    <li>添加实时监控和报警功能</li>
+                    <li>实现简单的实时仪表盘</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercise-solutions">
+            <h2>练习参考答案</h2>
+            <p>完成练习后，可以参考以下代码检查您的实现：</p>
+            <div class="solution">
+                <h3>练习1参考代码</h3>
+                <pre><code class="language-python"># 获取AAPL数据
+aapl = yf.download('AAPL', start='2022-01-01', end='2022-12-31')
+# 计算收益率
+aapl['Return'] = aapl['Close'].pct_change()
+aapl['Log_Return'] = np.log(aapl['Close']).diff()
+# 绘制图表
+fig, ax1 = plt.subplots(figsize=(12, 6))
+ax2 = ax1.twinx()
+ax1.plot(aapl.index, aapl['Close'], 'b-', label='Close Price')
+ax2.bar(aapl.index, aapl['Volume'], color='gray', alpha=0.3, label='Volume')
+# 计算移动平均
+aapl['MA20'] = aapl['Close'].rolling(20).mean()
+ax1.plot(aapl.index, aapl['MA20'], 'r--', label='20-day MA')
+ax1.legend(loc='upper left')
+ax2.legend(loc='upper right')
+plt.title('AAPL 2022 Price and Volume')
+plt.show()</code></pre>
+            </div>
+            <div class="solution">
+                <h3>练习5参考代码</h3>
+                <pre><code class="language-python">def setup_finance_db():
+    conn = sqlite3.connect('finance.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS stocks
+                 (symbol TEXT, date TEXT,
+                  open REAL, high REAL,
+                  low REAL, close REAL,
+                  volume INTEGER,
+                  PRIMARY KEY (symbol, date))''')
+    conn.commit()
+    return conn
+def bulk_insert_data(conn, data):
+    c = conn.cursor()
+    c.executemany('''INSERT OR REPLACE INTO stocks
+                     VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                  data.to_records(index=False))
+    conn.commit()
+def query_data(conn, symbol, start_date, end_date):
+    query = '''SELECT * FROM stocks
+               WHERE symbol = ? AND date BETWEEN ? AND ?'''
+    return pd.read_sql(query, conn,
+                       params=(symbol, start_date, end_date),
+                       parse_dates=['date'])</code></pre>
+            </div>
+        </section>
+        <div class="exercises-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+            <a href="../../index.html" class="btn">下一模块: 投资组合分析 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

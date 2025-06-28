@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程3: 模块与包 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>模块的导入与使用</h2>
+            <p>模块是包含Python定义和语句的文件，可以在其他Python程序中重用。通过模块，我们可以将相关功能组织在一起，使代码更加结构化和可维护。</p>
+            <h3>导入模块的基本方法</h3>
+            <pre># 导入整个模块
+import math
+# 使用模块中的函数
+radius = 5
+area = math.pi * math.pow(radius, 2)
+print(f"圆的面积: {area:.2f}")
+# 导入特定函数或变量
+from math import pi, sqrt
+# 直接使用导入的函数和变量
+area = pi * radius ** 2
+print(f"圆的面积: {area:.2f}")
+print(f"半径的平方根: {sqrt(radius):.2f}")
+# 使用别名导入
+import numpy as np
+# 使用别名访问模块
+array = np.array([1, 2, 3, 4, 5])
+print(f"数组平均值: {np.mean(array):.2f}")
+# 导入所有内容（不推荐）
+from math import *  # 不推荐这种方式，可能导致命名冲突</pre>
+            <h3>常用标准库模块</h3>
+            <pre># datetime模块 - 处理日期和时间
+import datetime
+today = datetime.date.today()
+print(f"今天是: {today}")
+# 计算两个日期之间的差异
+start_date = datetime.date(2023, 1, 1)
+days_passed = (today - start_date).days
+print(f"从2023年1月1日起已经过去了 {days_passed} 天")
+# random模块 - 生成随机数
+import random
+# 生成随机整数
+random_int = random.randint(1, 100)
+print(f"随机整数: {random_int}")
+# 从列表中随机选择
+stocks = ["AAPL", "MSFT", "GOOG", "AMZN", "TSLA"]
+selected = random.choice(stocks)
+print(f"随机选择的股票: {selected}")
+# 打乱列表顺序
+random.shuffle(stocks)
+print(f"打乱后的股票列表: {stocks}")
+# collections模块 - 提供额外的数据结构
+from collections import Counter, defaultdict
+# 计数器
+data = [1, 2, 3, 1, 2, 1, 4, 5, 3, 2, 1]
+count = Counter(data)
+print(f"数据计数: {count}")
+print(f"最常见的元素: {count.most_common(2)}")
+# 默认字典
+portfolio = defaultdict(int)
+for stock in ["AAPL", "MSFT", "AAPL", "GOOG", "AAPL"]:
+    portfolio[stock] += 1
+print(f"投资组合: {dict(portfolio)}")</pre>
+            <div class="feature">
+                <h4>金融应用示例：使用标准库进行金融计算</h4>
+                <pre># 使用标准库进行金融计算
+import math
+import statistics
+import datetime
+import calendar
+# 计算复利
+def compound_interest(principal, rate, time, compounds_per_year=1):
+    """计算复利"""
+    return principal * (1 + rate/compounds_per_year) ** (compounds_per_year * time)
+# 计算不同复利频率的结果
+principal = 10000
+rate = 0.05
+time = 10
+annual = compound_interest(principal, rate, time, 1)
+semiannual = compound_interest(principal, rate, time, 2)
+quarterly = compound_interest(principal, rate, time, 4)
+monthly = compound_interest(principal, rate, time, 12)
+daily = compound_interest(principal, rate, time, 365)
+continuous = principal * math.exp(rate * time)
+print("不同复利频率的结果:")
+print(f"年复利: ${annual:.2f}")
+print(f"半年复利: ${semiannual:.2f}")
+print(f"季度复利: ${quarterly:.2f}")
+print(f"月复利: ${monthly:.2f}")
+print(f"日复利: ${daily:.2f}")
+print(f"连续复利: ${continuous:.2f}")
+# 使用statistics模块分析股票数据
+stock_prices = [105.3, 107.2, 106.8, 108.5, 109.2, 110.5, 112.3, 111.8, 110.7]
+mean_price = statistics.mean(stock_prices)
+median_price = statistics.median(stock_prices)
+std_dev = statistics.stdev(stock_prices)
+print("\n股票价格统计:")
+print(f"平均价格: ${mean_price:.2f}")
+print(f"中位数价格: ${median_price:.2f}")
+print(f"标准差: ${std_dev:.2f}")
+# 使用datetime和calendar模块处理交易日
+def is_trading_day(date):
+    """检查是否为交易日（周一至周五，非节假日）"""
+    # 简化版，仅检查是否为周末
+    return date.weekday() < 5  # 0-4表示周一至周五
+def get_trading_days(year, month):
+    """获取指定月份的交易日"""
+    trading_days = []
+    # 获取月份中的所有日期
+    _, num_days = calendar.monthrange(year, month)
+    for day in range(1, num_days + 1):
+        date = datetime.date(year, month, day)
+        if is_trading_day(date):
+            trading_days.append(date)
+    return trading_days
+# 获取当前月份的交易日
+today = datetime.date.today()
+trading_days = get_trading_days(today.year, today.month)
+print(f"\n{today.year}年{today.month}月的交易日:")
+for date in trading_days[:5]:  # 只显示前5个交易日
+    print(f"  {date.strftime('%Y-%m-%d')} ({calendar.day_name[date.weekday()]})")
+print(f"  ...共{len(trading_days)}个交易日")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>创建自定义模块</h2>
+            <p>除了使用Python标准库和第三方模块外，我们还可以创建自己的模块来组织和重用代码。</p>
+            <h3>创建简单模块</h3>
+            <p>要创建一个模块，只需编写一个包含函数、类和变量定义的Python文件。例如，我们可以创建一个名为<code>finance_utils.py</code>的文件：</p>
+            <pre># finance_utils.py
+"""金融工具模块，提供常用的金融计算函数"""
+# 模块级变量
+DEFAULT_RISK_FREE_RATE = 0.02
+DEFAULT_TRADING_DAYS = 252
+def calculate_simple_return(start_price, end_price, dividends=0):
+    """计算简单收益率"""
+    return (end_price - start_price + dividends) / start_price
+def calculate_log_return(start_price, end_price):
+    """计算对数收益率"""
+    import math
+    return math.log(end_price / start_price)
+def calculate_sharpe_ratio(returns, risk_free_rate=DEFAULT_RISK_FREE_RATE):
+    """计算夏普比率"""
+    import statistics
+    excess_returns = [r - risk_free_rate for r in returns]
+    return statistics.mean(excess_returns) / statistics.stdev(excess_returns)
+def calculate_annualized_volatility(daily_returns):
+    """计算年化波动率"""
+    import statistics
+    return statistics.stdev(daily_returns) * (DEFAULT_TRADING_DAYS ** 0.5)
+# 如果作为主程序运行，执行测试代码
+if __name__ == "__main__":
+    # 测试代码
+    print("测试金融工具模块...")
+    # 测试简单收益率计算
+    start = 100
+    end = 110
+    simple_return = calculate_simple_return(start, end)
+    print(f"简单收益率: {simple_return:.2%}")
+    # 测试对数收益率计算
+    log_return = calculate_log_return(start, end)
+    print(f"对数收益率: {log_return:.2%}")
+    print("测试完成")</pre>
+            <h3>使用自定义模块</h3>
+            <p>创建模块后，我们可以像使用标准库模块一样导入和使用它：</p>
+            <pre># 导入自定义模块
+import finance_utils
+# 使用模块中的函数
+start_price = 50
+end_price = 55
+dividends = 1
+simple_return = finance_utils.calculate_simple_return(start_price, end_price, dividends)
+print(f"简单收益率: {simple_return:.2%}")
+# 使用模块中的常量
+print(f"默认无风险利率: {finance_utils.DEFAULT_RISK_FREE_RATE:.2%}")
+# 从模块中导入特定函数
+from finance_utils import calculate_log_return, calculate_sharpe_ratio
+log_return = calculate_log_return(start_price, end_price)
+print(f"对数收益率: {log_return:.2%}")
+# 使用模块的__name__属性
+print(f"模块名称: {finance_utils.__name__}")
+print(f"模块文档: {finance_utils.__doc__}")</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>包的结构与组织</h2>
+            <p>包是一种通过使用"带点号的模块名"来构造Python模块命名空间的方法。例如，模块名<code>A.B</code>表示名为<code>A</code>的包中名为<code>B</code>的子模块。包允许我们将相关模块组织在一起，形成层次结构。</p>
+            <h3>创建包</h3>
+            <p>要创建一个包，需要创建一个目录，并在其中放置一个名为<code>__init__.py</code>的文件。这个文件可以为空，也可以包含初始化代码。例如，我们可以创建一个名为<code>financial_analysis</code>的包：</p>
+            <pre>financial_analysis/           # 包的根目录
+    __init__.py             # 将目录标记为包
+    market_data.py          # 市场数据模块
+    technical_indicators.py # 技术指标模块
+    portfolio/              # 子包
+        __init__.py         # 将子目录标记为子包
+        optimization.py     # 投资组合优化模块
+        risk.py             # 风险分析模块</pre>
+            <h3>__init__.py文件</h3>
+            <p><code>__init__.py</code>文件的主要作用是将目录标记为Python包。此外，它还可以：</p>
+            <ul>
+                <li>初始化包</li>
+                <li>导入包中的模块</li>
+                <li>定义包的公共接口</li>
+            </ul>
+            <pre># financial_analysis/__init__.py
+"""金融分析包，提供市场数据处理和技术分析工具"""
+# 版本信息
+__version__ = '0.1.0'
+# 导入常用模块，使它们可以直接从包中导入
+from . import market_data
+from . import technical_indicators
+# 导入常用函数，使它们可以直接从包中导入
+from .market_data import fetch_stock_data, calculate_returns
+from .technical_indicators import sma, ema, rsi
+# 定义包的公共接口
+__all__ = ['market_data', 'technical_indicators', 'portfolio',
+           'fetch_stock_data', 'calculate_returns',
+           'sma', 'ema', 'rsi']</pre>
+            <h3>使用包</h3>
+            <p>创建包后，我们可以通过多种方式导入和使用其中的模块：</p>
+            <pre># 导入包
+import financial_analysis
+# 使用包中的模块
+data = financial_analysis.market_data.fetch_stock_data('AAPL')
+returns = financial_analysis.calculate_returns(data)
+# 导入包中的特定模块
+from financial_analysis import technical_indicators
+# 使用导入的模块
+sma_values = technical_indicators.sma(data['close'], 20)
+rsi_values = technical_indicators.rsi(data['close'], 14)
+# 导入子包
+from financial_analysis import portfolio
+# 使用子包中的模块
+optimal_weights = portfolio.optimization.optimize(returns)
+risk_metrics = portfolio.risk.calculate_risk_metrics(returns, optimal_weights)</pre>
+            <div class="feature">
+                <h4>金融应用示例：创建金融分析包</h4>
+                <p>下面是一个更完整的金融分析包示例，展示了如何组织金融分析相关的代码：</p>
+                <pre># 包结构
+financial_analysis/
+    __init__.py
+    market_data.py
+    technical_indicators.py
+    fundamental_analysis.py
+    portfolio/
+        __init__.py
+        optimization.py
+        risk.py
+        performance.py
+    utils/
+        __init__.py
+        date_utils.py
+        math_utils.py
+        visualization.py</pre>
+                <p>各模块的主要功能：</p>
+                <ul>
+                    <li><strong>market_data.py</strong>：获取和处理市场数据</li>
+                    <li><strong>technical_indicators.py</strong>：计算技术指标</li>
+                    <li><strong>fundamental_analysis.py</strong>：基本面分析工具</li>
+                    <li><strong>portfolio/optimization.py</strong>：投资组合优化算法</li>
+                    <li><strong>portfolio/risk.py</strong>：风险评估工具</li>
+                    <li><strong>portfolio/performance.py</strong>：绩效评估工具</li>
+                    <li><strong>utils/date_utils.py</strong>：日期处理工具</li>
+                    <li><strong>utils/math_utils.py</strong>：数学工具函数</li>
+                    <li><strong>utils/visualization.py</strong>：数据可视化工具</li>
+                </ul>
+                <p>使用这个包进行金融分析：</p>
+                <pre># 导入需要的模块和函数
+from financial_analysis.market_data import fetch_stock_data
+from financial_analysis.technical_indicators import sma, rsi
+from financial_analysis.portfolio.optimization import optimize_portfolio
+from financial_analysis.portfolio.risk import calculate_var
+from financial_analysis.utils.visualization import plot_returns
+# 获取股票数据
+stocks = ['AAPL', 'MSFT', 'GOOG', 'AMZN']
+data = {stock: fetch_stock_data(stock) for stock in stocks}
+# 计算技术指标
+for stock, prices in data.items():
+    data[stock]['sma_20'] = sma(prices['close'], 20)
+    data[stock]['rsi_14'] = rsi(prices['close'], 14)
+# 计算收益率
+returns = {stock: calculate_returns(prices['close']) for stock, prices in data.items()}
+# 优化投资组合
+weights = optimize_portfolio(returns)
+# 计算风险指标
+var_95 = calculate_var(returns, weights, confidence=0.95)
+# 可视化结果
+plot_returns(returns, weights)</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>模块搜索路径</h2>
+            <p>当导入模块时，Python解释器会在一系列目录中搜索该模块。这些目录构成了模块搜索路径。了解模块搜索路径对于解决导入错误和组织项目结构非常重要。</p>
+            <h3>sys.path</h3>
+            <p>模块搜索路径存储在<code>sys</code>模块的<code>path</code>变量中。这个变量是一个字符串列表，表示Python解释器搜索模块的目录。</p>
+            <pre># 查看模块搜索路径
+import sys
+print("模块搜索路径:")
+for path in sys.path:
+    print(f"  {path}")</pre>
+            <h3>搜索顺序</h3>
+            <p>当导入模块时，Python按照以下顺序搜索模块：</p>
+            <ol>
+                <li>当前目录</li>
+                <li>PYTHONPATH环境变量中的目录</li>
+                <li>标准库目录</li>
+                <li>site-packages目录（第三方包的安装位置）</li>
+            </ol>
+            <h3>修改搜索路径</h3>
+            <p>我们可以通过修改<code>sys.path</code>来添加自定义目录到搜索路径：</p>
+            <pre># 添加目录到搜索路径
+import sys
+import os
+# 添加自定义目录
+custom_path = os.path.join(os.path.expanduser("~"), "my_python_modules")
+sys.path.append(custom_path)
+# 现在可以导入该目录中的模块
+# import my_custom_module</pre>
+            <h3>相对导入与绝对导入</h3>
+            <p>在包内部，我们可以使用相对导入或绝对导入来引用其他模块：</p>
+            <pre># 绝对导入
+from financial_analysis.portfolio import risk
+from financial_analysis.utils import math_utils
+# 相对导入（在financial_analysis.portfolio.optimization模块中）
+from . import risk  # 导入同级模块
+from .. import technical_indicators  # 导入上级包中的模块
+from ..utils import math_utils  # 导入上级包中的子包模块</pre>
+            <div class="feature">
+                <h4>最佳实践：项目结构与导入</h4>
+                <p>以下是组织Python项目和处理导入的一些最佳实践：</p>
+                <ol>
+                    <li><strong>使用虚拟环境</strong>：为每个项目创建独立的虚拟环境，避免依赖冲突</li>
+                    <li><strong>创建可安装的包</strong>：使用setup.py使项目可以安装，简化导入</li>
+                    <li><strong>遵循明确的导入风格</strong>：在项目中统一使用绝对导入或相对导入</li>
+                    <li><strong>避免循环导入</strong>：设计模块结构时避免模块之间的循环依赖</li>
+                    <li><strong>使用__init__.py定义公共接口</strong>：在__init__.py中导出公共API，隐藏实现细节</li>
+                </ol>
+                <p>示例项目结构：</p>
+                <pre>financial_project/
+    setup.py                # 安装脚本
+    README.md               # 项目文档
+    requirements.txt        # 依赖列表
+    financial_analysis/     # 主包
+        __init__.py
+        market_data.py
+        technical_indicators.py
+        ...
+    tests/                  # 测试目录
+        __init__.py
+        test_market_data.py
+        ...
+    examples/               # 示例目录
+        basic_analysis.py
+        portfolio_optimization.py
+        ...</pre>
+                <p>setup.py示例：</p>
+                <pre>from setuptools import setup, find_packages
+setup(
+    name="financial_analysis",
+    version="0.1.0",
+    packages=find_packages(),
+    install_requires=[
+        "numpy",
+        "pandas",
+        "matplotlib",
+        "scipy",
+    ],
+    author="Your Name",
+    author_email="your.email@example.com",
+    description="A package for financial analysis",
+    keywords="finance, analysis, portfolio",
+    url="https://github.com/yourusername/financial_analysis",
+)</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们学习了：</p>
+            <ul>
+                <li>如何导入和使用Python标准库和第三方模块</li>
+                <li>如何创建自定义模块组织代码</li>
+                <li>如何使用包来构建模块的层次结构</li>
+                <li>模块搜索路径的工作原理及其修改方法</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一课中，我们将探索Python标准库中对金融编程有用的模块，学习如何利用它们解决实际问题。</p>
+                <a href="lesson4.html" class="btn btn-large">下一课：标准库概览 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson2.html" class="btn">« 上一课：函数进阶</a>
+            </div>
+            <div>
+                <a href="lesson4.html" class="btn">下一课：标准库概览 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2课: 条件风险价值(CVaR) - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>CVaR基本概念</h2>
+            <p>条件风险价值(Conditional Value at Risk, CVaR)是在VaR基础上发展而来的风险度量指标，也称为预期短缺(Expected Shortfall)。</p>
+            <h3>1. CVaR的数学定义</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+from scipy.stats import norm
+def calculate_cvar(returns, confidence_level=0.95):
+    """计算条件风险价值(CVaR)"""
+    if isinstance(returns, pd.DataFrame):
+        return returns.aggregate(calculate_cvar, confidence_level=confidence_level)
+    elif isinstance(returns, pd.Series):
+        var = -np.percentile(returns, 100 * (1 - confidence_level))
+        cvar = -returns[returns <= -var].mean()
+        return cvar
+    else:
+        raise TypeError("输入应为Pandas Series或DataFrame")
+# 示例收益率数据
+returns = pd.Series([0.01, -0.02, 0.03, -0.01, 0.02, -0.03, 0.01, -0.02])
+cvar_95 = calculate_cvar(returns)
+print(f"95%置信水平的CVaR: {cvar_95:.4f}")</code></pre>
+            <h3>2. CVaR与VaR的比较</h3>
+            <pre><code class="language-python">def compare_var_cvar(returns, confidence_level=0.95):
+    """比较VaR和CVaR"""
+    var = -np.percentile(returns, 100 * (1 - confidence_level))
+    cvar = calculate_cvar(returns, confidence_level)
+    print(f"\nVaR vs CVaR比较 (置信水平 {confidence_level:.0%}):")
+    print(f"VaR: {var:.4f}")
+    print(f"CVaR: {cvar:.4f}")
+    print(f"差异: {cvar - var:.4f} ({((cvar - var)/var * 100):.1f}%)")
+compare_var_cvar(returns)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>CVaR计算方法</h2>
+            <p>CVaR可以通过多种方法计算，包括历史模拟法、参数法和蒙特卡洛模拟法。</p>
+            <h3>1. 历史模拟法CVaR</h3>
+            <pre><code class="language-python">def historical_cvar(returns, confidence_level=0.95, window=252):
+    """历史模拟法计算CVaR"""
+    if len(returns) < window:
+        raise ValueError("收益率数据长度小于窗口大小")
+    def single_window_cvar(x):
+        var = -np.percentile(x, 100 * (1 - confidence_level))
+        return -x[x <= -var].mean()
+    # 计算滚动窗口CVaR
+    cvar_series = returns.rolling(window).apply(single_window_cvar)
+    return cvar_series.dropna()
+# 生成更长的收益率序列用于演示
+np.random.seed(42)
+long_returns = pd.Series(np.random.normal(0.001, 0.02, 1000))
+# 计算滚动CVaR
+rolling_cvar = historical_cvar(long_returns)
+print("\n滚动历史CVaR的最后5个值:\n", rolling_cvar.tail())</code></pre>
+            <h3>2. 参数法CVaR</h3>
+            <pre><code class="language-python">def parametric_cvar(returns, confidence_level=0.95, mean_adjust=True):
+    """参数法计算CVaR(假设正态分布)"""
+    if mean_adjust:
+        mu = returns.mean()
+    else:
+        mu = 0
+    sigma = returns.std()
+    alpha = norm.ppf(1 - confidence_level)
+    # 正态分布下的CVaR公式
+    cvar = -(mu + sigma * norm.pdf(alpha) / (1 - confidence_level))
+    return cvar
+parametric_cvar_95 = parametric_cvar(returns)
+print(f"\n参数法95% CVaR: {parametric_cvar_95:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>投资组合CVaR</h2>
+            <p>CVaR可以应用于投资组合层面，评估组合的尾部风险。</p>
+            <h3>1. 投资组合CVaR计算</h3>
+            <pre><code class="language-python">def portfolio_cvar(weights, asset_returns, confidence_level=0.95):
+    """计算投资组合的CVaR"""
+    portfolio_returns = (weights * asset_returns).sum(axis=1)
+    return calculate_cvar(portfolio_returns, confidence_level)
+# 示例资产收益率数据
+asset_returns = pd.DataFrame({
+    'Asset1': [0.01, -0.02, 0.03, -0.01, 0.02, -0.03, 0.01, -0.02],
+    'Asset2': [0.02, -0.01, 0.02, -0.02, 0.01, -0.02, 0.03, -0.01],
+    'Asset3': [0.015, -0.015, 0.025, -0.015, 0.015, -0.025, 0.015, -0.015]
+})
+weights = np.array([0.5, 0.3, 0.2])
+port_cvar = portfolio_cvar(weights, asset_returns)
+print(f"\n投资组合95% CVaR: {port_cvar:.4f}")</code></pre>
+            <h3>2. 投资组合CVaR优化</h3>
+            <pre><code class="language-python">from scipy.optimize import minimize
+def minimize_cvar(asset_returns, confidence_level=0.95):
+    """最小化投资组合CVaR"""
+    n_assets = asset_returns.shape[1]
+    init_guess = np.repeat(1/n_assets, n_assets)
+    def objective(weights):
+        return portfolio_cvar(weights, asset_returns, confidence_level)
+    # 约束条件
+    constraints = [{'type': 'eq', 'fun': lambda x: np.sum(x) - 1}]
+    bounds = [(0, 1) for _ in range(n_assets)]
+    # 优化
+    result = minimize(objective, init_guess,
+                      method='SLSQP',
+                      bounds=bounds,
+                      constraints=constraints)
+    return result.x
+optimal_weights = minimize_cvar(asset_returns)
+print("\n最小CVaR组合权重:\n", optimal_weights)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>CVaR在风险管理中的应用</h2>
+            <p>CVaR在实际风险管理中的优势和应用场景。</p>
+            <h3>1. CVaR与VaR的风险比较</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+def plot_var_cvar_comparison(returns, confidence_level=0.95):
+    """绘制VaR和CVaR的风险比较"""
+    var_series = returns.rolling(100).apply(
+        lambda x: -np.percentile(x, 100 * (1 - confidence_level))
+    )
+    cvar_series = returns.rolling(100).apply(
+        lambda x: calculate_cvar(pd.Series(x), confidence_level)
+    )
+    plt.figure(figsize=(12,6))
+    plt.plot(var_series, label=f'{confidence_level:.0%} VaR')
+    plt.plot(cvar_series, label=f'{confidence_level:.0%} CVaR')
+    plt.title('VaR与CVaR风险比较')
+    plt.ylabel('风险值')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+plot_var_cvar_comparison(long_returns)</code></pre>
+            <h3>2. CVaR的优缺点分析</h3>
+            <pre><code class="language-python"># CVaR的优点和缺点总结
+cvar_pros_cons = {
+    '优点': [
+        '满足一致性风险度量的所有性质',
+        '更关注尾部风险，比VaR更保守',
+        '对极端损失估计更准确',
+        '在投资组合优化中表现更好'
+    ],
+    '缺点': [
+        '计算复杂度高于VaR',
+        '需要更多历史数据',
+        '对分布假设敏感',
+        '解释性略差于VaR'
+    ],
+    '应用场景': [
+        '对冲基金风险管理',
+        '投资组合优化',
+        '压力测试',
+        '监管资本计算'
+    ]
+}
+print("\nCVaR模型的优缺点与应用场景:")
+for category, items in cvar_pros_cons.items():
+    print(f"\n{category}:")
+    for item in items:
+        print(f"- {item}")</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson1.html" class="btn">« 上一课: 风险价值(VaR)模型</a>
+            <a href="lesson3.html" class="btn">下一课: 压力测试与情景分析 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块5: NumPy与数据处理 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .hero-section h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .hero-section .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .course-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .course-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        .course-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .course-card h3 i {
+            color: #667eea;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        .project-card, .exercise-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+        .project-card h3, .exercise-card h3 {
+            margin-bottom: 1rem;
+        }
+        .resources-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .resource {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .resource h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .resource h3 i {
+            color: #667eea;
+        }
+        .module-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 3rem 0;
+            gap: 1rem;
+        }
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .prerequisites-card {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .prerequisites-card h3 {
+            color: #856404;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            .module-nav {
+                flex-direction: column;
+            }
+            .nav-link {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h1>模块5: NumPy与数据处理</h1>
+            <p class="subtitle">掌握Python科学计算的基础工具，为金融数据分析打下坚实基础</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <section class="module-intro">
+            <h2><i class="fas fa-info-circle"></i> 模块概述</h2>
+            <p>欢迎来到Python金融编程课程的第五个模块！在这个模块中，我们将学习NumPy库，这是Python科学计算的基础工具。NumPy提供了高性能的多维数组对象和工具，是金融数据分析的重要基础。</p>
+            <p>NumPy数组比Python原生列表更高效，支持向量化操作，能够处理大规模数据集。在金融领域，NumPy常用于价格序列分析、风险计算和量化建模等任务。</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <h3>高效计算</h3>
+                    <p>NumPy的向量化操作比循环快几个数量级</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-cubes"></i>
+                    <h3>多维数组</h3>
+                    <p>轻松处理时间序列、面板数据等多维金融数据</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-calculator"></i>
+                    <h3>数学函数</h3>
+                    <p>提供丰富的数学函数，支持统计和线性代数运算</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <h3>与其他库集成</h3>
+                    <p>Pandas、SciPy等金融分析库都基于NumPy</p>
+                </div>
+            </div>
+        </section>
+        <section class="module-content">
+            <h2><i class="fas fa-book"></i> 课程内容</h2>
+            <div class="course-cards">
+                <div class="course-card">
+                    <h3><i class="fas fa-play-circle"></i> 课程1: NumPy基础</h3>
+                    <p>学习NumPy数组的基本操作和特性，理解其在金融数据处理中的优势。</p>
+                    <ul>
+                        <li>NumPy数组与Python列表的区别</li>
+                        <li>创建和操作NumPy数组</li>
+                        <li>数组索引和切片</li>
+                        <li>数组的形状和维度</li>
+                    </ul>
+                    <a href="lesson1.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-calculator"></i> 课程2: 数组运算与广播</h3>
+                    <p>掌握NumPy的向量化运算和广播机制，提高金融计算的效率。</p>
+                    <ul>
+                        <li>向量化运算与循环的性能对比</li>
+                        <li>基本数学运算和统计函数</li>
+                        <li>广播机制的原理和应用</li>
+                        <li>条件运算和布尔索引</li>
+                    </ul>
+                    <a href="lesson2.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-chart-area"></i> 课程3: 金融数据处理</h3>
+                    <p>应用NumPy处理金融时间序列数据，计算常见金融指标。</p>
+                    <ul>
+                        <li>金融时间序列的表示</li>
+                        <li>收益率计算</li>
+                        <li>移动窗口计算</li>
+                        <li>波动率和相关性计算</li>
+                    </ul>
+                    <a href="lesson3.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+                <div class="course-card">
+                    <h3><i class="fas fa-cogs"></i> 课程4: 高级数组操作</h3>
+                    <p>学习NumPy的高级功能，处理复杂的金融数据分析任务。</p>
+                    <ul>
+                        <li>结构化数组</li>
+                        <li>内存映射文件</li>
+                        <li>数组的拼接和分割</li>
+                        <li>性能优化技巧</li>
+                    </ul>
+                    <a href="lesson4.html" class="btn"><i class="fas fa-play"></i> 开始学习</a>
+                </div>
+            </div>
+        </section>
+        <section class="module-project">
+            <h2><i class="fas fa-project-diagram"></i> 模块项目</h2>
+            <div class="project-card">
+                <h3><i class="fas fa-chart-line"></i> 股票收益率分析</h3>
+                <p>在本模块的项目中，您将使用NumPy分析一组股票的历史价格数据，计算各种金融指标，包括日收益率、波动率、移动平均线和相关性矩阵。</p>
+                <p>通过这个项目，您将应用NumPy的各种功能处理真实的金融数据，为后续更复杂的金融分析打下基础。</p>
+                <a href="project.html" class="btn btn-large"><i class="fas fa-eye"></i> 查看项目详情</a>
+            </div>
+        </section>
+        <section class="module-exercises">
+            <h2><i class="fas fa-dumbbell"></i> 练习题</h2>
+            <div class="exercise-card">
+                <p>为了帮助您巩固所学知识，我们提供了一系列练习题，涵盖了本模块的所有重要概念。这些练习题从基础到进阶，包括实际的金融应用场景，帮助您将理论知识应用到实践中。</p>
+                <p>每个练习题都包含详细的问题描述和参考解答，建议您先尝试自己解决问题，然后再查看参考解答。</p>
+                <a href="exercises.html" class="btn btn-large"><i class="fas fa-tasks"></i> 查看练习题</a>
+            </div>
+        </section>
+        <section class="module-resources">
+            <h2><i class="fas fa-book-open"></i> 学习资源</h2>
+            <div class="resources-list">
+                <div class="resource">
+                    <h3><i class="fas fa-bookmark"></i> 推荐阅读</h3>
+                    <ul>
+                        <li>《Python金融大数据分析》 - Yves Hilpisch</li>
+                        <li>《利用Python进行数据分析》 - Wes McKinney</li>
+                        <li>《NumPy Beginner's Guide》 - Ivan Idris</li>
+                    </ul>
+                </div>
+                <div class="resource">
+                    <h3><i class="fas fa-globe"></i> 在线资源</h3>
+                    <ul>
+                        <li><a href="https://numpy.org/doc/stable/user/quickstart.html" target="_blank">NumPy官方快速入门指南</a></li>
+                        <li><a href="https://www.runoob.com/numpy/numpy-tutorial.html" target="_blank">菜鸟教程 - NumPy教程</a></li>
+                        <li><a href="https://www.w3cschool.cn/numpy/" target="_blank">W3Cschool - NumPy教程</a></li>
+                    </ul>
+                </div>
+                <div class="resource">
+                    <h3><i class="fas fa-tools"></i> 工具与环境</h3>
+                    <ul>
+                        <li><a href="https://numpy.org/install/" target="_blank">NumPy安装指南</a></li>
+                        <li><a href="https://jupyter.org/" target="_blank">Jupyter Notebook（交互式编程环境）</a></li>
+                        <li><a href="https://pandas.pydata.org/" target="_blank">Pandas（金融数据分析库）</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <nav class="module-nav">
+            <a href="../../part2_data_analysis/index.html" class="nav-link prev"><i class="fas fa-arrow-left"></i> 返回数据分析</a>
+            <a href="../module6/index.html" class="nav-link next">进入模块6：Pandas与金融数据 <i class="fas fa-arrow-right"></i></a>
+        </nav>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

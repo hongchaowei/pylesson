@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2课: 技术指标与策略设计 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>技术指标基础</h2>
+            <p>技术指标是通过对市场价格和交易量数据进行数学计算得出的量化指标。</p>
+            <h3>1. 常见技术指标分类</h3>
+            <pre><code class="language-python">technical_indicators = {
+    '趋势指标': ['移动平均线(MA)', 'MACD', '抛物线转向(SAR)'],
+    '动量指标': ['RSI', '随机指标(KDJ)', 'CCI'],
+    '波动率指标': ['布林带(BB)', 'ATR'],
+    '成交量指标': ['OBV', '成交量MA']
+}</code></pre>
+            <h3>2. 指标计算基础</h3>
+            <pre><code class="language-python">import pandas as pd
+import numpy as np
+def simple_moving_average(prices, window=20):
+    """简单移动平均线"""
+    return prices.rolling(window=window).mean()
+def exponential_moving_average(prices, window=20):
+    """指数移动平均线"""
+    return prices.ewm(span=window, adjust=False).mean()
+# 示例使用
+prices = pd.Series(np.random.normal(0, 1, 100).cumsum() + 100)
+sma = simple_moving_average(prices)
+ema = exponential_moving_average(prices)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>核心指标实现</h2>
+            <p>以下是几个常用技术指标的Python实现。</p>
+            <h3>1. MACD指标</h3>
+            <pre><code class="language-python">def calculate_macd(prices, fast=12, slow=26, signal=9):
+    """
+    计算MACD指标
+    返回: (MACD值, 信号线, 柱状图)
+    """
+    ema_fast = exponential_moving_average(prices, fast)
+    ema_slow = exponential_moving_average(prices, slow)
+    macd = ema_fast - ema_slow
+    signal_line = exponential_moving_average(macd, signal)
+    histogram = macd - signal_line
+    return macd, signal_line, histogram
+# MACD交易信号
+def macd_signal(macd, signal_line):
+    """生成MACD交易信号"""
+    signals = pd.Series(0, index=macd.index)
+    signals[(macd > signal_line) & (macd.shift(1) <= signal_line.shift(1))] = 1  # 金叉买入
+    signals[(macd < signal_line) & (macd.shift(1) >= signal_line.shift(1))] = -1 # 死叉卖出
+    return signals</code></pre>
+            <h3>2. RSI指标</h3>
+            <pre><code class="language-python">def calculate_rsi(prices, window=14):
+    """计算相对强弱指数(RSI)"""
+    delta = prices.diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window).mean()
+    avg_loss = loss.rolling(window).mean()
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
+# RSI交易信号
+def rsi_signal(rsi, overbought=70, oversold=30):
+    """生成RSI交易信号"""
+    signals = pd.Series(0, index=rsi.index)
+    signals[(rsi < oversold) & (rsi.shift(1) >= oversold)] = 1   # 超卖买入
+    signals[(rsi > overbought) & (rsi.shift(1) <= overbought)] = -1  # 超买卖出
+    return signals</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>布林带策略</h2>
+            <p>布林带(Bollinger Bands)是结合趋势和波动率的经典指标。</p>
+            <h3>1. 布林带计算</h3>
+            <pre><code class="language-python">def bollinger_bands(prices, window=20, num_std=2):
+    """
+    计算布林带
+    返回: (中轨, 上轨, 下轨)
+    """
+    sma = simple_moving_average(prices, window)
+    rolling_std = prices.rolling(window).std()
+    upper = sma + (rolling_std * num_std)
+    lower = sma - (rolling_std * num_std)
+    return sma, upper, lower
+# 布林带交易信号
+def bb_signal(prices, upper, lower):
+    """布林带交易信号"""
+    signals = pd.Series(0, index=prices.index)
+    signals[prices > upper] = -1  # 突破上轨卖出
+    signals[prices < lower] = 1    # 突破下轨买入
+    signals[(prices >= lower) & (prices <= upper)] = 0  # 中间区域观望
+    return signals</code></pre>
+            <h3>2. 布林带可视化</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+def plot_bollinger_bands(prices, window=20, num_std=2):
+    """绘制布林带图表"""
+    sma, upper, lower = bollinger_bands(prices, window, num_std)
+    plt.figure(figsize=(12,6))
+    prices.plot(label='价格')
+    sma.plot(label=f'{window}日移动平均', linestyle='--')
+    upper.plot(label='上轨', color='red', linestyle=':')
+    lower.plot(label='下轨', color='green', linestyle=':')
+    plt.fill_between(prices.index, lower, upper, color='gray', alpha=0.1)
+    plt.title('布林带指标')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+# 示例可视化
+plot_bollinger_bands(prices)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>多指标组合策略</h2>
+            <p>结合多个指标可以构建更稳健的交易策略。</p>
+            <h3>1. MACD + RSI组合策略</h3>
+            <pre><code class="language-python">def macd_rsi_strategy(prices,
+                      macd_fast=12, macd_slow=26, macd_signal=9,
+                      rsi_window=14, rsi_overbought=70, rsi_oversold=30):
+    """MACD和RSI组合策略"""
+    # 计算指标
+    macd, signal_line, _ = calculate_macd(prices, macd_fast, macd_slow, macd_signal)
+    rsi = calculate_rsi(prices, rsi_window)
+    # 生成信号
+    macd_sig = macd_signal(macd, signal_line)
+    rsi_sig = rsi_signal(rsi, rsi_overbought, rsi_oversold)
+    # 组合信号
+    combined_signal = macd_sig + rsi_sig
+    combined_signal[combined_signal > 1] = 1    # 限制最大买入信号
+    combined_signal[combined_signal < -1] = -1  # 限制最大卖出信号
+    return combined_signal
+# 示例使用
+combined_signal = macd_rsi_strategy(prices)
+print(combined_signal.tail())</code></pre>
+            <h3>2. 策略评估</h3>
+            <pre><code class="language-python">def evaluate_strategy(signals, prices):
+    """评估策略表现"""
+    returns = prices.pct_change()
+    strategy_returns = signals.shift(1) * returns
+    # 计算表现指标
+    total_return = strategy_returns.sum()
+    sharpe_ratio = strategy_returns.mean() / strategy_returns.std() * np.sqrt(252)
+    max_drawdown = (strategy_returns.cumsum().cummax() - strategy_returns.cumsum()).max()
+    return {
+        '总收益率': total_return,
+        '年化夏普比率': sharpe_ratio,
+        '最大回撤': max_drawdown
+    }
+# 评估组合策略
+performance = evaluate_strategy(combined_signal, prices)
+print(performance)</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson1.html" class="btn">« 上一课: 交易策略基础</a>
+            <a href="lesson3.html" class="btn">下一课: 回测框架与实现 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

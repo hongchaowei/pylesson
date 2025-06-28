@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动化交易策略 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .hero-section p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2 i {
+            margin-right: 1rem;
+            color: var(--secondary-color);
+        }
+        
+        h3 {
+            color: var(--secondary-color);
+        }
+        
+        .learning-objectives {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+        
+        .learning-objectives h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .learning-objectives h3 i {
+            margin-right: 0.5rem;
+        }
+        
+        .learning-objectives ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .learning-objectives li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .learning-objectives li:before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+        }
+        
+        .lesson-card {
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary-color);
+        }
+        
+        .lesson-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .lesson-card h3 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+        
+        .lesson-duration {
+            background-color: var(--warning-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .lesson-card-content a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .lesson-card-content a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        
+        .resource-card {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .resource-card h3 {
+            margin-top: 0;
+            color: var(--success-color);
+        }
+        
+        .module-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 15px;
+            }
+            
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .lesson-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .module-navigation {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    <div class="hero-section">
+        <h1><i class="fas fa-robot"></i> 模块12: 自动化交易策略</h1>
+        <p>掌握Python量化交易的核心技术，从策略设计到实盘部署的完整流程</p>
+    </div>
+    
+    <main class="container">
+        <section class="module-overview">
+            <h2><i class="fas fa-info-circle"></i>模块概述</h2>
+            <p>本模块将教授如何使用Python构建完整的自动化交易系统，从策略设计到实盘部署的全流程。</p>
+            <div class="learning-objectives">
+                <h3><i class="fas fa-bullseye"></i>学习目标</h3>
+                <ul>
+                    <li>掌握常见量化交易策略的设计原理</li>
+                    <li>学会使用技术指标构建交易信号</li>
+                    <li>实现策略回测框架并评估策略表现</li>
+                    <li>了解实盘交易系统的架构和实现</li>
+                    <li>掌握风险管理在自动化交易中的应用</li>
+                </ul>
+            </div>
+        </section>
+        <section class="module-contents">
+            <h2><i class="fas fa-book-open"></i>课程内容</h2>
+            <div class="lesson-card">
+                <div class="lesson-card-header">
+                    <h3><i class="fas fa-chart-line"></i> 第1课: 交易策略基础</h3>
+                    <span class="lesson-duration"><i class="far fa-clock"></i> 预计学习时间: 2小时</span>
+                </div>
+                <div class="lesson-card-content">
+                    <p style="color: #495057;">介绍量化交易的基本概念和常见策略类型，包括均值回归、动量策略等。</p>
+                    <a href="lesson1.html" class="btn"><i class="fas fa-play-circle"></i> 开始学习</a>
+                </div>
+            </div>
+            <div class="lesson-card">
+                <div class="lesson-card-header">
+                    <h3><i class="fas fa-cogs"></i> 第2课: 技术指标与策略设计</h3>
+                    <span class="lesson-duration"><i class="far fa-clock"></i> 预计学习时间: 3小时</span>
+                </div>
+                <div class="lesson-card-content">
+                    <p style="color: #495057;">学习使用常见技术指标(如MACD、RSI、布林带等)构建交易信号。</p>
+                    <a href="lesson2.html" class="btn"><i class="fas fa-play-circle"></i> 开始学习</a>
+                </div>
+            </div>
+            <div class="lesson-card">
+                <div class="lesson-card-header">
+                    <h3><i class="fas fa-history"></i> 第3课: 回测框架与实现</h3>
+                    <span class="lesson-duration"><i class="far fa-clock"></i> 预计学习时间: 3小时</span>
+                </div>
+                <div class="lesson-card-content">
+                    <p style="color: #495057;">构建完整的策略回测系统，评估策略表现并优化参数。</p>
+                    <a href="lesson3.html" class="btn"><i class="fas fa-play-circle"></i> 开始学习</a>
+                </div>
+            </div>
+            <div class="lesson-card">
+                <div class="lesson-card-header">
+                    <h3><i class="fas fa-server"></i> 第4课: 实盘交易系统集成</h3>
+                    <span class="lesson-duration"><i class="far fa-clock"></i> 预计学习时间: 4小时</span>
+                </div>
+                <div class="lesson-card-content">
+                    <p style="color: #495057;">学习如何将策略部署到实盘交易系统，包括订单管理和风险控制。</p>
+                    <a href="lesson4.html" class="btn"><i class="fas fa-play-circle"></i> 开始学习</a>
+                </div>
+            </div>
+        </section>
+        <section class="module-resources">
+            <h2><i class="fas fa-tools"></i>项目与实践</h2>
+            <div class="resource-card">
+                <h3><i class="fas fa-project-diagram"></i> 自动化交易系统项目</h3>
+                <p style="color: #495057;">构建一个完整的自动化交易系统，从数据获取到策略执行的全流程实现。</p>
+                <a href="project.html" class="btn"><i class="fas fa-eye"></i> 查看项目</a>
+            </div>
+            <div class="resource-card">
+                <h3><i class="fas fa-dumbbell"></i> 练习题</h3>
+                <p style="color: #495057;">通过实践练习巩固所学知识，提升量化交易策略开发能力。</p>
+                <a href="exercises.html" class="btn"><i class="fas fa-play-circle"></i> 开始练习</a>
+            </div>
+        </section>
+        <div class="module-navigation">
+            <a href="../module11/index.html" class="btn"><i class="fas fa-arrow-left"></i> 上一模块: 风险评估模型</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据可视化练习题 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>练习说明</h2>
+            <p>以下练习将帮助您巩固本模块学到的数据可视化技能。建议按顺序完成所有练习，逐步提升难度。</p>
+            <div class="exercise-tips">
+                <h3>练习提示</h3>
+                <ul>
+                    <li>使用Jupyter Notebook完成练习</li>
+                    <li>每个练习都有示例数据和提示</li>
+                    <li>参考课程内容和官方文档</li>
+                    <li>尝试不同的样式和参数</li>
+                </ul>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>基础练习：Matplotlib</h2>
+            <div class="exercise">
+                <h3>练习1：创建基本线图</h3>
+                <p>使用以下数据创建AAPL股票价格走势图：</p>
+                <pre><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+dates = pd.date_range('2023-01-01', periods=50)
+prices = (1 + pd.Series(np.random.randn(50) * 0.01).cumsum()) * 100</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>创建带有标题和坐标轴标签的图表</li>
+                    <li>添加网格线</li>
+                    <li>设置蓝色实线，线宽为2</li>
+                    <li>添加图例</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习2：多子图布局</h3>
+                <p>使用以下数据创建包含价格和交易量的多子图：</p>
+                <pre><code class="language-python">volume = np.random.randint(100000, 500000, 50)</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>创建2行1列的布局</li>
+                    <li>上方子图显示价格走势</li>
+                    <li>下方子图显示交易量柱状图</li>
+                    <li>共享x轴</li>
+                    <li>调整子图间距</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>中级练习：Seaborn</h2>
+            <div class="exercise">
+                <h3>练习3：收益率分布分析</h3>
+                <p>使用以下数据创建收益率分布图：</p>
+                <pre><code class="language-python">import seaborn as sns
+stocks = ['AAPL', 'MSFT', 'GOOG', 'AMZN']
+data = pd.DataFrame({
+    '股票': np.repeat(stocks, 100),
+    '收益率': np.concatenate([
+        np.random.normal(0.001, 0.015, 100),
+        np.random.normal(0.0005, 0.012, 100),
+        np.random.normal(0.0015, 0.02, 100),
+        np.random.normal(0.002, 0.018, 100)
+    ])
+})</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>使用小提琴图比较各股票收益率分布</li>
+                    <li>添加箱线图显示分位数</li>
+                    <li>设置美观的调色板</li>
+                    <li>添加适当的标题和标签</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习4：相关性分析</h3>
+                <p>使用以下数据创建相关性热力图：</p>
+                <pre><code class="language-python">returns = pd.DataFrame(np.random.normal(0.001, 0.02, (100, 6)),
+                      columns=['AAPL', 'MSFT', 'GOOG', 'AMZN', 'JPM', 'GS'])
+corr = returns.corr()</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>创建带有数值标注的热力图</li>
+                    <li>使用发散色图(coolwarm)</li>
+                    <li>添加标题</li>
+                    <li>调整字体大小和标注格式</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>高级练习：Plotly</h2>
+            <div class="exercise">
+                <h3>练习5：交互式K线图</h3>
+                <p>使用以下数据创建交互式K线图：</p>
+                <pre><code class="language-python">import plotly.graph_objects as go
+np.random.seed(42)
+dates = pd.date_range('2023-01-01', periods=30)
+open_p = np.cumsum(np.random.randn(30) * 0.5) + 100
+high = open_p + np.random.uniform(0.5, 2.0, 30)
+low = open_p - np.random.uniform(0.5, 2.0, 30)
+close = open_p + np.random.randn(30) * 0.2</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>创建带有自定义颜色的K线图</li>
+                    <li>添加20日和50日均线</li>
+                    <li>实现缩放和平移功能</li>
+                    <li>添加悬停提示信息</li>
+                    <li>使用专业模板(plotly_white)</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习6：技术指标仪表板</h3>
+                <p>扩展练习5的数据，添加以下技术指标：</p>
+                <pre><code class="language-python"># 计算MACD
+data = pd.DataFrame({
+    'Open': open_p,
+    'High': high,
+    'Low': low,
+    'Close': close
+}, index=dates)
+data['MACD'], data['MACD_Signal'], data['MACD_Hist'] = talib.MACD(data['Close'])</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>创建2行布局的图表</li>
+                    <li>上方显示K线图和均线</li>
+                    <li>下方显示MACD指标</li>
+                    <li>实现图表联动</li>
+                    <li>添加适当的标题和标签</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>综合项目实践</h2>
+            <div class="exercise">
+                <h3>练习7：完整金融分析仪表板</h3>
+                <p>使用Yahoo Finance的真实数据创建完整仪表板：</p>
+                <pre><code class="language-python">import yfinance as yf
+# 下载AAPL数据
+data = yf.download('AAPL', start='2022-01-01', end='2023-01-01')</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算并可视化以下指标：
+                        <ul>
+                            <li>20日和50日均线</li>
+                            <li>MACD指标</li>
+                            <li>RSI指标</li>
+                            <li>布林带</li>
+                        </ul>
+                    </li>
+                    <li>创建包含以下内容的仪表板：
+                        <ul>
+                            <li>主图区：K线图和均线</li>
+                            <li>交易量区域</li>
+                            <li>技术指标区域</li>
+                        </ul>
+                    </li>
+                    <li>实现以下交互功能：
+                        <ul>
+                            <li>图表联动</li>
+                            <li>缩放和平移</li>
+                            <li>悬停提示</li>
+                        </ul>
+                    </li>
+                    <li>使用专业模板和配色</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercise-solutions">
+            <h2>练习参考答案</h2>
+            <p>完成练习后，可以参考以下代码检查您的实现：</p>
+            <div class="solution">
+                <h3>练习1参考代码</h3>
+                <pre><code class="language-python">plt.figure(figsize=(10, 6))
+plt.plot(dates, prices, 'b-', linewidth=2, label='AAPL')
+plt.title('AAPL股票价格走势', fontsize=14)
+plt.xlabel('日期', fontsize=12)
+plt.ylabel('价格', fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.legend()
+plt.show()</code></pre>
+            </div>
+            <div class="solution">
+                <h3>练习5参考代码</h3>
+                <pre><code class="language-python"># 计算均线
+data['MA20'] = data['Close'].rolling(20).mean()
+data['MA50'] = data['Close'].rolling(50).mean()
+# 创建图表
+fig = go.Figure()
+fig.add_trace(go.Candlestick(
+    x=data.index,
+    open=data['Open'],
+    high=data['High'],
+    low=data['Low'],
+    close=data['Close'],
+    name='K线',
+    increasing_line_color='green',
+    decreasing_line_color='red'
+))
+fig.add_trace(go.Scatter(
+    x=data.index,
+    y=data['MA20'],
+    name='20日均线',
+    line=dict(color='blue', width=1)
+))
+fig.add_trace(go.Scatter(
+    x=data.index,
+    y=data['MA50'],
+    name='50日均线',
+    line=dict(color='orange', width=1)
+))
+# 更新布局
+fig.update_layout(
+    title='AAPL交互式K线图',
+    yaxis_title='价格',
+    template='plotly_white',
+    hovermode='x unified'
+)
+fig.show()</code></pre>
+            </div>
+        </section>
+        <div class="exercises-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+            <a href="../../index.html" class="btn">下一模块: 统计分析基础 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

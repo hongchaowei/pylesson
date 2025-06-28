@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第3课: 投资组合优化 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>投资组合优化问题</h2>
+            <p>投资组合优化的核心是在给定约束条件下，寻找最优的资产配置比例。</p>
+            <h3>1. 优化问题建模</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+from scipy.optimize import minimize
+# 示例数据
+expected_returns = np.array([0.05, 0.08, 0.12])  # 预期收益率
+cov_matrix = np.array([
+    [0.04, 0.002, 0.001],
+    [0.002, 0.09, 0.003],
+    [0.001, 0.003, 0.16]
+])  # 协方差矩阵
+def portfolio_volatility(weights, cov_matrix):
+    """计算投资组合波动率"""
+    return np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+def portfolio_return(weights, expected_returns):
+    """计算投资组合预期收益率"""
+    return np.dot(weights.T, expected_returns)</code></pre>
+            <h3>2. 优化问题约束条件</h3>
+            <pre><code class="language-python"># 定义约束条件
+constraints = (
+    {'type': 'eq', 'fun': lambda x: np.sum(x) - 1},  # 权重和为1
+    {'type': 'ineq', 'fun': lambda x: x}  # 权重非负(不允许卖空)
+)
+# 初始猜测(等权重)
+n_assets = len(expected_returns)
+init_guess = np.repeat(1/n_assets, n_assets)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>均值-方差优化</h2>
+            <p>Markowitz均值-方差优化框架是现代投资组合理论的核心。</p>
+            <h3>1. 最小方差组合</h3>
+            <pre><code class="language-python">def minimize_volatility(expected_returns, cov_matrix):
+    """最小化投资组合波动率"""
+    args = (cov_matrix,)
+    result = minimize(portfolio_volatility, init_guess,
+                      args=args, method='SLSQP',
+                      constraints=constraints)
+    return result
+min_vol_result = minimize_volatility(expected_returns, cov_matrix)
+min_vol_weights = min_vol_result.x
+print("最小方差组合权重:\n", min_vol_weights)</code></pre>
+            <h3>2. 有效前沿上的最优组合</h3>
+            <pre><code class="language-python">def maximize_sharpe_ratio(expected_returns, cov_matrix, risk_free_rate=0.02):
+    """最大化夏普比率"""
+    def negative_sharpe(weights, expected_returns, cov_matrix, risk_free_rate):
+        port_return = portfolio_return(weights, expected_returns)
+        port_volatility = portfolio_volatility(weights, cov_matrix)
+        return -(port_return - risk_free_rate) / port_volatility
+    args = (expected_returns, cov_matrix, risk_free_rate)
+    result = minimize(negative_sharpe, init_guess,
+                      args=args, method='SLSQP',
+                      constraints=constraints)
+    return result
+sharpe_result = maximize_sharpe_ratio(expected_returns, cov_matrix)
+sharpe_weights = sharpe_result.x
+print("\n最大夏普比率组合权重:\n", sharpe_weights)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>风险平价策略</h2>
+            <p>风险平价策略旨在使各资产对投资组合的风险贡献相等。</p>
+            <h3>1. 风险平价优化</h3>
+            <pre><code class="language-python">def risk_parity_objective(weights, cov_matrix):
+    """风险平价目标函数"""
+    port_volatility = portfolio_volatility(weights, cov_matrix)
+    marginal_risk = np.dot(cov_matrix, weights) / port_volatility
+    risk_contrib = weights * marginal_risk
+    return np.sum((risk_contrib - 1/len(weights))**2)  # 使风险贡献均等
+def optimize_risk_parity(cov_matrix):
+    """优化风险平价组合"""
+    args = (cov_matrix,)
+    result = minimize(risk_parity_objective, init_guess,
+                      args=args, method='SLSQP',
+                      constraints=constraints)
+    return result
+rp_result = optimize_risk_parity(cov_matrix)
+rp_weights = rp_result.x
+print("\n风险平价组合权重:\n", rp_weights)</code></pre>
+            <h3>2. 风险贡献分析</h3>
+            <pre><code class="language-python">def calculate_risk_contribution(weights, cov_matrix):
+    """计算风险贡献"""
+    port_volatility = portfolio_volatility(weights, cov_matrix)
+    marginal_risk = np.dot(cov_matrix, weights) / port_volatility
+    risk_contrib = weights * marginal_risk
+    return risk_contrib / port_volatility
+print("\n风险贡献比例:")
+print("最小方差组合:", calculate_risk_contribution(min_vol_weights, cov_matrix))
+print("最大夏普组合:", calculate_risk_contribution(sharpe_weights, cov_matrix))
+print("风险平价组合:", calculate_risk_contribution(rp_weights, cov_matrix))</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>约束条件处理</h2>
+            <p>实际投资中需要考虑各种约束条件。</p>
+            <h3>1. 权重上下限约束</h3>
+            <pre><code class="language-python"># 添加权重上下限约束
+bounds = [(0.1, 0.5), (0.1, 0.6), (0.1, 0.7)]  # 每个资产的权重范围
+def optimize_with_bounds(expected_returns, cov_matrix):
+    """带权重约束的优化"""
+    args = (cov_matrix,)
+    result = minimize(portfolio_volatility, init_guess,
+                      args=args, method='SLSQP',
+                      constraints=constraints,
+                      bounds=bounds)
+    return result
+bounded_result = optimize_with_bounds(expected_returns, cov_matrix)
+print("\n带约束的最小方差组合权重:\n", bounded_result.x)</code></pre>
+            <h3>2. 行业或资产类别约束</h3>
+            <pre><code class="language-python"># 定义行业分类
+sectors = ['Tech', 'Finance', 'Tech']
+# 添加行业约束: Tech行业总权重不超过60%
+def sector_constraint(weights, sectors, max_sector_weight):
+    sector_weights = pd.Series(weights).groupby(sectors).sum()
+    return max_sector_weight - sector_weights.max()
+constraints_with_sector = constraints + (
+    {'type': 'ineq', 'fun': lambda x: sector_constraint(x, sectors, 0.6)},
+)
+sector_result = minimize(portfolio_volatility, init_guess,
+                         args=(cov_matrix,), method='SLSQP',
+                         constraints=constraints_with_sector)
+print("\n带行业约束的最小方差组合权重:\n", sector_result.x)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>优化结果可视化</h2>
+            <p>直观展示不同优化方法的结果。</p>
+            <h3>1. 组合权重比较</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+labels = ['Asset1', 'Asset2', 'Asset3']
+x = np.arange(len(labels))
+width = 0.2
+fig, ax = plt.subplots(figsize=(10,6))
+ax.bar(x - width, min_vol_weights, width, label='最小方差组合')
+ax.bar(x, sharpe_weights, width, label='最大夏普组合')
+ax.bar(x + width, rp_weights, width, label='风险平价组合')
+ax.set_ylabel('权重')
+ax.set_title('不同优化方法的组合权重比较')
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+ax.legend()
+plt.show()</code></pre>
+            <h3>2. 风险-收益特征比较</h3>
+            <pre><code class="language-python">portfolios = {
+    'Min Vol': min_vol_weights,
+    'Max Sharpe': sharpe_weights,
+    'Risk Parity': rp_weights
+}
+results = []
+for name, weights in portfolios.items():
+    ret = portfolio_return(weights, expected_returns)
+    vol = portfolio_volatility(weights, cov_matrix)
+    sharpe = (ret - 0.02) / vol
+    results.append([name, ret, vol, sharpe])
+results_df = pd.DataFrame(results,
+                         columns=['Strategy', 'Return', 'Volatility', 'Sharpe'])
+print("\n不同策略表现比较:\n", results_df)</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson2.html" class="btn">« 上一课: 资产收益率与风险</a>
+            <a href="lesson4.html" class="btn">下一课: 投资组合绩效评估 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

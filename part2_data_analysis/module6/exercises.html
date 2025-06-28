@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习题: Pandas与金融数据 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>练习题说明</h2>
+            <p>以下练习题旨在帮助您巩固模块6中学到的Pandas和金融数据处理知识。每个练习题都包含一个问题描述和一个参考解答。建议您先尝试自己解决问题，然后再查看参考解答。</p>
+            <p>这些练习题涵盖了Pandas数据结构、数据清洗、时间序列操作、分组聚合等核心内容。完成这些练习将帮助您为后续的金融数据分析打下坚实的基础。</p>
+        </section>
+        <section class="lesson-content">
+            <h2>基础练习</h2>
+            <div class="exercise">
+                <h3>练习1: Pandas数据结构</h3>
+                <p><strong>问题</strong>：创建以下Pandas数据结构：</p>
+                <ul>
+                    <li>一个包含数字1到10的Series</li>
+                    <li>一个包含股票代码和价格的DataFrame</li>
+                    <li>一个带日期索引的时间序列DataFrame</li>
+                    <li>一个包含多级索引的DataFrame</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import pandas as pd
+import numpy as np
+# 创建Series
+s = pd.Series(np.arange(1, 11))
+print("Series:")
+print(s)
+# 创建DataFrame
+data = {
+    '股票代码': ['AAPL', 'MSFT', 'GOOG'],
+    '价格': [150.0, 250.0, 1800.0]
+}
+df = pd.DataFrame(data)
+print("\nDataFrame:")
+print(df)
+# 创建带日期索引的DataFrame
+dates = pd.date_range('20230101', periods=5)
+df_dates = pd.DataFrame(np.random.randn(5, 3), index=dates, columns=['A', 'B', 'C'])
+print("\n带日期索引的DataFrame:")
+print(df_dates)
+# 创建多级索引DataFrame
+arrays = [
+    ['科技', '科技', '金融', '金融'],
+    ['AAPL', 'MSFT', 'JPM', 'BAC']
+]
+index = pd.MultiIndex.from_arrays(arrays, names=['行业', '股票代码'])
+df_multi = pd.DataFrame({'价格': [150, 250, 120, 35]}, index=index)
+print("\n多级索引DataFrame:")
+print(df_multi)</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习2: 数据选择和操作</h3>
+                <p><strong>问题</strong>：给定以下DataFrame：</p>
+                <pre>df = pd.DataFrame({
+    '股票代码': ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'JPM'],
+    '行业': ['科技', '科技', '科技', '科技', '金融'],
+    '价格': [150, 250, 1800, 3200, 120],
+    '成交量': [1000000, 800000, 500000, 300000, 2000000]
+})</pre>
+                <p>编写代码实现以下操作：</p>
+                <ul>
+                    <li>选择价格大于200的股票</li>
+                    <li>计算科技行业股票的平均价格</li>
+                    <li>添加一列"市值"，计算为价格*成交量</li>
+                    <li>按行业分组计算价格和成交量的平均值</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import pandas as pd
+df = pd.DataFrame({
+    '股票代码': ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'JPM'],
+    '行业': ['科技', '科技', '科技', '科技', '金融'],
+    '价格': [150, 250, 1800, 3200, 120],
+    '成交量': [1000000, 800000, 500000, 300000, 2000000]
+})
+# 选择价格大于200的股票
+print("价格大于200的股票:")
+print(df[df['价格'] > 200])
+# 计算科技行业股票的平均价格
+tech_mean = df[df['行业'] == '科技']['价格'].mean()
+print("\n科技行业平均价格:", tech_mean)
+# 添加市值列
+df['市值'] = df['价格'] * df['成交量']
+print("\n添加市值列后的DataFrame:")
+print(df)
+# 按行业分组计算平均值
+print("\n按行业分组的平均值:")
+print(df.groupby('行业').mean())</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习3: 数据清洗</h3>
+                <p><strong>问题</strong>：给定以下包含缺失值和异常值的DataFrame：</p>
+                <pre>df = pd.DataFrame({
+    '日期': pd.date_range('20230101', periods=10),
+    '收盘价': [100, 102, np.nan, 105, 107, 106, 110, np.nan, 112, 115],
+    '成交量': [1000000, np.nan, 800000, 750000, np.nan, 600000, 550000, 500000, 450000, 400000]
+})</pre>
+                <p>编写代码实现以下操作：</p>
+                <ul>
+                    <li>填充收盘价的缺失值（使用前向填充）</li>
+                    <li>填充成交量的缺失值（使用列中位数）</li>
+                    <li>识别并处理异常值（使用3σ原则）</li>
+                    <li>计算收益率并处理无限值</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import pandas as pd
+import numpy as np
+df = pd.DataFrame({
+    '日期': pd.date_range('20230101', periods=10),
+    '收盘价': [100, 102, np.nan, 105, 107, 106, 110, np.nan, 112, 115],
+    '成交量': [1000000, np.nan, 800000, 750000, np.nan, 600000, 550000, 500000, 450000, 400000]
+})
+# 填充收盘价缺失值
+df['收盘价'] = df['收盘价'].fillna(method='ffill')
+print("填充收盘价后的DataFrame:")
+print(df)
+# 填充成交量缺失值
+df['成交量'] = df['成交量'].fillna(df['成交量'].median())
+print("\n填充成交量后的DataFrame:")
+print(df)
+# 处理异常值
+mean = df['收盘价'].mean()
+std = df['收盘价'].std()
+df['收盘价'] = df['收盘价'].clip(mean - 3*std, mean + 3*std)
+print("\n处理异常值后的DataFrame:")
+print(df)
+# 计算收益率并处理无限值
+df['收益率'] = df['收盘价'].pct_change()
+df.replace([np.inf, -np.inf], np.nan, inplace=True)
+print("\n计算收益率后的DataFrame:")
+print(df)</pre>
+                </details>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用练习</h2>
+            <div class="exercise">
+                <h3>练习4: 时间序列操作</h3>
+                <p><strong>问题</strong>：给定以下股票价格DataFrame：</p>
+                <pre>df = pd.DataFrame({
+    '日期': pd.date_range('20230101', periods=90),
+    '收盘价': np.random.normal(100, 10, 90)
+})</pre>
+                <p>编写代码实现以下操作：</p>
+                <ul>
+                    <li>将数据重采样为周数据（取每周最后一天的收盘价）</li>
+                    <li>计算5日和20日移动平均</li>
+                    <li>计算5日收益率波动率（年化）</li>
+                    <li>计算RSI指标（14日周期）</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import pandas as pd
+import numpy as np
+df = pd.DataFrame({
+    '日期': pd.date_range('20230101', periods=90),
+    '收盘价': np.random.normal(100, 10, 90)
+})
+df.set_index('日期', inplace=True)
+# 重采样为周数据
+weekly = df.resample('W').last()
+print("周数据:")
+print(weekly.head())
+# 计算移动平均
+df['MA_5'] = df['收盘价'].rolling(5).mean()
+df['MA_20'] = df['收盘价'].rolling(20).mean()
+print("\n移动平均:")
+print(df.head())
+# 计算5日收益率波动率
+df['收益率'] = df['收盘价'].pct_change()
+df['波动率'] = df['收益率'].rolling(5).std() * np.sqrt(252)
+print("\n波动率:")
+print(df.head())
+# 计算RSI
+delta = df['收盘价'].diff()
+gain = delta.where(delta > 0, 0)
+loss = -delta.where(delta < 0, 0)
+avg_gain = gain.rolling(14).mean()
+avg_loss = loss.rolling(14).mean()
+rs = avg_gain / avg_loss
+df['RSI'] = 100 - (100 / (1 + rs))
+print("\nRSI:")
+print(df.tail())</pre>
+                </details>
+            </div>
+            <div class="exercise">
+                <h3>练习5: 分组分析</h3>
+                <p><strong>问题</strong>：给定以下包含多只股票数据的DataFrame：</p>
+                <pre>stocks = ['AAPL', 'MSFT', 'GOOG', 'JPM', 'BAC']
+industries = ['科技', '科技', '科技', '金融', '金融']
+df = pd.DataFrame({
+    '日期': pd.date_range('20230101', periods=30).repeat(5),
+    '股票代码': np.tile(stocks, 30),
+    '行业': np.tile(industries, 30),
+    '收盘价': np.random.normal(100, 20, 150),
+    '成交量': np.random.randint(100000, 1000000, 150)
+})</pre>
+                <p>编写代码实现以下分析：</p>
+                <ul>
+                    <li>按股票代码分组计算平均收盘价和总成交量</li>
+                    <li>按行业和月份分组计算平均收益率</li>
+                    <li>计算各行业的日收益率相关性矩阵</li>
+                    <li>创建透视表展示各股票每月的平均收盘价</li>
+                </ul>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import pandas as pd
+import numpy as np
+stocks = ['AAPL', 'MSFT', 'GOOG', 'JPM', 'BAC']
+industries = ['科技', '科技', '科技', '金融', '金融']
+df = pd.DataFrame({
+    '日期': pd.date_range('20230101', periods=30).repeat(5),
+    '股票代码': np.tile(stocks, 30),
+    '行业': np.tile(industries, 30),
+    '收盘价': np.random.normal(100, 20, 150),
+    '成交量': np.random.randint(100000, 1000000, 150)
+})
+# 计算收益率
+df['收益率'] = df.groupby('股票代码')['收盘价'].pct_change()
+# 按股票代码分组计算统计量
+stock_stats = df.groupby('股票代码').agg({
+    '收盘价': 'mean',
+    '成交量': 'sum'
+})
+print("按股票代码分组的统计量:")
+print(stock_stats)
+# 按行业和月份分组计算平均收益率
+df['月份'] = df['日期'].dt.month
+industry_monthly = df.groupby(['行业', '月份'])['收益率'].mean()
+print("\n按行业和月份分组的平均收益率:")
+print(industry_monthly)
+# 计算行业收益率相关性
+pivot = df.pivot_table(values='收益率', index='日期', columns='行业', aggfunc='mean')
+corr_matrix = pivot.corr()
+print("\n行业收益率相关性矩阵:")
+print(corr_matrix)
+# 创建月度透视表
+monthly_pivot = df.pivot_table(
+    values='收盘价',
+    index='月份',
+    columns='股票代码',
+    aggfunc='mean'
+)
+print("\n月度平均收盘价透视表:")
+print(monthly_pivot)</pre>
+                </details>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>挑战练习</h2>
+            <div class="exercise">
+                <h3>挑战1: 投资组合分析</h3>
+                <p><strong>问题</strong>：给定三只股票的历史数据DataFrame：</p>
+                <pre>stocks = ['AAPL', 'MSFT', 'JPM']
+dates = pd.date_range('20230101', periods=252)
+df = pd.DataFrame({
+    '日期': dates.repeat(3),
+    '股票代码': np.tile(stocks, 252),
+    '收盘价': np.random.normal(100, 20, 756),
+    '成交量': np.random.randint(100000, 1000000, 756)
+})</pre>
+                <p>编写代码实现以下功能：</p>
+                <ol>
+                    <li>计算每只股票的日收益率</li>
+                    <li>计算等权重投资组合的日收益率</li>
+                    <li>计算投资组合的年化收益率和年化波动率</li>
+                    <li>计算投资组合的夏普比率（假设无风险利率为0.02）</li>
+                    <li>找出使投资组合波动率最小的权重分配</li>
+                </ol>
+                <details>
+                    <summary>查看参考解答</summary>
+                    <pre>import pandas as pd
+import numpy as np
+from scipy.optimize import minimize
+stocks = ['AAPL', 'MSFT', 'JPM']
+dates = pd.date_range('20230101', periods=252)
+df = pd.DataFrame({
+    '日期': dates.repeat(3),
+    '股票代码': np.tile(stocks, 252),
+    '收盘价': np.random.normal(100, 20, 756),
+    '成交量': np.random.randint(100000, 1000000, 756)
+})
+# 计算日收益率
+df['收益率'] = df.groupby('股票代码')['收盘价'].p
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程3: 金融时间序列操作 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>Pandas时间序列简介</h2>
+            <p>金融数据大多是时间序列数据，Pandas提供了强大的时间序列处理功能，特别适合金融数据分析。</p>
+            <h3>时间序列在金融中的应用</h3>
+            <ul>
+                <li><strong>价格数据</strong>：股票、期货、外汇等的历史价格</li>
+                <li><strong>经济指标</strong>：GDP、CPI、利率等宏观经济数据</li>
+                <li><strong>交易数据</strong>：成交量、持仓量等市场活动数据</li>
+                <li><strong>风险指标</strong>：波动率、相关性等风险度量</li>
+            </ul>
+            <h3>Pandas时间序列核心功能</h3>
+            <ul>
+                <li><strong>时间戳</strong>：精确表示特定时刻</li>
+                <li><strong>时间范围</strong>：生成规则的时间序列</li>
+                <li><strong>重采样</strong>：转换数据频率</li>
+                <li><strong>移动窗口</strong>：计算滚动统计量</li>
+                <li><strong>时区处理</strong>：处理不同市场的时区问题</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>时间戳和时间范围</h2>
+            <p>Pandas使用Timestamp对象表示时间戳，可以精确到纳秒级别。</p>
+            <h3>创建时间戳</h3>
+            <pre><code>import pandas as pd
+# 创建单个时间戳
+ts = pd.Timestamp('2023-01-01')
+print(ts)
+# 指定具体时间
+ts = pd.Timestamp('2023-01-01 09:30:00')
+print(ts)
+# 从Unix时间戳创建
+ts = pd.Timestamp(1672531200, unit='s')
+print(ts)</code></pre>
+            <h3>创建时间范围</h3>
+            <pre><code># 创建每日时间范围
+dates = pd.date_range('2023-01-01', periods=10)
+print(dates)
+# 创建工作日时间范围
+b_dates = pd.date_range('2023-01-01', periods=10, freq='B')
+print(b_dates)
+# 创建每月时间范围
+m_dates = pd.date_range('2023-01-01', periods=12, freq='M')
+print(m_dates)
+# 创建每小时时间范围
+h_dates = pd.date_range('2023-01-01', periods=24, freq='H')
+print(h_dates)</code></pre>
+            <h3>金融时间序列示例</h3>
+            <pre><code># 创建股票价格时间序列
+prices = [100, 102, 101, 105, 107, 106, 110, 108, 112, 115]
+ts = pd.Series(prices, index=dates)
+print(ts)
+# 选择特定时间段
+print("\n1月前5天数据:")
+print(ts['2023-01-01':'2023-01-05'])
+# 按年、月选择
+print("\n1月数据:")
+print(ts['2023-01'])</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>重采样和频率转换</h2>
+            <p>金融数据常需要从高频（如分钟数据）转换为低频（如日数据），或反之。</p>
+            <h3>降采样（低频转换）</h3>
+            <pre><code># 创建分钟级数据
+minute_data = pd.DataFrame(
+    np.random.randn(1440, 4),
+    index=pd.date_range('2023-01-01', periods=1440, freq='T'),
+    columns=['open', 'high', 'low', 'close']
+)
+# 降采样为日数据
+daily_data = minute_data.resample('D').agg({
+    'open': 'first',
+    'high': 'max',
+    'low': 'min',
+    'close': 'last'
+})
+print(daily_data.head())</code></pre>
+            <h3>升采样（高频转换）</h3>
+            <pre><code># 创建日数据
+daily_data = pd.DataFrame(
+    np.random.randn(30, 4),
+    index=pd.date_range('2023-01-01', periods=30, freq='D'),
+    columns=['open', 'high', 'low', 'close']
+)
+# 升采样为小时数据
+hourly_data = daily_data.resample('H').ffill()
+print(hourly_data.head())</code></pre>
+            <h3>金融常用重采样方法</h3>
+            <ul>
+                <li><strong>OHLC</strong>：开盘价、最高价、最低价、收盘价</li>
+                <li><strong>VWAP</strong>：成交量加权平均价</li>
+                <li><strong>Tick数据</strong>：聚合为固定时间间隔</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>移动窗口函数</h2>
+            <p>移动窗口计算是金融时间序列分析的核心技术，用于计算技术指标、波动率等。</p>
+            <h3>滚动统计量</h3>
+            <pre><code># 创建股票价格数据
+prices = pd.Series(
+    [100, 102, 101, 105, 107, 106, 110, 108, 112, 115],
+    index=pd.date_range('2023-01-01', periods=10)
+)
+# 计算5日移动平均
+ma_5 = prices.rolling(5).mean()
+print("5日移动平均:")
+print(ma_5)
+# 计算5日移动标准差
+std_5 = prices.rolling(5).std()
+print("\n5日移动标准差:")
+print(std_5)
+# 计算5日移动最大值
+max_5 = prices.rolling(5).max()
+print("\n5日移动最大值:")
+print(max_5)</code></pre>
+            <h3>扩展窗口统计量</h3>
+            <pre><code># 计算扩展平均
+expanding_mean = prices.expanding().mean()
+print("扩展平均:")
+print(expanding_mean)
+# 计算扩展标准差
+expanding_std = prices.expanding().std()
+print("\n扩展标准差:")
+print(expanding_std)</code></pre>
+            <h3>金融应用示例</h3>
+            <pre><code># 计算布林带
+prices = pd.Series(
+    np.random.normal(100, 5, 100),
+    index=pd.date_range('2023-01-01', periods=100)
+)
+ma_20 = prices.rolling(20).mean()
+std_20 = prices.rolling(20).std()
+upper_band = ma_20 + 2 * std_20
+lower_band = ma_20 - 2 * std_20
+print("布林带:")
+print(pd.DataFrame({
+    '价格': prices,
+    '20日均线': ma_20,
+    '上轨': upper_band,
+    '下轨': lower_band
+}).tail())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融时间序列综合示例</h2>
+            <p>让我们看一个完整的金融时间序列分析示例。</p>
+            <pre><code>import pandas as pd
+import numpy as np
+# 创建模拟股票数据
+np.random.seed(42)
+dates = pd.date_range('2023-01-01', periods=252)  # 1年交易日
+prices = 100 + np.cumsum(np.random.normal(0.1, 0.8, 252))
+volumes = np.random.randint(100000, 1000000, size=252)
+df = pd.DataFrame({
+    '收盘价': prices,
+    '成交量': volumes
+}, index=dates)
+# 计算日收益率
+df['收益率'] = df['收盘价'].pct_change()
+# 计算20日移动平均和标准差
+df['20日均线'] = df['收盘价'].rolling(20).mean()
+df['20日波动率'] = df['收益率'].rolling(20).std() * np.sqrt(252)
+# 计算MACD指标
+df['12日EMA'] = df['收盘价'].ewm(span=12).mean()
+df['26日EMA'] = df['收盘价'].ewm(span=26).mean()
+df['MACD'] = df['12日EMA'] - df['26日EMA']
+df['信号线'] = df['MACD'].ewm(span=9).mean()
+# 计算RSI指标
+delta = df['收盘价'].diff()
+gain = delta.where(delta > 0, 0)
+loss = -delta.where(delta < 0, 0)
+avg_gain = gain.rolling(14).mean()
+avg_loss = loss.rolling(14).mean()
+rs = avg_gain / avg_loss
+df['RSI'] = 100 - (100 / (1 + rs))
+# 重采样为月数据
+monthly_data = df.resample('M').agg({
+    '收盘价': 'last',
+    '成交量': 'sum',
+    '收益率': 'sum',
+    '20日波动率': 'last'
+})
+print("日数据:")
+print(df.tail())
+print("\n月数据:")
+print(monthly_data.tail())</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>了解了Pandas时间序列在金融中的应用</li>
+                <li>学习了如何创建时间戳和时间范围</li>
+                <li>掌握了重采样和频率转换技术</li>
+                <li>探索了移动窗口函数和滚动统计量</li>
+                <li>应用这些技术完成了一个完整的金融时间序列分析示例</li>
+            </ul>
+            <p>这些技能将帮助您高效处理和分析金融时间序列数据。在下一课中，我们将学习数据聚合与分组技术。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请确保您已经：</p>
+                <ul>
+                    <li>理解了时间序列的基本操作</li>
+                    <li>尝试运行了本课的所有示例代码</li>
+                    <li>能够应用重采样和移动窗口函数分析金融数据</li>
+                </ul>
+                <a href="lesson4.html" class="btn btn-large">继续学习：数据聚合与分组</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson2.html" class="btn">« 上一课：数据清洗与转换</a>
+            </div>
+            <div>
+                <a href="lesson4.html" class="btn">下一课：数据聚合与分组 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

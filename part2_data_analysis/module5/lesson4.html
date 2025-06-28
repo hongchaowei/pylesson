@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程4: 高级数组操作 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>结构化数组</h2>
+            <p>结构化数组允许我们在一个数组中存储不同类型的数据，类似于数据库表或电子表格。这在处理金融数据时非常有用。</p>
+            <h3>创建结构化数组</h3>
+            <pre><code>import numpy as np
+# 定义数据类型
+dtype = [('date', 'U10'), ('open', 'f4'), ('high', 'f4'),
+         ('low', 'f4'), ('close', 'f4'), ('volume', 'i4')]
+# 创建结构化数组
+stock_data = np.array([
+    ('2023-01-03', 100.5, 102.3, 99.8, 101.2, 1000000),
+    ('2023-01-04', 101.0, 103.5, 100.5, 102.8, 1200000),
+    ('2023-01-05', 102.5, 104.0, 101.8, 103.5, 950000)
+], dtype=dtype)
+print(stock_data)</code></pre>
+            <h3>访问结构化数组字段</h3>
+            <pre><code># 访问单个字段
+print("收盘价:", stock_data['close'])
+# 条件筛选
+high_volume = stock_data[stock_data['volume'] > 1000000]
+print("高交易量数据:", high_volume)
+# 计算平均收盘价
+mean_close = np.mean(stock_data['close'])
+print("平均收盘价:", mean_close)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>内存映射文件</h2>
+            <p>对于大型金融数据集，内存映射文件允许我们处理比系统内存更大的数据，而无需一次性加载全部数据。</p>
+            <h3>创建内存映射数组</h3>
+            <pre><code># 创建一个内存映射文件
+filename = 'large_array.dat'
+shape = (1000000, 10)  # 100万行，10列
+dtype = 'float32'
+# 创建并初始化文件
+fp = np.memmap(filename, dtype=dtype, mode='w+', shape=shape)
+# 填充数据（这里只是示例，实际数据可能来自文件或数据库）
+for i in range(shape[0]):
+    fp[i] = np.random.randn(shape[1])
+# 确保数据写入磁盘
+fp.flush()</code></pre>
+            <h3>读取内存映射文件</h3>
+            <pre><code># 以只读模式打开内存映射文件
+fp = np.memmap(filename, dtype=dtype, mode='r', shape=shape)
+# 访问数据子集
+subset = fp[:100]  # 只读取前100行
+print("前100行数据:", subset)
+# 计算统计量
+print("列平均值:", np.mean(fp, axis=0))</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>数组的拼接和分割</h2>
+            <p>NumPy提供了多种方法来拼接和分割数组，这在处理金融时间序列数据时非常有用。</p>
+            <h3>数组拼接</h3>
+            <pre><code># 创建两个时间序列
+series1 = np.random.randn(100)
+series2 = np.random.randn(100)
+# 垂直拼接（沿着行方向）
+stacked = np.vstack([series1, series2])
+print("垂直拼接后的形状:", stacked.shape)
+# 水平拼接（沿着列方向）
+concatenated = np.hstack([series1, series2])
+print("水平拼接后的形状:", concatenated.shape)
+# 深度拼接（沿着第三个维度）
+depth_stacked = np.dstack([series1, series2])
+print("深度拼接后的形状:", depth_stacked.shape)</code></pre>
+            <h3>数组分割</h3>
+            <pre><code># 分割数组
+split_points = [25, 50, 75]
+split_series = np.split(series1, split_points)
+print("分割后的数组数量:", len(split_series))
+# 等量分割
+chunks = np.array_split(series1, 5)  # 分成5个大致相等的部分
+print("等量分割后的形状:", [c.shape for c in chunks])</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>性能优化技巧</h2>
+            <p>在处理大规模金融数据时，性能优化至关重要。以下是几种提高NumPy代码性能的技巧。</p>
+            <h3>预分配数组</h3>
+            <pre><code># 不好的做法：不断追加到列表
+result = []
+for i in range(10000):
+    result.append(np.random.randn(10))
+result = np.array(result)
+# 好的做法：预分配数组
+result = np.empty((10000, 10))
+for i in range(10000):
+    result[i] = np.random.randn(10)</code></pre>
+            <h3>使用向量化操作</h3>
+            <pre><code># 不好的做法：使用循环
+arr = np.random.randn(10000)
+result = np.zeros_like(arr)
+for i in range(len(arr)):
+    result[i] = arr[i] * 2 + 5
+# 好的做法：使用向量化操作
+result = arr * 2 + 5</code></pre>
+            <h3>使用NumPy内置函数</h3>
+            <pre><code># 不好的做法：使用Python内置函数
+arr = np.random.randn(10000)
+result = list(map(lambda x: x**2, arr))
+# 好的做法：使用NumPy内置函数
+result = np.square(arr)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用：高频数据处理</h2>
+            <p>让我们应用这些高级技术处理高频金融数据。</p>
+            <pre><code># 模拟高频交易数据（时间戳，价格，成交量）
+num_records = 1000000
+timestamps = np.arange(np.datetime64('2023-01-01T09:30:00'),
+                      np.datetime64('2023-01-01T16:00:00'),
+                      np.timedelta64(100, 'ms'))[:num_records]
+prices = 100 + np.cumsum(np.random.normal(0, 0.01, num_records))
+volumes = np.random.randint(1, 1000, num_records)
+# 创建结构化数组
+dtype = [('timestamp', 'datetime64[ms]'), ('price', 'f4'), ('volume', 'i4')]
+tick_data = np.zeros(num_records, dtype=dtype)
+tick_data['timestamp'] = timestamps
+tick_data['price'] = prices
+tick_data['volume'] = volumes
+# 计算每分钟统计数据
+minute_bins = np.arange(np.datetime64('2023-01-01T09:30:00'),
+                       np.datetime64('2023-01-01T16:00:00'),
+                       np.timedelta64(1, 'm'))
+# 使用结构化数组和向量化操作计算OHLC
+open_prices = np.zeros(len(minute_bins)-1)
+high_prices = np.zeros(len(minute_bins)-1)
+low_prices = np.zeros(len(minute_bins)-1)
+close_prices = np.zeros(len(minute_bins)-1)
+for i in range(len(minute_bins)-1):
+    mask = (tick_data['timestamp'] >= minute_bins[i]) & \
+           (tick_data['timestamp'] < minute_bins[i+1])
+    minute_data = tick_data[mask]
+    if len(minute_data) > 0:
+        open_prices[i] = minute_data['price'][0]
+        high_prices[i] = np.max(minute_data['price'])
+        low_prices[i] = np.min(minute_data['price'])
+        close_prices[i] = minute_data['price'][-1]
+print("第一分钟OHLC:", open_prices[0], high_prices[0], low_prices[0], close_prices[0])</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>学习了结构化数组的创建和使用</li>
+                <li>掌握了内存映射文件处理大型数据集</li>
+                <li>探索了数组拼接和分割的各种方法</li>
+                <li>了解了NumPy性能优化的关键技巧</li>
+                <li>应用这些高级技术处理了高频金融数据</li>
+            </ul>
+            <p>这些高级功能使NumPy成为处理复杂金融数据分析任务的强大工具。在下一个模块中，我们将学习Pandas库，它构建在NumPy之上，提供了更高级的金融数据处理功能。</p>
+            <div class="get-started">
+                <h3>恭喜完成模块5的学习！</h3>
+                <p>在继续下一个模块之前，您可以：</p>
+                <ul>
+                    <li>回顾本模块的所有课程内容</li>
+                    <li>尝试完成模块项目"股票收益率分析"</li>
+                    <li>通过练习题巩固所学知识</li>
+                    <li>探索更多NumPy的高级功能</li>
+                </ul>
+                <a href="../../index.html" class="btn btn-large">进入模块6：Pandas与金融数据</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson3.html" class="btn">« 上一课：金融数据处理</a>
+            </div>
+            <div>
+                <a href="project.html" class="btn">模块项目：股票收益率分析 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

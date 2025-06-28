@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程2: 数组运算与广播 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>向量化运算</h2>
+            <p>NumPy的核心特性之一是向量化运算，它允许我们对整个数组执行操作，而不需要显式编写循环。这大大提高了计算效率，特别是在处理金融数据时。</p>
+            <h3>向量化运算 vs 循环</h3>
+            <pre><code>import numpy as np
+import time
+# 创建大型数组
+arr = np.random.rand(1000000)
+# 使用循环计算平方
+start = time.time()
+result_loop = [x**2 for x in arr]
+print("循环耗时:", time.time() - start)
+# 使用向量化运算计算平方
+start = time.time()
+result_vec = arr**2
+print("向量化耗时:", time.time() - start)</code></pre>
+            <p>向量化运算通常比循环快几个数量级，这是NumPy在金融计算中如此强大的原因之一。</p>
+        </section>
+        <section class="lesson-content">
+            <h2>广播机制</h2>
+            <p>广播是NumPy中一个强大的机制，它允许不同形状的数组进行算术运算。广播遵循严格的规则，理解这些规则对于高效使用NumPy至关重要。</p>
+            <h3>广播规则</h3>
+            <ol>
+                <li>如果两个数组的维度数不同，形状较小的数组会在其形状前面补1，直到两个数组的维度数相同</li>
+                <li>如果两个数组在某个维度上的大小相同，或者其中一个数组在该维度上的大小为1，则这两个数组在这个维度上是兼容的</li>
+                <li>如果两个数组在所有维度上都兼容，则可以广播</li>
+                <li>广播后，每个数组的行为就像它的形状等于两个数组形状的元素最大值一样</li>
+                <li>在任何维度上，如果一个数组的大小为1而另一个数组的大小大于1，那么第一个数组的行为就像它沿着该维度复制了多次一样</li>
+            </ol>
+            <h3>广播示例</h3>
+            <pre><code># 示例1: 标量与数组
+arr = np.array([1, 2, 3])
+print(arr + 5)  # 输出 [6, 7, 8]
+# 示例2: 不同形状的数组
+a = np.array([[1, 2, 3], [4, 5, 6]])
+b = np.array([10, 20, 30])
+print(a + b)  # 输出 [[11, 22, 33], [14, 25, 36]]
+# 示例3: 更复杂的广播
+c = np.arange(3).reshape(3, 1)
+d = np.arange(3)
+print(c + d)  # 输出 [[0, 1, 2], [1, 2, 3], [2, 3, 4]]</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>通用函数(ufunc)</h2>
+            <p>NumPy提供了大量的通用函数(ufunc)，这些函数对数组进行元素级运算，并支持广播。</p>
+            <h3>数学运算</h3>
+            <pre><code>arr = np.array([1.0, 4.0, 9.0])
+# 平方根
+print(np.sqrt(arr))  # 输出 [1., 2., 3.]
+# 指数
+print(np.exp(arr))  # 输出 [2.71828183, 54.59815003, 8103.08392758]
+# 对数
+print(np.log(arr))  # 输出 [0., 1.38629436, 2.19722458]</code></pre>
+            <h3>三角函数</h3>
+            <pre><code>angles = np.array([0, np.pi/2, np.pi])
+# 正弦函数
+print(np.sin(angles))  # 输出 [0., 1., 0.]
+# 余弦函数
+print(np.cos(angles))  # 输出 [1., 0., -1.]</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>条件运算和布尔索引</h2>
+            <p>NumPy提供了强大的条件运算和布尔索引功能，可以高效地选择和操作数组元素。</p>
+            <h3>布尔数组</h3>
+            <pre><code>arr = np.array([1, 2, 3, 4, 5, 6])
+# 创建布尔数组
+mask = arr > 3
+print(mask)  # 输出 [False, False, False, True, True, True]
+# 使用布尔数组索引
+print(arr[mask])  # 输出 [4, 5, 6]</code></pre>
+            <h3>where函数</h3>
+            <pre><code># 基本用法
+print(np.where(arr > 3, arr, 0))  # 输出 [0, 0, 0, 4, 5, 6]
+# 金融应用示例：标记收益率超过阈值的交易日
+returns = np.array([0.01, -0.02, 0.03, -0.01, 0.05])
+threshold = 0.02
+print(np.where(returns > threshold, "买入", "持有"))  # 输出 ['持有', '持有', '买入', '持有', '买入']</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融应用：投资组合计算</h2>
+            <p>让我们应用广播和向量化运算来计算投资组合的收益率和风险。</p>
+            <pre><code>import numpy as np
+# 假设我们有3只股票的历史收益率数据（每行代表一只股票，每列代表一个时间段）
+stock_returns = np.array([
+    [0.01, 0.02, -0.01, 0.03],  # 股票A
+    [0.02, -0.01, 0.03, 0.01],  # 股票B
+    [-0.01, 0.03, 0.02, 0.01]   # 股票C
+])
+# 投资组合权重
+weights = np.array([0.4, 0.4, 0.2])
+# 计算投资组合收益率（使用向量点积）
+portfolio_returns = np.dot(weights, stock_returns)
+print("投资组合各期收益率:", portfolio_returns)
+# 计算每只股票的平均收益率
+mean_returns = np.mean(stock_returns, axis=1)
+print("各股票平均收益率:", mean_returns)
+# 计算协方差矩阵（风险度量）
+cov_matrix = np.cov(stock_returns)
+print("协方差矩阵:\n", cov_matrix)
+# 计算投资组合风险（标准差）
+portfolio_risk = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+print("投资组合风险:", portfolio_risk)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>学习了NumPy的向量化运算及其性能优势</li>
+                <li>深入理解了广播机制及其规则</li>
+                <li>探索了通用函数(ufunc)的使用</li>
+                <li>掌握了条件运算和布尔索引</li>
+                <li>应用这些概念进行了投资组合计算</li>
+            </ul>
+            <p>这些技术将大大提高您在金融数据分析中的效率和表达能力。在下一课中，我们将学习如何应用NumPy处理实际的金融数据。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请确保您已经：</p>
+                <ul>
+                    <li>理解了向量化运算的概念</li>
+                    <li>掌握了广播的基本规则</li>
+                    <li>尝试运行了本课的所有示例代码</li>
+                    <li>能够应用这些技术解决简单的金融计算问题</li>
+                </ul>
+                <a href="lesson3.html" class="btn btn-large">继续学习：金融数据处理</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson1.html" class="btn">« 上一课：NumPy基础</a>
+            </div>
+            <div>
+                <a href="lesson3.html" class="btn">下一课：金融数据处理 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

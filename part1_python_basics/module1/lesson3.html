@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程3: 变量与运算符 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>变量的深入理解</h2>
+            <p>在Python中，变量是用来存储数据的标识符。与一些其他编程语言不同，Python变量不需要显式声明类型，它们的类型是根据赋值的值动态确定的。</p>
+            <h3>变量的命名规则</h3>
+            <ul>
+                <li>只能包含字母、数字和下划线</li>
+                <li>必须以字母或下划线开头</li>
+                <li>区分大小写</li>
+                <li>不能使用Python关键字</li>
+                <li>应该使用有意义的名称</li>
+            </ul>
+            <pre># 好的变量命名示例
+principal_amount = 1000
+annual_interest_rate = 0.05
+investment_period = 5
+total_return = 0
+# 不好的变量命名示例
+p = 1000        # 太短，不清楚含义
+amt = 1000      # 缩写可能造成混淆
+a_very_long_variable_name_that_is_hard_to_read = 1000  # 太长
+1st_investment = 1000  # 不能以数字开头
+investment-period = 5  # 不能使用连字符</pre>
+            <h3>变量的作用域</h3>
+            <p>Python中的变量有不同的作用域，决定了变量在哪里可以被访问：</p>
+            <pre># 全局变量
+global_var = 100
+def some_function():
+    # 局部变量
+    local_var = 200
+    print(global_var)  # 可以访问全局变量
+    print(local_var)   # 可以访问局部变量
+print(global_var)      # 可以访问全局变量
+# print(local_var)     # 错误！不能访问函数内的局部变量
+# 使用global关键字修改全局变量
+def modify_global():
+    global global_var
+    global_var = 300
+modify_global()
+print(global_var)  # 输出: 300</pre>
+            <h3>变量的生命周期</h3>
+            <p>变量的生命周期取决于其作用域：</p>
+            <ul>
+                <li>全局变量在程序运行期间一直存在</li>
+                <li>局部变量在函数执行完毕后被销毁</li>
+                <li>对象的属性在对象存在期间一直存在</li>
+            </ul>
+        </section>
+        <section class="lesson-content">
+            <h2>Python运算符</h2>
+            <p>Python提供了多种运算符，用于执行不同类型的操作。</p>
+            <h3>算术运算符</h3>
+            <p>用于执行基本的数学运算。</p>
+            <pre># 基本算术运算符
+a = 10
+b = 3
+print(a + b)    # 加法: 13
+print(a - b)    # 减法: 7
+print(a * b)    # 乘法: 30
+print(a / b)    # 除法: 3.3333...
+print(a // b)   # 整除: 3
+print(a % b)    # 取余: 1
+print(a ** b)   # 幂运算: 1000
+# 金融计算示例
+principal = 1000
+rate = 0.05
+years = 3
+# 复利计算
+future_value = principal * (1 + rate) ** years
+print(f"Future Value: {future_value:.2f}")  # 1157.63</pre>
+            <h3>比较运算符</h3>
+            <p>用于比较两个值，返回布尔值（True或False）。</p>
+            <pre># 比较运算符
+x = 5
+y = 10
+print(x == y)    # 等于: False
+print(x != y)    # 不等于: True
+print(x < y)     # 小于: True
+print(x > y)     # 大于: False
+print(x <= y)    # 小于等于: True
+print(x >= y)    # 大于等于: False
+# 金融应用示例
+stock_price = 150.25
+target_price = 160.00
+if stock_price >= target_price:
+    print("达到目标价格，考虑卖出")
+else:
+    print("未达到目标价格，继续持有")</pre>
+            <h3>赋值运算符</h3>
+            <p>用于给变量赋值，包括简单赋值和复合赋值。</p>
+            <pre># 基本赋值
+x = 5
+# 复合赋值
+x += 3   # 等同于 x = x + 3
+x -= 2   # 等同于 x = x - 2
+x *= 4   # 等同于 x = x * 4
+x /= 2   # 等同于 x = x / 2
+x //= 2  # 等同于 x = x // 2
+x %= 3   # 等同于 x = x % 3
+x **= 2  # 等同于 x = x ** 2
+# 金融应用示例
+balance = 1000
+interest_rate = 0.05
+# 添加利息
+balance *= (1 + interest_rate)  # 等同于 balance = balance * (1 + interest_rate)
+# 扣除手续费
+balance -= 10  # 等同于 balance = balance - 10</pre>
+            <h3>逻辑运算符</h3>
+            <p>用于组合多个条件，返回布尔值。</p>
+            <pre># 逻辑运算符
+a = True
+b = False
+print(a and b)  # 与: False
+print(a or b)   # 或: True
+print(not a)    # 非: False
+# 金融应用示例
+price = 150.25
+volume = 1000000
+pe_ratio = 15.5
+# 多条件交易决策
+is_good_price = price < 160
+is_high_volume = volume > 500000
+is_reasonable_pe = pe_ratio < 20
+if is_good_price and is_high_volume and is_reasonable_pe:
+    print("满足交易条件")
+else:
+    print("不满足交易条件")</pre>
+            <h3>身份运算符</h3>
+            <p>用于比较对象的身份（内存地址）。</p>
+            <pre># is 和 is not 运算符
+a = [1, 2, 3]
+b = [1, 2, 3]
+c = a
+print(a is b)     # False（不同对象）
+print(a is c)     # True（同一对象）
+print(a is not b) # True
+print(a == b)     # True（值相等）</pre>
+            <h3>成员运算符</h3>
+            <p>用于测试序列中是否包含某个值。</p>
+            <pre># in 和 not in 运算符
+portfolio = ['AAPL', 'GOOGL', 'MSFT']
+print('AAPL' in portfolio)      # True
+print('TSLA' not in portfolio)  # True
+# 金融应用示例
+def check_stock_exists(symbol):
+    allowed_stocks = ['AAPL', 'GOOGL', 'MSFT', 'AMZN']
+    if symbol in allowed_stocks:
+        return "可交易的股票"
+    return "不支持的股票"</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>运算符优先级</h2>
+            <p>Python运算符有固定的优先级顺序，决定了复杂表达式中的计算顺序。</p>
+            <pre># 运算符优先级示例
+result = 2 + 3 * 4    # 先乘法后加法: 14
+result = (2 + 3) * 4  # 使用括号改变优先级: 20
+# 常见优先级顺序（从高到低）：
+# 1. 括号 ()
+# 2. 幂运算 **
+# 3. 一元运算符 +x, -x
+# 4. 乘除 *, /, //, %
+# 5. 加减 +, -
+# 6. 比较运算符 <, <=, >, >=, ==, !=
+# 7. 逻辑运算符 not, and, or
+# 金融计算示例
+principal = 1000
+rate = 0.05
+years = 3
+tax_rate = 0.15
+# 计算税后收益
+future_value = principal * (1 + rate) ** years
+profit = future_value - principal
+after_tax_profit = profit * (1 - tax_rate)
+total_after_tax = principal + after_tax_profit
+print(f"税后总额: {total_after_tax:.2f}")</pre>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们：</p>
+            <ul>
+                <li>深入了解了Python变量的命名规则、作用域和生命周期</li>
+                <li>学习了各种类型的运算符及其用法</li>
+                <li>理解了运算符的优先级</li>
+                <li>通过金融应用示例，掌握了变量和运算符的实际应用</li>
+            </ul>
+            <p>这些知识将帮助您编写更复杂的Python程序，特别是在处理金融计算时。在下一课中，我们将学习输入和输出操作。</p>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在继续下一课之前，请尝试使用本课所学的知识编写一些简单的金融计算程序，熟悉各种运算符的使用。</p>
+                <a href="lesson4.html" class="btn btn-large">继续学习：输入与输出</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson2.html" class="btn">« 上一课：基本语法与数据类型</a>
+            </div>
+            <div>
+                <a href="lesson4.html" class="btn">下一课：输入与输出 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

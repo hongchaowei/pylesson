@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2课: 资产收益率与风险 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>资产收益率计算</h2>
+            <p>准确计算资产收益率是投资组合分析的基础。</p>
+            <h3>1. 简单收益率与对数收益率</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+# 示例价格数据
+prices = pd.Series([100, 105, 103, 108, 107],
+                   index=pd.date_range('2023-01-01', periods=5))
+# 计算简单收益率
+simple_returns = prices.pct_change()
+print("简单收益率:\n", simple_returns)
+# 计算对数收益率
+log_returns = np.log(prices).diff()
+print("\n对数收益率:\n", log_returns)</code></pre>
+            <h3>2. 累积收益率计算</h3>
+            <pre><code class="language-python"># 累积简单收益率
+cum_simple_return = (1 + simple_returns).prod() - 1
+# 累积对数收益率
+cum_log_return = log_returns.sum()
+print(f"\n累积简单收益率: {cum_simple_return:.4f}")
+print(f"累积对数收益率: {cum_log_return:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>风险度量指标</h2>
+            <p>风险度量是投资组合管理的关键环节。</p>
+            <h3>1. 标准差与方差</h3>
+            <pre><code class="language-python"># 计算收益率标准差
+volatility = simple_returns.std()
+print(f"\n收益率标准差(年化): {volatility * np.sqrt(252):.4f}")
+# 计算协方差矩阵
+returns = pd.DataFrame({
+    'Stock_A': [0.02, 0.03, -0.01, 0.04, 0.01],
+    'Stock_B': [0.01, 0.05, -0.03, 0.03, 0.02]
+})
+cov_matrix = returns.cov()
+print("\n协方差矩阵:\n", cov_matrix)</code></pre>
+            <h3>2. VaR与CVaR</h3>
+            <pre><code class="language-python">from scipy.stats import norm
+def calculate_var(returns, confidence_level=0.95):
+    """计算在险价值(VaR)"""
+    return -np.percentile(returns, 100 * (1 - confidence_level))
+def calculate_cvar(returns, confidence_level=0.95):
+    """计算条件在险价值(CVaR)"""
+    var = calculate_var(returns, confidence_level)
+    return -returns[returns <= -var].mean()
+stock_a_returns = returns['Stock_A']
+var = calculate_var(stock_a_returns)
+cvar = calculate_cvar(stock_a_returns)
+print(f"\nStock_A 95% VaR: {var:.4f}")
+print(f"Stock_A 95% CVaR: {cvar:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>相关性分析</h2>
+            <p>资产间的相关性影响投资组合的风险分散效果。</p>
+            <h3>1. 相关系数矩阵</h3>
+            <pre><code class="language-python"># 计算相关系数矩阵
+corr_matrix = returns.corr()
+print("\n相关系数矩阵:\n", corr_matrix)
+# 可视化相关矩阵
+import seaborn as sns
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+plt.title('资产收益率相关性矩阵')
+plt.show()</code></pre>
+            <h3>2. 滚动相关性分析</h3>
+            <pre><code class="language-python"># 计算滚动相关性
+rolling_corr = returns['Stock_A'].rolling(window=3).corr(returns['Stock_B'])
+# 绘制滚动相关性
+plt.figure(figsize=(10,5))
+rolling_corr.plot()
+plt.title('3期滚动相关性')
+plt.ylabel('相关系数')
+plt.grid(True)
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>风险调整收益指标</h2>
+            <p>评估投资绩效需要考虑风险因素。</p>
+            <h3>1. 夏普比率</h3>
+            <pre><code class="language-python">def sharpe_ratio(returns, risk_free_rate=0.02, periods=252):
+    """计算年化夏普比率"""
+    excess_returns = returns - risk_free_rate / periods
+    return np.sqrt(periods) * excess_returns.mean() / excess_returns.std()
+sharpe = sharpe_ratio(returns.mean(axis=1))
+print(f"\n投资组合夏普比率: {sharpe:.4f}")</code></pre>
+            <h3>2. 索提诺比率</h3>
+            <pre><code class="language-python">def sortino_ratio(returns, risk_free_rate=0.02, periods=252):
+    """计算年化索提诺比率"""
+    excess_returns = returns - risk_free_rate / periods
+    downside_returns = returns[returns < 0]
+    downside_risk = downside_returns.std() * np.sqrt(periods)
+    return np.sqrt(periods) * excess_returns.mean() / downside_risk
+sortino = sortino_ratio(returns.mean(axis=1))
+print(f"投资组合索提诺比率: {sortino:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>风险分解与归因</h2>
+            <p>理解投资组合风险的来源至关重要。</p>
+            <h3>1. 风险贡献分析</h3>
+            <pre><code class="language-python">def risk_contribution(weights, cov_matrix):
+    """计算各资产对组合风险的贡献"""
+    port_volatility = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+    marginal_risk = np.dot(cov_matrix, weights) / port_volatility
+    risk_contrib = weights * marginal_risk
+    return risk_contrib / port_volatility
+weights = np.array([0.6, 0.4])
+risk_contrib = risk_contribution(weights, cov_matrix)
+print("\n各资产风险贡献比例:\n", risk_contrib)</code></pre>
+            <h3>2. 风险归因可视化</h3>
+            <pre><code class="language-python">plt.figure(figsize=(8,5))
+plt.pie(risk_contrib, labels=['Stock_A', 'Stock_B'],
+        autopct='%1.1f%%', colors=['#ff9999','#66b3ff'])
+plt.title('投资组合风险贡献分解')
+plt.show()</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson1.html" class="btn">« 上一课: 投资组合理论基础</a>
+            <a href="lesson3.html" class="btn">下一课: 投资组合优化 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

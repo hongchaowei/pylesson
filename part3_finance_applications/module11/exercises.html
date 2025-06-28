@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险评估练习题 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>练习说明</h2>
+            <p>以下练习将帮助您巩固本模块学到的风险评估技能。建议按顺序完成所有练习。</p>
+            <div class="exercise-tips">
+                <h3>练习提示</h3>
+                <ul>
+                    <li>使用Jupyter Notebook完成练习</li>
+                    <li>参考课程内容和官方文档</li>
+                    <li>尝试不同的方法和参数</li>
+                    <li>记录遇到的问题和解决方案</li>
+                </ul>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>基础练习：风险价值计算</h2>
+            <div class="exercise">
+                <h3>练习1：VaR计算方法比较</h3>
+                <p>给定以下股票2022年的日收益率数据：</p>
+                <pre><code class="language-python">import pandas as pd
+import numpy as np
+# 示例数据
+np.random.seed(42)
+dates = pd.date_range('2022-01-01', periods=252)
+returns = pd.Series(np.random.normal(0.0005, 0.02, 252), index=dates)</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算95%和99%置信水平的历史模拟法VaR</li>
+                    <li>计算参数法(正态分布)VaR并比较结果差异</li>
+                    <li>实现滚动窗口(窗口=60天)的历史VaR计算</li>
+                    <li>可视化三种方法的VaR随时间变化</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习2：投资组合VaR计算</h3>
+                <p>给定以下投资组合数据：</p>
+                <pre><code class="language-python">assets = ['AAPL', 'MSFT', 'GOOG', 'AMZN']
+weights = np.array([0.4, 0.3, 0.2, 0.1])
+# 从Yahoo Finance获取2022年日收益率数据
+# 实际练习中请使用真实数据
+returns = pd.DataFrame(np.random.multivariate_normal(
+    [0.0005, 0.0004, 0.0006, 0.0003],
+    [[0.04, 0.01, 0.02, 0.005],
+     [0.01, 0.09, 0.01, 0.01],
+     [0.02, 0.01, 0.16, 0.02],
+     [0.005, 0.01, 0.02, 0.25]],
+    size=252
+), columns=assets)</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>计算投资组合的日收益率</li>
+                    <li>使用三种方法计算投资组合95% VaR</li>
+                    <li>比较不同资产配置对VaR的影响</li>
+                    <li>分析协方差矩阵估计误差对VaR的影响</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>中级练习：条件风险价值</h2>
+            <div class="exercise">
+                <h3>练习3：CVaR计算与优化</h3>
+                <p>使用练习2的投资组合数据：</p>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>实现历史模拟法CVaR计算函数</li>
+                    <li>计算投资组合95% CVaR并与VaR比较</li>
+                    <li>构建最小化CVaR的投资组合优化模型</li>
+                    <li>比较最小CVaR组合与等权重组合的表现</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习4：非正态分布下的CVaR</h3>
+                <p>考虑收益率具有"厚尾"特征：</p>
+                <pre><code class="language-python">from scipy.stats import skewnorm
+# 生成有偏态和厚尾的收益率数据
+returns = pd.Series(skewnorm.rvs(a=-5, loc=0.0005, scale=0.02, size=1000))</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>比较正态假设与非正态数据的VaR和CVaR差异</li>
+                    <li>实现蒙特卡洛模拟法计算CVaR</li>
+                    <li>使用极值理论改进CVaR估计</li>
+                    <li>分析分布假设对风险管理的影响</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>高级练习：压力测试</h2>
+            <div class="exercise">
+                <h3>练习5：历史情景压力测试</h3>
+                <p>使用真实市场危机时期数据：</p>
+                <pre><code class="language-python"># 实际练习中请使用真实历史数据
+crisis_periods = {
+    '2008金融危机': pd.date_range('2008-09-01', periods=90),
+    '2020新冠疫情': pd.date_range('2020-02-20', periods=90)
+}</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>获取危机期间各资产收益率数据</li>
+                    <li>计算投资组合在危机期间的模拟损失</li>
+                    <li>比较不同危机事件的影响程度</li>
+                    <li>设计基于历史情景的压力测试报告</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习6：假设情景设计</h3>
+                <p>设计以下假设情景：</p>
+                <pre><code class="language-python">scenarios = {
+    '利率上升1%': {'利率因子冲击': 0.01},
+    '美元贬值10%': {'汇率因子冲击': -0.10},
+    '大宗商品暴跌': {'商品因子冲击': -0.20}
+}</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>建立多因子模型表示各资产收益率</li>
+                    <li>实现假设情景生成函数</li>
+                    <li>评估投资组合在不同情景下的表现</li>
+                    <li>确定最脆弱的市场因子</li>
+                </ol>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>综合练习：极端事件分析</h2>
+            <div class="exercise">
+                <h3>练习7：极值理论应用</h3>
+                <p>使用长期历史收益率数据：</p>
+                <pre><code class="language-python"># 实际练习中请使用10年以上历史数据
+long_term_returns = pd.Series(np.random.normal(0.0003, 0.015, 3000))</code></pre>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>实现广义帕累托分布(GPD)拟合函数</li>
+                    <li>选择合适的阈值并拟合尾部数据</li>
+                    <li>计算99%和99.9%置信水平的极端风险</li>
+                    <li>比较EVT方法与常规方法的差异</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>练习8：完整风险评估系统</h3>
+                <p><strong>要求：</strong></p>
+                <ol>
+                    <li>整合所有风险评估方法构建完整系统</li>
+                    <li>对特定投资组合执行全面风险评估：
+                        <ul>
+                            <li>常规VaR/CVaR计算</li>
+                            <li>历史与假设情景压力测试</li>
+                            <li>极端事件分析</li>
+                        </ul>
+                    </li>
+                    <li>生成综合风险评估报告</li>
+                    <li>提出风险管理改进建议</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercise-solutions">
+            <h2>练习参考答案</h2>
+            <p>完成练习后，可以参考以下代码检查您的实现：</p>
+            <div class="solution">
+                <h3>练习1参考代码</h3>
+                <pre><code class="language-python"># VaR计算方法比较
+def calculate_var(returns, confidence_level=0.95, method='historical'):
+    if method == 'historical':
+        return -np.percentile(returns, 100 * (1 - confidence_level))
+    elif method == 'parametric':
+        mu = returns.mean()
+        sigma = returns.std()
+        alpha = norm.ppf(1 - confidence_level)
+        return -(mu + alpha * sigma)
+    else:
+        raise ValueError("不支持的VaR计算方法")
+# 滚动VaR计算
+def rolling_var(returns, window=60, confidence_level=0.95):
+    return returns.rolling(window).apply(
+        lambda x: -np.percentile(x, 100 * (1 - confidence_level))
+    )
+# 计算并比较不同方法
+var_historical = calculate_var(returns, 0.95)
+var_parametric = calculate_var(returns, 0.95, 'parametric')
+rolling_var = rolling_var(returns)
+print(f"历史模拟法95% VaR: {var_historical:.4f}")
+print(f"参数法95% VaR: {var_parametric:.4f}")</code></pre>
+            </div>
+            <div class="solution">
+                <h3>练习7参考代码</h3>
+                <pre><code class="language-python"># 极值理论应用
+from scipy.stats import genpareto
+def fit_gpd(losses, threshold_quantile=0.95):
+    threshold = np.percentile(losses, 100 * threshold_quantile)
+    excesses = losses[losses > threshold] - threshold
+    # 最大似然估计
+    def neg_log_likelihood(params):
+        c, scale = params
+        if scale <= 0:
+            return np.inf
+        return -np.sum(genpareto.logpdf(excesses, c, scale=scale))
+    result = minimize(neg_log_likelihood, [0.1, 1],
+                     bounds=[(-1, 1), (1e-6, None)])
+    return {
+        'threshold': threshold,
+        'shape': result.x[0],
+        'scale': result.x[1]
+    }
+# 计算极端风险
+def extreme_risk(losses, gpd_params, confidence_level=0.99):
+    n = len(losses)
+    nu = len(losses[losses > gpd_params['threshold']])
+    var = gpd_params['threshold'] + (
+        gpd_params['scale'] / gpd_params['shape']) * (
+        ((n / (nu * (1 - confidence_level))) ** gpd_params['shape']) - 1)
+    cvar = var + (gpd_params['scale'] + gpd_params['shape'] * (
+        var - gpd_params['threshold'])) / (1 - gpd_params['shape'])
+    return var, cvar
+# 应用示例
+losses = -long_term_returns
+gpd_params = fit_gpd(losses)
+var_99, cvar_99 = extreme_risk(losses, gpd_params, 0.99)
+print(f"EVT 99% VaR: {var_99:.4f}, CVaR: {cvar_99:.4f}")</code></pre>
+            </div>
+        </section>
+        <div class="exercises-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+            <a href="../../index.html" class="btn">下一模块: 自动化交易策略 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

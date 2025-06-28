@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第3课: Plotly交互式可视化 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <!-- 数据集下载区域 -->
+        <section class="lesson-content data-section">
+            <h2>📊 配套数据集</h2>
+            <div class="data-download-area">
+                <div class="data-info">
+                    <p>本课程需要使用以下数据文件进行Plotly交互式可视化练习。您可以直接下载使用。</p>
+                </div>
+                
+                <div class="data-files-grid">
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">📈</span>
+                            <span class="file-name">stock_data.csv</span>
+                        </div>
+                        <div class="file-description">
+                            股票综合数据，包含价格、成交量、技术指标等，用于创建交互式金融图表
+                        </div>
+                        <div class="file-stats">
+                            <span>📊 多只股票</span>
+                            <span>📅 历史数据</span>
+                            <span>💾 ~180KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('stock_data.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="data-usage-tips">
+                    <h4>💡 使用说明</h4>
+                    <ul>
+                        <li>下载数据文件到您的工作目录</li>
+                        <li><code>stock_data.csv</code> 用于创建蜡烛图、OHLC图和技术指标图表</li>
+                        <li>数据包含开盘价、最高价、最低价、收盘价和成交量</li>
+                        <li>适合练习Plotly的各种交互式可视化功能</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2>Plotly简介</h2>
+            <p>Plotly是Python中最强大的交互式可视化库，特别适合创建金融数据仪表板和分析工具。</p>
+            <h3>核心优势</h3>
+            <ul>
+                <li>丰富的交互功能：缩放、平移、悬停提示</li>
+                <li>专业级的金融图表：蜡烛图、OHLC图、技术指标</li>
+                <li>响应式设计：自动适应不同设备</li>
+                <li>多种输出格式：HTML、Jupyter Notebook、Dash应用</li>
+            </ul>
+            <pre><code class="language-python">import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+# 设置模板
+template = "plotly_white"</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>基础交互式图表</h2>
+            <h3>1. 交互式线图</h3>
+            <pre><code class="language-python"># 创建示例数据
+dates = pd.date_range('2023-01-01', periods=50)
+prices = (1 + pd.Series(np.random.randn(50) * 0.01).cumsum()) * 100
+# 创建线图
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=dates, y=prices,
+    mode='lines',
+    name='AAPL',
+    line=dict(color='royalblue', width=2),
+    hovertemplate='日期: %{x}<br>价格: $%{y:.2f}<extra></extra>'
+))
+# 更新布局
+fig.update_layout(
+    title='AAPL价格走势(交互式)',
+    xaxis_title='日期',
+    yaxis_title='价格',
+    template=template,
+    hovermode='x unified'
+)
+fig.show()</code></pre>
+            <h3>2. 交互式柱状图</h3>
+            <pre><code class="language-python"># 创建示例数据
+stocks = ['AAPL', 'MSFT', 'GOOG', 'AMZN']
+returns = np.random.uniform(-0.1, 0.15, 4)
+# 创建柱状图
+fig = go.Figure()
+fig.add_trace(go.Bar(
+    x=stocks, y=returns,
+    marker_color=np.where(returns > 0, 'green', 'red'),
+    text=[f'{r:.2%}' for r in returns],
+    textposition='auto'
+))
+# 更新布局
+fig.update_layout(
+    title='股票收益率比较',
+    yaxis_title='收益率',
+    template=template
+)
+fig.show()</code></pre>
+            <h3>3. 交互式散点图</h3>
+            <pre><code class="language-python"># 创建示例数据
+np.random.seed(42)
+volatility = np.random.uniform(0.1, 0.4, 20)
+returns = volatility * 0.5 + np.random.normal(0, 0.05, 20)
+sharpe = returns / volatility
+symbols = [f'Stock_{i}' for i in range(20)]
+# 创建散点图
+fig = px.scatter(
+    x=volatility, y=returns,
+    color=sharpe, size=np.abs(returns)*100,
+    hover_name=symbols,
+    labels={'x': '波动率', 'y': '收益率'},
+    title='风险-回报分析'
+)
+fig.update_layout(template=template)
+fig.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>金融专用图表</h2>
+            <h3>1. 蜡烛图 (Candlestick Chart)</h3>
+            <pre><code class="language-python"># 创建示例OHLC数据
+np.random.seed(42)
+dates = pd.date_range('2023-01-01', periods=20)
+open_prices = np.cumsum(np.random.randn(20) * 0.5) + 100
+high = open_prices + np.random.uniform(0.5, 2.0, 20)
+low = open_prices - np.random.uniform(0.5, 2.0, 20)
+close = open_prices + np.random.randn(20) * 0.2
+# 创建蜡烛图
+fig = go.Figure(data=[go.Candlestick(
+    x=dates,
+    open=open_prices,
+    high=high,
+    low=low,
+    close=close,
+    increasing_line_color='green',
+    decreasing_line_color='red'
+)])
+# 更新布局
+fig.update_layout(
+    title='AAPL蜡烛图',
+    yaxis_title='价格',
+    xaxis_rangeslider_visible=False,
+    template=template
+)
+fig.show()</code></pre>
+            <h3>2. OHLC图</h3>
+            <pre><code class="language-python">fig = go.Figure(data=[go.Ohlc(
+    x=dates,
+    open=open_prices,
+    high=high,
+    low=low,
+    close=close,
+    increasing_line_color='green',
+    decreasing_line_color='red'
+)])
+fig.update_layout(
+    title='AAPL OHLC图',
+    yaxis_title='价格',
+    template=template
+)
+fig.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>技术指标可视化</h2>
+            <h3>1. MACD指标</h3>
+            <pre><code class="language-python"># 计算MACD
+def calculate_macd(prices, slow=26, fast=12, signal=9):
+    ema_fast = prices.ewm(span=fast).mean()
+    ema_slow = prices.ewm(span=slow).mean()
+    macd = ema_fast - ema_slow
+    signal_line = macd.ewm(span=signal).mean()
+    histogram = macd - signal_line
+    return macd, signal_line, histogram
+macd, signal, hist = calculate_macd(pd.Series(close))
+# 创建主图(价格)
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=dates, y=close,
+    name='收盘价',
+    line=dict(color='royalblue', width=2)
+))
+# 创建MACD子图
+fig.add_trace(go.Scatter(
+    x=dates, y=macd,
+    name='MACD',
+    line=dict(color='orange', width=2),
+    yaxis='y2'
+))
+fig.add_trace(go.Scatter(
+    x=dates, y=signal,
+    name='信号线',
+    line=dict(color='green', width=1),
+    yaxis='y2'
+))
+fig.add_trace(go.Bar(
+    x=dates, y=hist,
+    name='直方图',
+    marker_color=np.where(hist > 0, 'green', 'red'),
+    yaxis='y2'
+))
+# 更新布局
+fig.update_layout(
+    title='AAPL价格与MACD指标',
+    yaxis=dict(title='价格'),
+    yaxis2=dict(
+        title='MACD',
+        overlaying='y',
+        side='right'
+    ),
+    template=template,
+    hovermode='x unified'
+)
+fig.show()</code></pre>
+            <h3>2. RSI指标</h3>
+            <pre><code class="language-python"># 计算RSI
+def calculate_rsi(prices, window=14):
+    delta = prices.diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window).mean()
+    avg_loss = loss.rolling(window).mean()
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
+rsi = calculate_rsi(pd.Series(close))
+# 创建主图(价格)
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=dates, y=close,
+    name='收盘价',
+    line=dict(color='royalblue', width=2),
+    yaxis='y'
+))
+# 创建RSI子图
+fig.add_trace(go.Scatter(
+    x=dates, y=rsi,
+    name='RSI',
+    line=dict(color='purple', width=2),
+    yaxis='y2'
+))
+# 添加超买超卖线
+fig.add_hline(y=70, line_dash="dot", line_color="red", yref="y2")
+fig.add_hline(y=30, line_dash="dot", line_color="green", yref="y2")
+# 更新布局
+fig.update_layout(
+    title='AAPL价格与RSI指标',
+    yaxis=dict(title='价格'),
+    yaxis2=dict(
+        title='RSI',
+        overlaying='y',
+        side='right',
+        range=[0, 100]
+    ),
+    template=template
+)
+fig.show()</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson2.html" class="btn">« 上一课: Seaborn高级可视化</a>
+            <a href="lesson4.html" class="btn">下一课: 金融数据专用图表 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

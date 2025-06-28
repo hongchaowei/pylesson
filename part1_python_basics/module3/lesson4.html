@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程4: 标准库概览 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="lesson-content">
+            <h2>datetime与time模块</h2>
+            <p>在金融编程中，日期和时间处理是非常重要的一部分。Python的<code>datetime</code>和<code>time</code>模块提供了处理日期、时间和时间间隔的功能。</p>
+            <h3>datetime模块</h3>
+            <pre># 导入datetime模块
+from datetime import datetime, date, time, timedelta
+# 获取当前日期和时间
+now = datetime.now()
+print(f"当前日期和时间: {now}")
+# 创建特定的日期
+start_date = date(2023, 1, 1)
+print(f"开始日期: {start_date}")
+# 创建特定的时间
+market_open = time(9, 30, 0)  # 9:30 AM
+print(f"市场开盘时间: {market_open}")
+# 创建日期时间对象
+market_open_datetime = datetime.combine(start_date, market_open)
+print(f"市场开盘日期时间: {market_open_datetime}")
+# 日期时间格式化
+formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")
+print(f"格式化日期时间: {formatted_date}")
+# 解析日期字符串
+date_str = "2023-06-15"
+parsed_date = datetime.strptime(date_str, "%Y-%m-%d")
+print(f"解析的日期: {parsed_date}")
+# 日期计算
+tomorrow = now + timedelta(days=1)
+print(f"明天: {tomorrow}")
+next_week = now + timedelta(weeks=1)
+print(f"下周: {next_week}")
+# 计算两个日期之间的差异
+days_passed = (now.date() - start_date).days
+print(f"从{start_date}到今天已经过去了{days_passed}天")</pre>
+            <h3>time模块</h3>
+            <pre># 导入time模块
+import time
+# 获取当前时间戳（从1970年1月1日起的秒数）
+timestamp = time.time()
+print(f"当前时间戳: {timestamp}")
+# 将时间戳转换为本地时间
+local_time = time.localtime(timestamp)
+print(f"本地时间: {time.strftime('%Y-%m-%d %H:%M:%S', local_time)}")
+# 将时间戳转换为UTC时间
+utc_time = time.gmtime(timestamp)
+print(f"UTC时间: {time.strftime('%Y-%m-%d %H:%M:%S', utc_time)}")
+# 暂停程序执行
+print("等待3秒...")
+time.sleep(3)
+print("继续执行")</pre>
+            <div class="feature">
+                <h4>金融应用示例：交易日历与结算日期计算</h4>
+                <pre># 创建一个简单的交易日历
+from datetime import datetime, date, timedelta
+import calendar
+def is_weekend(date):
+    """检查日期是否为周末"""
+    return date.weekday() >= 5  # 5和6分别表示周六和周日
+def is_holiday(date):
+    """检查日期是否为假期（简化版，仅包含部分美国假期）"""
+    holidays = [
+        # 2023年美国主要假期
+        date(2023, 1, 2),   # 元旦（观察日）
+        date(2023, 1, 16),  # 马丁·路德·金日
+        date(2023, 2, 20),  # 总统日
+        date(2023, 4, 7),   # 耶稣受难日
+        date(2023, 5, 29),  # 阵亡将士纪念日
+        date(2023, 6, 19),  # 解放日
+        date(2023, 7, 4),   # 独立日
+        date(2023, 9, 4),   # 劳动节
+        date(2023, 11, 23), # 感恩节
+        date(2023, 12, 25), # 圣诞节
+    ]
+    return date in holidays
+def is_trading_day(date):
+    """检查日期是否为交易日"""
+    return not (is_weekend(date) or is_holiday(date))
+def get_next_trading_day(date):
+    """获取下一个交易日"""
+    next_day = date + timedelta(days=1)
+    while not is_trading_day(next_day):
+        next_day += timedelta(days=1)
+    return next_day
+def get_trading_days_in_month(year, month):
+    """获取指定月份的所有交易日"""
+    trading_days = []
+    # 获取月份中的所有日期
+    _, num_days = calendar.monthrange(year, month)
+    for day in range(1, num_days + 1):
+        current_date = date(year, month, day)
+        if is_trading_day(current_date):
+            trading_days.append(current_date)
+    return trading_days
+def calculate_settlement_date(trade_date, settlement_days=2):
+    """计算结算日期（T+n）"""
+    settlement_date = trade_date
+    days_to_add = 0
+    while days_to_add < settlement_days:
+        settlement_date = get_next_trading_day(settlement_date)
+        days_to_add += 1
+    return settlement_date
+# 测试交易日历功能
+today = date.today()
+print(f"今天: {today}")
+print(f"是否为交易日: {is_trading_day(today)}")
+next_trading_day = get_next_trading_day(today)
+print(f"下一个交易日: {next_trading_day}")
+# 计算结算日期
+trade_date = date(2023, 6, 15)
+settlement_date = calculate_settlement_date(trade_date)
+print(f"交易日期: {trade_date}")
+print(f"结算日期(T+2): {settlement_date}")
+# 获取当月交易日
+current_year = today.year
+current_month = today.month
+trading_days = get_trading_days_in_month(current_year, current_month)
+print(f"{current_year}年{current_month}月的交易日数量: {len(trading_days)}")
+print(f"前5个交易日: {trading_days[:5]}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>math与statistics模块</h2>
+            <p>Python的<code>math</code>和<code>statistics</code>模块提供了各种数学和统计函数，对于金融计算和数据分析非常有用。</p>
+            <h3>math模块</h3>
+            <pre># 导入math模块
+import math
+# 基本数学常量
+print(f"π (pi): {math.pi}")
+print(f"e: {math.e}")
+# 基本数学函数
+print(f"平方根: {math.sqrt(16)}")
+print(f"绝对值: {math.fabs(-10)}")
+print(f"向上取整: {math.ceil(4.3)}")
+print(f"向下取整: {math.floor(4.7)}")
+print(f"四舍五入: {round(4.5)}")  # 内置函数，不是math模块的一部分
+# 指数和对数
+print(f"e的2次方: {math.exp(2)}")
+print(f"2的3次方: {math.pow(2, 3)}")
+print(f"自然对数: {math.log(10)}")
+print(f"以10为底的对数: {math.log10(100)}")
+print(f"以2为底的对数: {math.log2(8)}")
+# 三角函数
+print(f"正弦: {math.sin(math.pi/2)}")
+print(f"余弦: {math.cos(math.pi)}")
+print(f"正切: {math.tan(math.pi/4)}")
+# 角度与弧度转换
+print(f"30度的弧度: {math.radians(30)}")
+print(f"π/4弧度的角度: {math.degrees(math.pi/4)}")
+# 双曲函数
+print(f"双曲正弦: {math.sinh(1)}")
+print(f"双曲余弦: {math.cosh(1)}")
+# 特殊函数
+print(f"阶乘: {math.factorial(5)}")
+print(f"最大公约数: {math.gcd(24, 36)}")
+print(f"无穷大: {math.inf}")
+print(f"检查是否为NaN: {math.isnan(float('nan'))}")</pre>
+            <h3>statistics模块</h3>
+            <pre># 导入statistics模块
+import statistics
+# 创建一个数据集
+data = [2.3, 5.7, 1.2, 6.8, 3.5, 4.9, 2.8, 5.3, 6.2, 3.1]
+# 计算基本统计量
+print(f"平均值: {statistics.mean(data)}")
+print(f"中位数: {statistics.median(data)}")
+print(f"众数: {statistics.mode([1, 2, 2, 3, 3, 3, 4])}")
+print(f"方差: {statistics.variance(data)}")
+print(f"标准差: {statistics.stdev(data)}")
+# 分位数
+print(f"四分位数: {statistics.quantiles(data, n=4)}")
+# 正态分布
+from statistics import NormalDist
+# 创建正态分布
+normal = NormalDist(mu=0, sigma=1)  # 标准正态分布
+# 计算累积分布函数(CDF)
+print(f"P(X <= 1.96): {normal.cdf(1.96)}")
+# 计算概率密度函数(PDF)
+print(f"PDF at x=0: {normal.pdf(0)}")
+# 计算分位数
+print(f"95%分位数: {normal.inv_cdf(0.95)}")
+# 从样本创建正态分布
+sample_normal = NormalDist.from_samples(data)
+print(f"样本均值: {sample_normal.mean}")
+print(f"样本标准差: {sample_normal.stdev}")</pre>
+            <div class="feature">
+                <h4>金融应用示例：投资组合风险与收益分析</h4>
+                <pre># 使用math和statistics模块进行投资组合分析
+import math
+import statistics
+import random
+# 模拟股票收益率数据
+def generate_stock_returns(mean, std_dev, days):
+    """生成模拟的股票日收益率"""
+    return [random.normalvariate(mean/252, std_dev/math.sqrt(252)) for _ in range(days)]
+# 创建模拟的股票收益率数据
+stocks = {
+    "股票A": {"mean": 0.12, "std_dev": 0.20},
+    "股票B": {"mean": 0.08, "std_dev": 0.15},
+    "股票C": {"mean": 0.15, "std_dev": 0.25},
+    "股票D": {"mean": 0.10, "std_dev": 0.18}
+}
+# 生成每只股票的日收益率数据
+days = 252  # 一年的交易日数
+returns_data = {
+    name: generate_stock_returns(info["mean"], info["std_dev"], days)
+    for name, info in stocks.items()
+}
+# 计算每只股票的年化收益率和波动率
+def calculate_annual_metrics(returns):
+    """计算年化收益率和波动率"""
+    annual_return = statistics.mean(returns) * 252
+    annual_volatility = statistics.stdev(returns) * math.sqrt(252)
+    return annual_return, annual_volatility
+# 分析每只股票的表现
+print("个股分析:")
+for stock_name, returns in returns_data.items():
+    annual_return, annual_volatility = calculate_annual_metrics(returns)
+    sharpe_ratio = annual_return / annual_volatility  # 假设无风险利率为0
+    print(f"\n{stock_name}:")
+    print(f"  年化收益率: {annual_return:.2%}")
+    print(f"  年化波动率: {annual_volatility:.2%}")
+    print(f"  夏普比率: {sharpe_ratio:.2f}")
+# 投资组合分析
+def calculate_portfolio_metrics(returns_data, weights):
+    """计算投资组合的收益率和风险指标"""
+    # 计算投资组合日收益率
+    portfolio_returns = []
+    for i in range(days):
+        daily_return = sum(
+            returns_data[stock][i] * weight
+            for stock, weight in weights.items()
+        )
+        portfolio_returns.append(daily_return)
+    # 计算投资组合指标
+    annual_return, annual_volatility = calculate_annual_metrics(portfolio_returns)
+    sharpe_ratio = annual_return / annual_volatility
+    return {
+        "annual_return": annual_return,
+        "annual_volatility": annual_volatility,
+        "sharpe_ratio": sharpe_ratio
+    }
+# 测试不同的投资组合权重
+portfolios = {
+    "均衡配置": {"股票A": 0.25, "股票B": 0.25, "股票C": 0.25, "股票D": 0.25},
+    "保守配置": {"股票A": 0.15, "股票B": 0.45, "股票C": 0.15, "股票D": 0.25},
+    "激进配置": {"股票A": 0.35, "股票B": 0.15, "股票C": 0.35, "股票D": 0.15}
+}
+print("\n投资组合分析:")
+for portfolio_name, weights in portfolios.items():
+    metrics = calculate_portfolio_metrics(returns_data, weights)
+    print(f"\n{portfolio_name}:")
+    print(f"  年化收益率: {metrics['annual_return']:.2%}")
+    print(f"  年化波动率: {metrics['annual_volatility']:.2%}")
+    print(f"  夏普比率: {metrics['sharpe_ratio']:.2f}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们学习了Python标准库中几个重要的模块：</p>
+            <ul>
+                <li>datetime与time模块：处理日期和时间</li>
+                <li>math与statistics模块：进行数学和统计计算</li>
+                <li>csv与json模块：处理数据文件</li>
+                <li>os与sys模块：与操作系统交互</li>
+            </ul>
+            <p>这些模块为我们提供了强大的工具，可以用于：</p>
+            <ul>
+                <li>处理金融市场的日期和时间数据</li>
+                <li>进行金融计算和统计分析</li>
+                <li>读写各种格式的金融数据</li>
+                <li>管理文件和系统资源</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>恭喜你完成了模块3的学习！在下一个模块中，我们将开始学习面向对象编程的概念。</p>
+                <a href="../module4/lesson1.html" class="btn btn-large">下一模块：面向对象编程 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson3.html" class="btn">« 上一课：模块与包</a>
+            </div>
+            <div>
+                <a href="../module4/lesson1.html" class="btn">下一课：类与对象 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

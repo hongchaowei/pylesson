@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第1课: 投资组合理论基础 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.0/lib/browser/math.min.js"></script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    
+    /* 投资组合理论交互演示样式 */
+    .portfolio-demo {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin: 30px 0;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .demo-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .control-group {
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .control-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .control-group input[type="range"] {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .control-group input[type="number"] {
+        width: 80px;
+        padding: 5px 8px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 5px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        font-size: 14px;
+    }
+    
+    .portfolio-chart {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+        min-height: 450px;
+    }
+    
+    .metrics-display {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .metric-card {
+        background: rgba(255,255,255,0.15);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 5px 0;
+    }
+    
+    .metric-label {
+        font-size: 12px;
+        opacity: 0.9;
+    }
+    
+    .asset-inputs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin: 15px 0;
+    }
+    
+    .asset-input {
+        background: rgba(255,255,255,0.1);
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .asset-input label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 5px;
+        opacity: 0.9;
+    }
+    
+    .asset-input input {
+        width: 100%;
+        padding: 5px;
+        border: none;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        font-size: 14px;
+    }
+    
+    .demo-button {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        padding: 12px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        margin: 5px;
+    }
+    
+    .demo-button:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    .demo-button.active {
+        background: rgba(255,255,255,0.4);
+        border-color: rgba(255,255,255,0.6);
+    }
+    
+    .formula-display {
+        background: rgba(255,255,255,0.1);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+        border-left: 4px solid rgba(255,255,255,0.5);
+        font-family: 'Courier New', monospace;
+    }
+    
+    .tooltip {
+        position: absolute;
+        background: rgba(0,0,0,0.9);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 13px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 1000;
+        max-width: 200px;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="theory-section">
+            <h2>📚 数学理论基础</h2>
+            <div class="theory-content">
+                <h3>1. 现代投资组合理论的数学框架</h3>
+                <p><strong>基本假设：</strong>投资者是风险厌恶的，追求期望效用最大化。</p>
+                <h3>2. 投资组合收益率</h3>
+                <div class="concept-explanation">
+                    <h4>💡 为什么需要投资组合收益率公式？</h4>
+                    <p><strong>现实意义：</strong>就像做菜时需要知道各种调料的比例来预测最终口味，投资时也需要知道各资产的权重来预测整体收益。</p>
+                    <p><strong>金融应用：</strong>基金经理管理100亿资金，60%投资股票(预期收益8%)，40%投资债券(预期收益3%)，如何计算整体预期收益？</p>
+                    <p><strong>数学本质：</strong>这是加权平均的概念，权重反映了各资产在投资组合中的重要性。</p>
+                </div>
+                <div class="math-formula">
+                    <p><strong>投资组合期望收益率：</strong></p>
+                    <p>\[ E(R_p) = \sum_{i=1}^{n} w_i E(R_i) \]</p>
+                    <p>其中 \(w_i\) 是资产 \(i\) 的权重，\(E(R_i)\) 是资产 \(i\) 的期望收益率，且 \(\sum_{i=1}^{n} w_i = 1\)。</p>
+                </div>
+                <div class="formula-explanation">公式含义：投资组合的期望收益等于各资产期望收益的加权平均</div>
+                
+                <div class="calculation-example">
+                    <h4>📊 推导过程与计算示例</h4>
+                    <p><strong>推导过程：</strong></p>
+                    <p>设投资组合包含n种资产，投资金额分别为 \(V_1, V_2, ..., V_n\)，总投资金额为 \(V = \sum_{i=1}^{n} V_i\)</p>
+                    <p>权重定义：\(w_i = \frac{V_i}{V}\)，显然 \(\sum_{i=1}^{n} w_i = 1\)</p>
+                    <p>投资组合收益率：\(R_p = \frac{\sum_{i=1}^{n} V_i R_i}{V} = \sum_{i=1}^{n} \frac{V_i}{V} R_i = \sum_{i=1}^{n} w_i R_i\)</p>
+                    <p>取期望：\(E(R_p) = E[\sum_{i=1}^{n} w_i R_i] = \sum_{i=1}^{n} w_i E(R_i)\)</p>
+                    
+                    <p><strong>实际计算示例：</strong></p>
+                    <p>假设某投资组合包含三只股票：</p>
+                    <ul>
+                        <li>股票A：权重30%，预期收益率12%</li>
+                        <li>股票B：权重50%，预期收益率8%</li>
+                        <li>股票C：权重20%，预期收益率15%</li>
+                    </ul>
+                    <p>计算过程：</p>
+                    <p>\(E(R_p) = 0.3 \times 0.12 + 0.5 \times 0.08 + 0.2 \times 0.15\)</p>
+                    <p>\(E(R_p) = 0.036 + 0.04 + 0.03 = 0.106 = 10.6\%\)</p>
+                    <p><strong>结论：</strong>该投资组合的预期收益率为10.6%</p>
+                </div>
+                <h3>3. 投资组合风险</h3>
+                <div class="concept-explanation">
+                    <h4>💡 为什么投资组合风险不是简单的加权平均？</h4>
+                    <p><strong>直觉理解：</strong>"不要把鸡蛋放在一个篮子里"——分散投资可以降低风险，这是因为不同资产的价格波动往往不完全同步。</p>
+                    <p><strong>数学原因：</strong>风险涉及波动性的相互作用，两个资产的联合波动不等于各自波动的简单相加。</p>
+                    <p><strong>关键概念：</strong>协方差衡量两个资产收益率的共同变动程度，是分散化效应的核心。</p>
+                </div>
+                <div class="math-formula">
+                    <p><strong>投资组合方差：</strong></p>
+                    <p>\[ \sigma_p^2 = \sum_{i=1}^{n} \sum_{j=1}^{n} w_i w_j \sigma_{ij} \]</p>
+                    <p>其中 \(\sigma_{ij}\) 是资产 \(i\) 和资产 \(j\) 的协方差。</p>
+                </div>
+                <div class="math-formula">
+                    <p><strong>协方差的定义：</strong></p>
+                    <p>\[ \sigma_{ij} = \text{Cov}(R_i, R_j) = E[(R_i - E(R_i))(R_j - E(R_j))] \]</p>
+                    <p><strong>相关系数：</strong></p>
+                    <p>\[ \rho_{ij} = \frac{\sigma_{ij}}{\sigma_i \sigma_j} \]</p>
+                </div>
+                <div class="formula-explanation">公式含义：投资组合风险考虑了所有资产间的相互作用，包括各自的风险和相互关系</div>
+                
+                <div class="calculation-example">
+                    <h4>📊 推导过程与计算示例</h4>
+                    <p><strong>推导过程：</strong></p>
+                    <p>投资组合收益率：\(R_p = \sum_{i=1}^{n} w_i R_i\)</p>
+                    <p>投资组合方差：\(\sigma_p^2 = \text{Var}(R_p) = \text{Var}(\sum_{i=1}^{n} w_i R_i)\)</p>
+                    <p>利用方差性质：\(\text{Var}(\sum_{i=1}^{n} w_i R_i) = \sum_{i=1}^{n} \sum_{j=1}^{n} w_i w_j \text{Cov}(R_i, R_j)\)</p>
+                    <p>即：\(\sigma_p^2 = \sum_{i=1}^{n} \sum_{j=1}^{n} w_i w_j \sigma_{ij}\)</p>
+                    
+                    <p><strong>两资产情况的详细展开：</strong></p>
+                    <p>\(\sigma_p^2 = w_1^2\sigma_1^2 + w_2^2\sigma_2^2 + 2w_1w_2\sigma_{12}\)</p>
+                    <p>\(\sigma_p^2 = w_1^2\sigma_1^2 + w_2^2\sigma_2^2 + 2w_1w_2\rho_{12}\sigma_1\sigma_2\)</p>
+                    
+                    <p><strong>实际计算示例：</strong></p>
+                    <p>考虑两资产投资组合：</p>
+                    <ul>
+                        <li>股票A：权重60%，标准差20%</li>
+                        <li>股票B：权重40%，标准差15%</li>
+                        <li>相关系数：0.3</li>
+                    </ul>
+                    <p>计算过程：</p>
+                    <p>\(\sigma_p^2 = (0.6)^2 \times (0.2)^2 + (0.4)^2 \times (0.15)^2 + 2 \times 0.6 \times 0.4 \times 0.3 \times 0.2 \times 0.15\)</p>
+                    <p>\(\sigma_p^2 = 0.36 \times 0.04 + 0.16 \times 0.0225 + 2 \times 0.6 \times 0.4 \times 0.3 \times 0.03\)</p>
+                    <p>\(\sigma_p^2 = 0.0144 + 0.0036 + 0.00432 = 0.02232\)</p>
+                    <p>\(\sigma_p = \sqrt{0.02232} = 0.1494 = 14.94\%\)</p>
+                    
+                    <p><strong>分散化效应分析：</strong></p>
+                    <p>如果两资产完全正相关(ρ=1)：\(\sigma_p = 0.6 \times 0.2 + 0.4 \times 0.15 = 18\%\)</p>
+                    <p>实际风险14.94% < 18%，说明分散化降低了风险！</p>
+                </div>
+                <h3>4. 有效前沿</h3>
+                <div class="concept-explanation">
+                    <h4>💡 什么是有效前沿？</h4>
+                    <p><strong>核心思想：</strong>在给定风险水平下获得最高收益，或在给定收益水平下承担最低风险。</p>
+                    <p><strong>几何直觉：</strong>在收益-风险坐标系中，有效前沿是一条向上弯曲的曲线，代表所有最优投资组合。</p>
+                    <p><strong>实际意义：</strong>帮助投资者在众多可能的投资组合中找到最优选择。</p>
+                </div>
+                <div class="concept-explanation">
+                    <h4>💡 为什么需要均值-方差优化？</h4>
+                    <p>投资者面临风险与收益的权衡：高收益往往伴随高风险。均值-方差优化帮助找到给定收益下风险最小的投资组合。</p>
+                    <p><strong>核心思想：</strong>通过数学优化方法，在众多可能的投资组合中找到最优配置。</p>
+                    <p><strong>实际价值：</strong>为机构投资者提供科学的资产配置依据。</p>
+                </div>
+                
+                <div class="math-formula">
+                    <div class="concept-explanation">
+                        <h4>🔍 优化问题的数学表述</h4>
+                        <p><strong>目标：</strong>在给定期望收益下，最小化投资组合风险</p>
+                        <p><strong>决策变量：</strong>各资产的投资权重</p>
+                    </div>
+                    <p><strong>均值-方差优化问题：</strong></p>
+                    <p>最小化：\[ \sigma_p^2 = \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} \]</p>
+                    <p>约束条件：</p>
+                    \[ \mathbf{w}^T \mathbf{\mu} = \mu_p \]
+                    \[ \mathbf{w}^T \mathbf{1} = 1 \]
+                    <div class="formula-explanation">
+                        <p><strong>数学符号详解：</strong></p>
+                        <ul>
+                            <li><strong>w：</strong>n×1权重向量，w_i表示资产i的投资比例</li>
+                            <li><strong>Σ：</strong>n×n协方差矩阵，Σ_{ij}表示资产i和j的协方差</li>
+                            <li><strong>μ：</strong>n×1期望收益向量，μ_i表示资产i的期望收益率</li>
+                            <li><strong>μ_p：</strong>目标投资组合期望收益率</li>
+                            <li><strong>1：</strong>n×1全1向量</li>
+                        </ul>
+                        <p><strong>约束条件含义：</strong></p>
+                        <pre>
+第一个约束：w^T μ = μ_p
+含义：投资组合的期望收益率等于目标收益率
+展开：w₁μ₁ + w₂μ₂ + ... + wₙμₙ = μ_p
+
+第二个约束：w^T 1 = 1  
+含义：所有资产权重之和等于1（资金完全投入）
+展开：w₁ + w₂ + ... + wₙ = 1
+                        </pre>
+                        <p><strong>目标函数推导：</strong></p>
+                        <pre>
+投资组合方差的矩阵表示：
+σ_p² = Var(w₁R₁ + w₂R₂ + ... + wₙRₙ)
+     = Σᵢ Σⱼ wᵢwⱼ Cov(Rᵢ,Rⱼ)
+     = Σᵢ Σⱼ wᵢwⱼ Σᵢⱼ
+     = w^T Σ w
+
+这就是我们要最小化的目标函数
+                        </pre>
+                    </div>
+                    <p>其中 \(\mathbf{w}\) 是权重向量，\(\mathbf{\Sigma}\) 是协方差矩阵，\(\mathbf{\mu}\) 是期望收益向量。</p>
+                </div>
+                <div class="concept-explanation">
+                    <h4>🔍 具体计算示例</h4>
+                    <p><strong>两资产组合案例：</strong>股票A和股票B的最优配置</p>
+                </div>
+                <div class="formula-explanation">
+                    <p><strong>给定数据：</strong></p>
+                    <pre>
+股票A：期望收益率 μ_A = 12%，标准差 σ_A = 20%
+股票B：期望收益率 μ_B = 8%，标准差 σ_B = 15%
+相关系数：ρ_{AB} = 0.3
+目标收益率：μ_p = 10%
+
+协方差：σ_{AB} = ρ_{AB} × σ_A × σ_B = 0.3 × 0.20 × 0.15 = 0.009
+                    </pre>
+                    <p><strong>构建优化问题：</strong></p>
+                    <pre>
+设股票A的权重为w_A，股票B的权重为w_B = 1 - w_A
+
+目标函数：
+min σ_p² = w_A² × σ_A² + (1-w_A)² × σ_B² + 2w_A(1-w_A) × σ_{AB}
+         = w_A² × 0.04 + (1-w_A)² × 0.0225 + 2w_A(1-w_A) × 0.009
+
+约束条件：
+w_A × 0.12 + (1-w_A) × 0.08 = 0.10
+化简：0.12w_A + 0.08 - 0.08w_A = 0.10
+      0.04w_A = 0.02
+      w_A = 0.5
+
+因此：w_A = 50%，w_B = 50%
+                    </pre>
+                    <p><strong>验证结果：</strong></p>
+                    <pre>
+投资组合期望收益：
+μ_p = 0.5 × 12% + 0.5 × 8% = 10% ✓
+
+投资组合风险：
+σ_p² = 0.5² × 0.04 + 0.5² × 0.0225 + 2 × 0.5 × 0.5 × 0.009
+     = 0.01 + 0.005625 + 0.0045
+     = 0.020125
+σ_p = √0.020125 ≈ 14.19%
+
+分散化效果：
+加权平均风险：0.5 × 20% + 0.5 × 15% = 17.5%
+实际组合风险：14.19%
+风险降低：(17.5% - 14.19%) / 17.5% ≈ 18.9%
+                    </pre>
+                </div>
+                
+                <div class="calculation-example">
+                    <h4>📊 拉格朗日乘数法求解</h4>
+                    <p><strong>拉格朗日函数：</strong></p>
+                    <p>\(L = \frac{1}{2} \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} + \lambda_1 (1 - \mathbf{1}^T \mathbf{w}) + \lambda_2 (\mu_p - \mathbf{\mu}^T \mathbf{w})\)</p>
+                    
+                    <p><strong>一阶条件：</strong></p>
+                    <p>\(\frac{\partial L}{\partial \mathbf{w}} = \mathbf{\Sigma} \mathbf{w} - \lambda_1 \mathbf{1} - \lambda_2 \mathbf{\mu} = 0\)</p>
+                    <p>\(\frac{\partial L}{\partial \lambda_1} = 1 - \mathbf{1}^T \mathbf{w} = 0\)</p>
+                    <p>\(\frac{\partial L}{\partial \lambda_2} = \mu_p - \mathbf{\mu}^T \mathbf{w} = 0\)</p>
+                    
+                    <p><strong>解得最优权重：</strong></p>
+                    <p>\(\mathbf{w}^* = \mathbf{\Sigma}^{-1}(\lambda_1 \mathbf{1} + \lambda_2 \mathbf{\mu})\)</p>
+                    
+                    <p><strong>有效前沿方程：</strong></p>
+                    <p>\(\sigma_p^2 = \frac{A\mu_p^2 - 2B\mu_p + C}{D}\)</p>
+                    <p>其中：\(A = \mathbf{1}^T\mathbf{\Sigma}^{-1}\mathbf{1}\)，\(B = \mathbf{1}^T\mathbf{\Sigma}^{-1}\mathbf{\mu}\)，\(C = \mathbf{\mu}^T\mathbf{\Sigma}^{-1}\mathbf{\mu}\)，\(D = AC - B^2\)</p>
+                </div>
+                
+                <h3>5. 夏普比率</h3>
+                <div class="concept-explanation">
+                    <h4>💡 夏普比率的经济含义</h4>
+                    <p><strong>核心思想：</strong>衡量每承担一单位风险所获得的超额收益，是风险调整后收益的重要指标。</p>
+                    <p><strong>实际应用：</strong>比较不同投资策略的优劣，夏普比率越高，投资效率越好。</p>
+                    <p><strong>决策意义：</strong>帮助投资者在风险和收益之间做出理性权衡。</p>
+                </div>
+                <div class="math-formula">
+                    <p><strong>夏普比率定义：</strong></p>
+                    <p>\[ \text{Sharpe Ratio} = \frac{E(R_p) - R_f}{\sigma_p} \]</p>
+                    <p>其中 \(R_f\) 是无风险收益率，衡量单位风险的超额收益。</p>
+                </div>
+                <div class="formula-explanation">公式含义：单位风险所获得的风险溢价，数值越大表示投资效率越高</div>
+                
+                <div class="calculation-example">
+                    <h4>📊 夏普比率计算示例</h4>
+                    <p><strong>实际案例：</strong></p>
+                    <p>比较三个投资组合的表现：</p>
+                    <table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+                        <tr style="background-color: #f0f0f0;">
+                            <th style="border: 1px solid #ddd; padding: 8px;">投资组合</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">期望收益率</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">标准差</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">夏普比率</th>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">组合A</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">12%</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">18%</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">\(\frac{0.12-0.03}{0.18} = 0.50\)</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">组合B</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">10%</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">12%</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">\(\frac{0.10-0.03}{0.12} = 0.58\)</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">组合C</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">15%</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">25%</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">\(\frac{0.15-0.03}{0.25} = 0.48\)</td>
+                        </tr>
+                    </table>
+                    <p>假设无风险利率 \(R_f = 3\%\)</p>
+                    <p><strong>结论：</strong>组合B的夏普比率最高(0.58)，表明其风险调整后收益最优，尽管绝对收益不是最高。</p>
+                    
+                    <p><strong>夏普比率的几何解释：</strong></p>
+                    <p>在均值-标准差图中，夏普比率等于从无风险资产点到投资组合点连线的斜率。斜率越大，投资效率越高。</p>
+                </div>
+                <h3>6. 资本资产定价模型(CAPM)</h3>
+                <div class="concept-explanation">
+                    <h4>💡 CAPM模型的核心思想</h4>
+                    <p>CAPM模型回答了一个核心问题：在有效市场中，资产的期望收益率应该是多少？</p>
+                    <p><strong>基本假设：</strong>投资者理性、市场有效、信息完全、无交易成本。</p>
+                    <p><strong>核心洞察：</strong>只有系统性风险（不可分散风险）才能获得风险补偿。</p>
+                    <p><strong>实际应用：</strong>股票估值、投资决策、业绩评估、资本成本计算。</p>
+                </div>
+                
+                <div class="math-formula">
+                    <div class="concept-explanation">
+                        <h4>🔍 CAPM公式推导</h4>
+                        <p><strong>推导思路：</strong>从投资组合理论出发，考虑市场均衡条件</p>
+                        <p><strong>关键假设：</strong>所有投资者都持有市场组合</p>
+                    </div>
+                    <p><strong>CAPM公式：</strong></p>
+                    \[ E(R_i) = R_f + \beta_i [E(R_m) - R_f] \]
+                    <div class="formula-explanation">
+                        <p><strong>推导过程：</strong></p>
+                        <pre>
+步骤1：市场均衡条件
+在均衡状态下，所有资产都在有效前沿上
+任何资产与市场组合的组合也应在有效前沿上
+
+步骤2：构建组合
+考虑资产i与市场组合m的组合：
+组合收益：R_p = αR_i + (1-α)R_m
+组合方差：σ_p² = α²σ_i² + (1-α)²σ_m² + 2α(1-α)σ_{im}
+
+步骤3：最优化条件
+在α=0处（纯市场组合），组合必须是最优的
+即：dE(R_p)/dα|_{α=0} / dσ_p/dα|_{α=0} = [E(R_m) - R_f] / σ_m
+
+步骤4：计算导数
+dE(R_p)/dα = E(R_i) - E(R_m)
+dσ_p/dα|_{α=0} = σ_{im}/σ_m
+
+步骤5：代入均衡条件
+[E(R_i) - E(R_m)] / [σ_{im}/σ_m] = [E(R_m) - R_f] / σ_m
+化简得：E(R_i) = R_f + [σ_{im}/σ_m²] × [E(R_m) - R_f]
+
+步骤6：定义Beta
+β_i = σ_{im}/σ_m² = Cov(R_i, R_m)/Var(R_m)
+
+最终得到：E(R_i) = R_f + β_i[E(R_m) - R_f]
+                        </pre>
+                        <p><strong>公式组成部分：</strong></p>
+                        <ul>
+                            <li><strong>R_f：</strong>无风险收益率（如国债收益率）</li>
+                            <li><strong>E(R_m) - R_f：</strong>市场风险溢价</li>
+                            <li><strong>β_i：</strong>资产i的系统性风险系数</li>
+                            <li><strong>β_i[E(R_m) - R_f]：</strong>资产i的风险溢价</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="concept-explanation">
+                        <h4>🔍 Beta系数深度解析</h4>
+                        <p><strong>经济含义：</strong>衡量资产收益率对市场收益率变化的敏感性</p>
+                        <p><strong>计算方法：</strong>资产与市场的协方差除以市场方差</p>
+                    </div>
+                    <p><strong>Beta系数：</strong></p>
+                    \[ \beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)} \]
+                    <div class="formula-explanation">
+                        <p><strong>Beta值的经济含义：</strong></p>
+                        <pre>
+β = 1：资产与市场同步波动
+- 市场涨10%，资产期望涨10%
+- 系统性风险等于市场平均水平
+
+β > 1：资产比市场更敏感（高Beta股票）
+- 市场涨10%，资产期望涨超过10%
+- 系统性风险高于市场平均水平
+- 例如：科技股、成长股
+
+β < 1：资产比市场更稳定（低Beta股票）
+- 市场涨10%，资产期望涨不到10%
+- 系统性风险低于市场平均水平
+- 例如：公用事业股、防御性股票
+
+β = 0：资产收益与市场无关
+- 理论上的无风险资产
+
+β < 0：资产与市场反向波动
+- 市场涨时资产跌，市场跌时资产涨
+- 例如：黄金、某些对冲基金
+                        </pre>
+                        <p><strong>Beta计算示例：</strong></p>
+                        <pre>
+假设某股票与市场的历史数据：
+
+时期    股票收益率    市场收益率
+1       8%           6%
+2       -2%          -1%
+3       15%          12%
+4       5%           4%
+5       -5%          -3%
+
+计算步骤：
+1. 计算平均收益率
+   股票平均：(8-2+15+5-5)/5 = 4.2%
+   市场平均：(6-1+12+4-3)/5 = 3.6%
+
+2. 计算协方差
+   Cov = Σ[(R_i - R̄_i)(R_m - R̄_m)] / (n-1)
+   = [(8-4.2)(6-3.6) + (-2-4.2)(-1-3.6) + ... ] / 4
+   = [3.8×2.4 + (-6.2)×(-4.6) + 10.8×8.4 + 0.8×0.4 + (-9.2)×(-6.6)] / 4
+   = [9.12 + 28.52 + 90.72 + 0.32 + 60.72] / 4
+   = 189.4 / 4 = 47.35
+
+3. 计算市场方差
+   Var(R_m) = Σ[(R_m - R̄_m)²] / (n-1)
+   = [2.4² + (-4.6)² + 8.4² + 0.4² + (-6.6)²] / 4
+   = [5.76 + 21.16 + 70.56 + 0.16 + 43.56] / 4
+   = 141.2 / 4 = 35.3
+
+4. 计算Beta
+   β = Cov(R_i, R_m) / Var(R_m) = 47.35 / 35.3 ≈ 1.34
+
+解释：该股票的Beta为1.34，表明其系统性风险高于市场平均水平
+      当市场上涨1%时，该股票期望上涨1.34%
+                        </pre>
+                    </div>
+                    
+                    <div class="concept-explanation">
+                        <h4>🔍 CAPM实际应用示例</h4>
+                        <p><strong>股票估值：</strong>计算股票的理论期望收益率</p>
+                    </div>
+                    <div class="formula-explanation">
+                        <p><strong>完整计算案例：</strong></p>
+                        <pre>
+给定信息：
+- 无风险利率 R_f = 3%
+- 市场期望收益率 E(R_m) = 10%
+- 某股票的Beta β = 1.2
+
+使用CAPM计算股票期望收益率：
+E(R_i) = R_f + β_i[E(R_m) - R_f]
+       = 3% + 1.2 × (10% - 3%)
+       = 3% + 1.2 × 7%
+       = 3% + 8.4%
+       = 11.4%
+
+投资决策分析：
+如果该股票当前预期收益率为：
+- 13%：高于CAPM预期(11.4%)，被低估，建议买入
+- 9%：低于CAPM预期(11.4%)，被高估，建议卖出
+- 11.4%：等于CAPM预期，定价合理
+                        </pre>
+                        <p><strong>资本成本计算：</strong></p>
+                        <pre>
+企业使用CAPM计算股权资本成本：
+
+假设某公司：
+- 股票Beta = 0.8
+- 无风险利率 = 4%
+- 市场风险溢价 = 6%
+
+股权资本成本 = 4% + 0.8 × 6% = 8.8%
+
+这意味着：
+1. 投资者要求该公司提供8.8%的股权回报率
+2. 公司新项目的最低收益率要求为8.8%
+3. 用于DCF估值的折现率为8.8%
+                        </pre>
+                        <p><strong>投资组合Beta计算：</strong></p>
+                        <pre>
+投资组合的Beta等于各成分股Beta的加权平均：
+
+假设投资组合包含：
+- 股票A：权重30%，Beta = 1.5
+- 股票B：权重50%，Beta = 0.8  
+- 股票C：权重20%，Beta = 1.2
+
+组合Beta = 0.3×1.5 + 0.5×0.8 + 0.2×1.2
+          = 0.45 + 0.4 + 0.24
+          = 1.09
+
+组合期望收益率 = 3% + 1.09×(10%-3%) = 10.63%
+                        </pre>
+                    </div>
+                    <p>其中 \(R_m\) 是市场组合收益率。</p>
+                </div>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>现代投资组合理论</h2>
+            <p>现代投资组合理论(Modern Portfolio Theory, MPT)由Harry Markowitz于1952年提出，强调通过资产分散化来优化风险与收益的平衡。</p>
+            <h3>1. 核心概念</h3>
+            <pre><code class="language-python">import numpy as np
+import pandas as pd
+# 假设我们有三种资产的收益率数据
+returns = pd.DataFrame({
+    'Stock_A': [0.02, 0.03, -0.01, 0.04, 0.01],
+    'Stock_B': [0.01, 0.05, -0.03, 0.03, 0.02],
+    'Stock_C': [0.03, 0.02, 0.00, 0.05, -0.01]
+})
+# 计算预期收益率
+expected_returns = returns.mean()
+print("预期收益率:\n", expected_returns)
+# 计算协方差矩阵
+cov_matrix = returns.cov()
+print("\n协方差矩阵:\n", cov_matrix)</code></pre>
+            <h3>2. 投资组合收益与风险</h3>
+            <pre><code class="language-python">def portfolio_performance(weights, expected_returns, cov_matrix):
+    """计算投资组合的预期收益率和风险"""
+    port_return = np.dot(weights.T, expected_returns)
+    port_risk = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+    return port_return, port_risk
+# 等权重组合
+weights = np.array([1/3, 1/3, 1/3])
+return_, risk_ = portfolio_performance(weights, expected_returns, cov_matrix)
+print(f"\n等权重组合 - 预期收益率: {return_:.4f}, 风险: {risk_:.4f}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>有效前沿</h2>
+            <p>有效前沿(Efficient Frontier)表示在给定风险水平下能够提供最高预期收益的投资组合集合。</p>
+            <h3>1. 构建有效前沿</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+def generate_efficient_frontier(expected_returns, cov_matrix, num_portfolios=10000):
+    results = np.zeros((3, num_portfolios))
+    for i in range(num_portfolios):
+        weights = np.random.random(len(expected_returns))
+        weights /= np.sum(weights)
+        port_return, port_risk = portfolio_performance(weights, expected_returns, cov_matrix)
+        results[0,i] = port_risk
+        results[1,i] = port_return
+        results[2,i] = (port_return - 0.02) / port_risk  # 假设无风险利率为2%
+    return results
+# 生成随机投资组合
+results = generate_efficient_frontier(expected_returns, cov_matrix)
+# 绘制有效前沿
+plt.figure(figsize=(10,6))
+plt.scatter(results[0,:], results[1,:], c=results[2,:], cmap='viridis', alpha=0.3)
+plt.colorbar(label='夏普比率')
+plt.xlabel('风险(标准差)')
+plt.ylabel('预期收益率')
+plt.title('投资组合有效前沿')
+plt.show()</code></pre>
+            <h3>2. 最优投资组合</h3>
+            <pre><code class="language-python"># 找到最大夏普比率组合
+max_sharpe_idx = np.argmax(results[2])
+max_sharpe_return = results[1, max_sharpe_idx]
+max_sharpe_risk = results[0, max_sharpe_idx]
+plt.scatter(max_sharpe_risk, max_sharpe_return, marker='*', color='r', s=300, label='最优组合')
+plt.legend()
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>资本资产定价模型(CAPM)</h2>
+            <p>资本资产定价模型(Capital Asset Pricing Model)描述了资产预期收益与系统性风险之间的关系。</p>
+            <h3>1. CAPM公式</h3>
+            <pre><code class="language-python">def capm(expected_market_return, risk_free_rate, beta):
+    """计算资产的预期收益率"""
+    return risk_free_rate + beta * (expected_market_return - risk_free_rate)
+# 假设参数
+risk_free_rate = 0.02  # 无风险利率
+expected_market_return = 0.08  # 市场组合预期收益率
+beta = 1.2  # 资产贝塔值
+expected_return = capm(expected_market_return, risk_free_rate, beta)
+print(f"\n根据CAPM计算的预期收益率: {expected_return:.4f}")</code></pre>
+            <h3>2. 证券市场线(SML)</h3>
+            <pre><code class="language-python">betas = np.linspace(0, 2, 100)
+expected_returns = [capm(expected_market_return, risk_free_rate, beta) for beta in betas]
+plt.figure(figsize=(10,6))
+plt.plot(betas, expected_returns, label='证券市场线(SML)')
+plt.xlabel('贝塔系数(系统性风险)')
+plt.ylabel('预期收益率')
+plt.title('资本资产定价模型(CAPM)')
+plt.legend()
+plt.grid(True)
+plt.show()</code></pre>
+        </section>
+        
+        <section class="lesson-content">
+            <h2>交互式投资组合理论演示</h2>
+            <p>通过以下交互式工具，深入理解现代投资组合理论的核心概念和实际应用。</p>
+            
+            <div class="portfolio-demo">
+                <h4>🎯 有效前沿可视化</h4>
+                <p>探索不同资产组合在风险-收益空间中的分布，理解有效前沿的形成过程</p>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>资产数量</label>
+                        <input type="range" id="assetCount" min="2" max="10" value="4" oninput="updateAssetInputs(); calculatePortfolio()">
+                        <input type="number" id="assetCountNum" min="2" max="10" value="4" onchange="updateAssetInputs(); calculatePortfolio()">
+                    </div>
+                    <div class="control-group">
+                        <label>组合数量</label>
+                        <input type="range" id="portfolioCount" min="100" max="2000" value="1000" oninput="calculatePortfolio()">
+                        <input type="number" id="portfolioCountNum" min="100" max="2000" value="1000" onchange="calculatePortfolio()">
+                    </div>
+                    <div class="control-group">
+                        <label>无风险利率 (%)</label>
+                        <input type="range" id="riskFreeRate" min="0" max="10" value="3" step="0.1" oninput="calculatePortfolio()">
+                        <input type="number" id="riskFreeRateNum" min="0" max="10" value="3" step="0.1" onchange="calculatePortfolio()">
+                    </div>
+                    <div class="control-group">
+                        <button class="demo-button" onclick="generateRandomAssets()">随机生成资产</button>
+                        <button class="demo-button" onclick="resetToDefault()">重置默认值</button>
+                    </div>
+                </div>
+                
+                <div id="assetInputsContainer" class="asset-inputs">
+                    <!-- 动态生成的资产输入框 -->
+                </div>
+                
+                <div class="portfolio-chart">
+                    <div id="efficientFrontier"></div>
+                </div>
+                
+                <div class="metrics-display">
+                    <div class="metric-card">
+                        <div class="metric-value" id="optimalReturn">--</div>
+                        <div class="metric-label">最优组合收益率 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="optimalRisk">--</div>
+                        <div class="metric-label">最优组合风险 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="sharpeRatio">--</div>
+                        <div class="metric-label">夏普比率</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="minVarianceReturn">--</div>
+                        <div class="metric-label">最小方差组合收益率 (%)</div>
+                    </div>
+                </div>
+                
+                <div class="formula-display">
+                    <h5>当前计算公式：</h5>
+                    <div id="formulaDisplay">
+                        投资组合收益率: E(Rp) = Σ wi × E(Ri)<br>
+                        投资组合方差: σ²p = Σ Σ wi × wj × σij<br>
+                        夏普比率: SR = (E(Rp) - Rf) / σp
+                    </div>
+                </div>
+            </div>
+            
+            <div class="portfolio-demo">
+                <h4>📊 相关性矩阵热力图</h4>
+                <p>可视化资产间的相关性，理解分散化投资的重要性</p>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>相关性强度</label>
+                        <input type="range" id="correlationStrength" min="0" max="1" value="0.3" step="0.1" oninput="updateCorrelationMatrix()">
+                        <input type="number" id="correlationStrengthNum" min="0" max="1" value="0.3" step="0.1" onchange="updateCorrelationMatrix()">
+                    </div>
+                    <div class="control-group">
+                        <button class="demo-button" onclick="generateCorrelationMatrix()">生成新矩阵</button>
+                        <button class="demo-button" onclick="showIdentityMatrix()">单位矩阵</button>
+                    </div>
+                </div>
+                
+                <div class="portfolio-chart">
+                    <div id="correlationHeatmap"></div>
+                </div>
+            </div>
+            
+            <div class="portfolio-demo">
+                <h4>⚖️ 风险分解分析</h4>
+                <p>分析投资组合风险的来源，理解系统性风险和非系统性风险</p>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>市场贝塔</label>
+                        <input type="range" id="marketBeta" min="0.5" max="2" value="1" step="0.1" oninput="updateRiskDecomposition()">
+                        <input type="number" id="marketBetaNum" min="0.5" max="2" value="1" step="0.1" onchange="updateRiskDecomposition()">
+                    </div>
+                    <div class="control-group">
+                        <label>特异性风险 (%)</label>
+                        <input type="range" id="specificRisk" min="5" max="50" value="20" oninput="updateRiskDecomposition()">
+                        <input type="number" id="specificRiskNum" min="5" max="50" value="20" onchange="updateRiskDecomposition()">
+                    </div>
+                </div>
+                
+                <div class="portfolio-chart">
+                    <div id="riskDecomposition"></div>
+                </div>
+                
+                <div class="metrics-display">
+                    <div class="metric-card">
+                        <div class="metric-value" id="systematicRisk">--</div>
+                        <div class="metric-label">系统性风险 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="unsystematicRisk">--</div>
+                        <div class="metric-label">非系统性风险 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalRisk">--</div>
+                        <div class="metric-label">总风险 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="diversificationBenefit">--</div>
+                        <div class="metric-label">分散化收益 (%)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="lesson-content">
+            <h2>分散化投资原理</h2>
+            <p>分散化投资可以降低非系统性风险，但不能消除系统性风险。</p>
+            <h3>1. 投资组合风险分解</h3>
+            <pre><code class="language-python">def risk_decomposition(weights, cov_matrix):
+    """分解投资组合风险"""
+    port_variance = np.dot(weights.T, np.dot(cov_matrix, weights))
+    marginal_risk = np.dot(cov_matrix, weights) / port_variance
+    risk_contribution = weights * marginal_risk
+    return risk_contribution
+# 计算风险贡献
+risk_contrib = risk_decomposition(weights, cov_matrix)
+print("\n各资产风险贡献:\n", risk_contrib)</code></pre>
+            <h3>2. 分散化效果模拟</h3>
+            <pre><code class="language-python"># 模拟不同资产数量下的投资组合风险
+num_assets_range = range(1, 50)
+portfolio_risks = []
+for num_assets in num_assets_range:
+    # 生成随机协方差矩阵
+    cov_matrix = np.random.normal(0.1, 0.05, (num_assets, num_assets))
+    cov_matrix = np.dot(cov_matrix, cov_matrix.T)  # 确保正定
+    weights = np.ones(num_assets) / num_assets
+    port_risk = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+    portfolio_risks.append(port_risk)
+plt.figure(figsize=(10,6))
+plt.plot(num_assets_range, portfolio_risks)
+plt.xlabel('资产数量')
+plt.ylabel('投资组合风险')
+plt.title('分散化投资对风险的影响')
+plt.grid(True)
+plt.show()</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="../../index.html" class="btn">« 返回模块概览</a>
+            <a href="lesson2.html" class="btn">下一课: 资产收益率与风险 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+    
+    <script>
+    // 创建tooltip
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip");
+    
+    // 全局变量
+    let assets = [
+        {name: '股票A', return: 12, risk: 20, color: '#1f77b4'},
+        {name: '股票B', return: 10, risk: 15, color: '#ff7f0e'},
+        {name: '债券A', return: 6, risk: 8, color: '#2ca02c'},
+        {name: '债券B', return: 4, risk: 5, color: '#d62728'}
+    ];
+    
+    let correlationMatrix = [
+        [1.0, 0.3, 0.1, 0.0],
+        [0.3, 1.0, 0.2, 0.1],
+        [0.1, 0.2, 1.0, 0.4],
+        [0.0, 0.1, 0.4, 1.0]
+    ];
+    
+    // 初始化资产输入框
+    function updateAssetInputs() {
+        const count = parseInt(document.getElementById('assetCount').value);
+        document.getElementById('assetCountNum').value = count;
+        
+        // 调整assets数组大小
+        while (assets.length < count) {
+            const index = assets.length;
+            assets.push({
+                name: `资产${String.fromCharCode(65 + index)}`,
+                return: 5 + Math.random() * 15,
+                risk: 5 + Math.random() * 25,
+                color: d3.schemeCategory10[index % 10]
+            });
+        }
+        assets = assets.slice(0, count);
+        
+        // 调整相关性矩阵
+        updateCorrelationMatrixSize(count);
+        
+        const container = document.getElementById('assetInputsContainer');
+        container.innerHTML = '';
+        
+        assets.forEach((asset, i) => {
+            const div = document.createElement('div');
+            div.className = 'asset-input';
+            div.innerHTML = `
+                <label>${asset.name}</label>
+                <input type="number" placeholder="收益率(%)" value="${asset.return.toFixed(1)}" 
+                       onchange="updateAsset(${i}, 'return', this.value)">
+                <input type="number" placeholder="风险(%)" value="${asset.risk.toFixed(1)}" 
+                       onchange="updateAsset(${i}, 'risk', this.value)">
+            `;
+            container.appendChild(div);
+        });
+    }
+    
+    function updateAsset(index, property, value) {
+        assets[index][property] = parseFloat(value) || 0;
+        calculatePortfolio();
+    }
+    
+    function updateCorrelationMatrixSize(size) {
+        // 创建新的相关性矩阵
+        const newMatrix = [];
+        for (let i = 0; i < size; i++) {
+            newMatrix[i] = [];
+            for (let j = 0; j < size; j++) {
+                if (i === j) {
+                    newMatrix[i][j] = 1.0;
+                } else if (i < correlationMatrix.length && j < correlationMatrix[0].length) {
+                    newMatrix[i][j] = correlationMatrix[i][j];
+                } else {
+                    newMatrix[i][j] = Math.random() * 0.6 - 0.3; // -0.3 到 0.3
+                }
+            }
+        }
+        correlationMatrix = newMatrix;
+    }
+    
+    // 生成随机资产
+    function generateRandomAssets() {
+        assets.forEach(asset => {
+            asset.return = 2 + Math.random() * 18; // 2-20%
+            asset.risk = 5 + Math.random() * 30;   // 5-35%
+        });
+        updateAssetInputs();
+        calculatePortfolio();
+    }
+    
+    // 重置为默认值
+    function resetToDefault() {
+        assets = [
+            {name: '股票A', return: 12, risk: 20, color: '#1f77b4'},
+            {name: '股票B', return: 10, risk: 15, color: '#ff7f0e'},
+            {name: '债券A', return: 6, risk: 8, color: '#2ca02c'},
+            {name: '债券B', return: 4, risk: 5, color: '#d62728'}
+        ];
+        document.getElementById('assetCount').value = 4;
+        updateAssetInputs();
+        calculatePortfolio();
+    }
+    
+    // 计算投资组合
+    function calculatePortfolio() {
+        const portfolioCount = parseInt(document.getElementById('portfolioCount').value);
+        document.getElementById('portfolioCountNum').value = portfolioCount;
+        
+        const riskFreeRate = parseFloat(document.getElementById('riskFreeRate').value);
+        document.getElementById('riskFreeRateNum').value = riskFreeRate;
+        
+        // 生成随机投资组合
+        const portfolios = [];
+        for (let i = 0; i < portfolioCount; i++) {
+            const weights = generateRandomWeights(assets.length);
+            const portfolio = calculatePortfolioMetrics(weights, assets, correlationMatrix);
+            portfolios.push(portfolio);
+        }
+        
+        // 计算有效前沿
+        const efficientPortfolios = calculateEfficientFrontier(assets, correlationMatrix, 50);
+        
+        // 找到最优组合（最大夏普比率）
+        const optimalPortfolio = portfolios.reduce((best, current) => {
+            const currentSharpe = (current.return - riskFreeRate) / current.risk;
+            const bestSharpe = (best.return - riskFreeRate) / best.risk;
+            return currentSharpe > bestSharpe ? current : best;
+        });
+        
+        // 找到最小方差组合
+        const minVariancePortfolio = efficientPortfolios.reduce((min, current) => 
+            current.risk < min.risk ? current : min
+        );
+        
+        // 更新图表
+        drawEfficientFrontier(portfolios, efficientPortfolios, optimalPortfolio, minVariancePortfolio, riskFreeRate);
+        
+        // 更新指标
+        document.getElementById('optimalReturn').textContent = optimalPortfolio.return.toFixed(2);
+        document.getElementById('optimalRisk').textContent = optimalPortfolio.risk.toFixed(2);
+        document.getElementById('sharpeRatio').textContent = ((optimalPortfolio.return - riskFreeRate) / optimalPortfolio.risk).toFixed(3);
+        document.getElementById('minVarianceReturn').textContent = minVariancePortfolio.return.toFixed(2);
+    }
+    
+    function generateRandomWeights(n) {
+        const weights = [];
+        let sum = 0;
+        
+        // 生成随机数
+        for (let i = 0; i < n; i++) {
+            const weight = Math.random();
+            weights.push(weight);
+            sum += weight;
+        }
+        
+        // 标准化使权重和为1
+        return weights.map(w => w / sum);
+    }
+    
+    function calculatePortfolioMetrics(weights, assets, correlationMatrix) {
+        // 计算投资组合收益率
+        let portfolioReturn = 0;
+        for (let i = 0; i < weights.length; i++) {
+            portfolioReturn += weights[i] * assets[i].return;
+        }
+        
+        // 计算投资组合方差
+        let portfolioVariance = 0;
+        for (let i = 0; i < weights.length; i++) {
+            for (let j = 0; j < weights.length; j++) {
+                const covariance = correlationMatrix[i][j] * assets[i].risk * assets[j].risk / 10000;
+                portfolioVariance += weights[i] * weights[j] * covariance;
+            }
+        }
+        
+        const portfolioRisk = Math.sqrt(portfolioVariance) * 100;
+        
+        return {
+            return: portfolioReturn,
+            risk: portfolioRisk,
+            weights: weights
+        };
+    }
+    
+    function calculateEfficientFrontier(assets, correlationMatrix, points) {
+        const efficientPortfolios = [];
+        const minReturn = Math.min(...assets.map(a => a.return));
+        const maxReturn = Math.max(...assets.map(a => a.return));
+        
+        for (let i = 0; i <= points; i++) {
+            const targetReturn = minReturn + (maxReturn - minReturn) * i / points;
+            const portfolio = optimizePortfolio(assets, correlationMatrix, targetReturn);
+            if (portfolio) {
+                efficientPortfolios.push(portfolio);
+            }
+        }
+        
+        return efficientPortfolios;
+    }
+    
+    function optimizePortfolio(assets, correlationMatrix, targetReturn) {
+        // 简化的优化算法 - 在实际应用中应使用更复杂的优化方法
+        let bestPortfolio = null;
+        let minRisk = Infinity;
+        
+        // 尝试多种权重组合
+        for (let trial = 0; trial < 1000; trial++) {
+            const weights = generateRandomWeights(assets.length);
+            const portfolio = calculatePortfolioMetrics(weights, assets, correlationMatrix);
+            
+            // 检查是否接近目标收益率
+            if (Math.abs(portfolio.return - targetReturn) < 0.5 && portfolio.risk < minRisk) {
+                minRisk = portfolio.risk;
+                bestPortfolio = portfolio;
+            }
+        }
+        
+        return bestPortfolio;
+    }
+    
+    function drawEfficientFrontier(portfolios, efficientPortfolios, optimalPortfolio, minVariancePortfolio, riskFreeRate) {
+        const container = d3.select("#efficientFrontier");
+        container.selectAll("*").remove();
+        
+        const margin = {top: 20, right: 30, bottom: 50, left: 60};
+        const width = 700 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom);
+        
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // 设置比例尺
+        const allPortfolios = [...portfolios, ...efficientPortfolios];
+        const xScale = d3.scaleLinear()
+            .domain([0, d3.max(allPortfolios, d => d.risk) * 1.1])
+            .range([0, width]);
+        
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(allPortfolios, d => d.return) * 1.1])
+            .range([height, 0]);
+        
+        // 绘制随机投资组合
+        g.selectAll(".portfolio-dot")
+            .data(portfolios)
+            .enter().append("circle")
+            .attr("class", "portfolio-dot")
+            .attr("cx", d => xScale(d.risk))
+            .attr("cy", d => yScale(d.return))
+            .attr("r", 2)
+            .attr("fill", "rgba(100, 100, 100, 0.3)")
+            .on("mouseover", function(event, d) {
+                tooltip.transition().duration(200).style("opacity", .9);
+                tooltip.html(`收益率: ${d.return.toFixed(2)}%<br/>风险: ${d.risk.toFixed(2)}%<br/>夏普比率: ${((d.return - riskFreeRate) / d.risk).toFixed(3)}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
+        
+        // 绘制有效前沿
+        if (efficientPortfolios.length > 1) {
+            const line = d3.line()
+                .x(d => xScale(d.risk))
+                .y(d => yScale(d.return))
+                .curve(d3.curveMonotoneX);
+            
+            g.append("path")
+                .datum(efficientPortfolios.sort((a, b) => a.risk - b.risk))
+                .attr("fill", "none")
+                .attr("stroke", "#ff6b6b")
+                .attr("stroke-width", 3)
+                .attr("d", line);
+        }
+        
+        // 绘制个别资产
+        g.selectAll(".asset-dot")
+            .data(assets)
+            .enter().append("circle")
+            .attr("class", "asset-dot")
+            .attr("cx", d => xScale(d.risk))
+            .attr("cy", d => yScale(d.return))
+            .attr("r", 6)
+            .attr("fill", d => d.color)
+            .attr("stroke", "white")
+            .attr("stroke-width", 2)
+            .on("mouseover", function(event, d) {
+                tooltip.transition().duration(200).style("opacity", .9);
+                tooltip.html(`${d.name}<br/>收益率: ${d.return.toFixed(2)}%<br/>风险: ${d.risk.toFixed(2)}%`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
+        
+        // 标记最优组合
+        g.append("circle")
+            .attr("cx", xScale(optimalPortfolio.risk))
+            .attr("cy", yScale(optimalPortfolio.return))
+            .attr("r", 8)
+            .attr("fill", "gold")
+            .attr("stroke", "orange")
+            .attr("stroke-width", 3);
+        
+        // 标记最小方差组合
+        g.append("circle")
+            .attr("cx", xScale(minVariancePortfolio.risk))
+            .attr("cy", yScale(minVariancePortfolio.return))
+            .attr("r", 8)
+            .attr("fill", "lightgreen")
+            .attr("stroke", "green")
+            .attr("stroke-width", 3);
+        
+        // 绘制资本配置线（从无风险资产到最优组合）
+        g.append("line")
+            .attr("x1", xScale(0))
+            .attr("y1", yScale(riskFreeRate))
+            .attr("x2", xScale(optimalPortfolio.risk * 1.5))
+            .attr("y2", yScale(riskFreeRate + (optimalPortfolio.return - riskFreeRate) * 1.5))
+            .attr("stroke", "blue")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "5,5");
+        
+        // 添加坐标轴
+        g.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale))
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", 40)
+            .style("text-anchor", "middle")
+            .style("fill", "#333")
+            .text("风险 (标准差 %)");
+        
+        g.append("g")
+            .call(d3.axisLeft(yScale))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -40)
+            .attr("x", -height / 2)
+            .style("text-anchor", "middle")
+            .style("fill", "#333")
+            .text("预期收益率 (%)");
+        
+        // 添加图例
+        const legend = g.append("g")
+            .attr("transform", `translate(${width - 150}, 20)`);
+        
+        const legendData = [
+            {label: "随机组合", color: "rgba(100, 100, 100, 0.3)", type: "circle"},
+            {label: "有效前沿", color: "#ff6b6b", type: "line"},
+            {label: "最优组合", color: "gold", type: "circle"},
+            {label: "最小方差", color: "lightgreen", type: "circle"},
+            {label: "资本配置线", color: "blue", type: "line"}
+        ];
+        
+        legendData.forEach((item, i) => {
+            const legendRow = legend.append("g")
+                .attr("transform", `translate(0, ${i * 20})`);
+            
+            if (item.type === "circle") {
+                legendRow.append("circle")
+                    .attr("cx", 8)
+                    .attr("cy", 8)
+                    .attr("r", 4)
+                    .attr("fill", item.color);
+            } else {
+                legendRow.append("line")
+                    .attr("x1", 2)
+                    .attr("x2", 14)
+                    .attr("y1", 8)
+                    .attr("y2", 8)
+                    .attr("stroke", item.color)
+                    .attr("stroke-width", 2);
+            }
+            
+            legendRow.append("text")
+                .attr("x", 20)
+                .attr("y", 12)
+                .text(item.label)
+                .style("font-size", "12px")
+                .style("fill", "#333");
+        });
+    }
+    
+    // 相关性矩阵热力图
+    function updateCorrelationMatrix() {
+        const strength = parseFloat(document.getElementById('correlationStrength').value);
+        document.getElementById('correlationStrengthNum').value = strength;
+        
+        // 调整相关性矩阵强度
+        for (let i = 0; i < correlationMatrix.length; i++) {
+            for (let j = 0; j < correlationMatrix[0].length; j++) {
+                if (i !== j) {
+                    correlationMatrix[i][j] = correlationMatrix[i][j] * strength / 0.3;
+                    correlationMatrix[i][j] = Math.max(-0.9, Math.min(0.9, correlationMatrix[i][j]));
+                }
+            }
+        }
+        
+        drawCorrelationHeatmap();
+        calculatePortfolio();
+    }
+    
+    function generateCorrelationMatrix() {
+        const size = assets.length;
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                if (i === j) {
+                    correlationMatrix[i][j] = 1.0;
+                } else {
+                    correlationMatrix[i][j] = (Math.random() - 0.5) * 1.6; // -0.8 到 0.8
+                }
+            }
+        }
+        drawCorrelationHeatmap();
+        calculatePortfolio();
+    }
+    
+    function showIdentityMatrix() {
+        const size = assets.length;
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                correlationMatrix[i][j] = i === j ? 1.0 : 0.0;
+            }
+        }
+        drawCorrelationHeatmap();
+        calculatePortfolio();
+    }
+    
+    function drawCorrelationHeatmap() {
+        const container = d3.select("#correlationHeatmap");
+        container.selectAll("*").remove();
+        
+        const size = assets.length;
+        const cellSize = Math.min(60, 400 / size);
+        const width = size * cellSize + 100;
+        const height = size * cellSize + 100;
+        
+        const svg = container.append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        const g = svg.append("g")
+            .attr("transform", "translate(50, 50)");
+        
+        const colorScale = d3.scaleSequential(d3.interpolateRdBu)
+            .domain([1, -1]);
+        
+        // 绘制热力图
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                g.append("rect")
+                    .attr("x", j * cellSize)
+                    .attr("y", i * cellSize)
+                    .attr("width", cellSize)
+                    .attr("height", cellSize)
+                    .attr("fill", colorScale(correlationMatrix[i][j]))
+                    .attr("stroke", "white")
+                    .attr("stroke-width", 1)
+                    .on("mouseover", function(event) {
+                        tooltip.transition().duration(200).style("opacity", .9);
+                        tooltip.html(`${assets[i].name} vs ${assets[j].name}<br/>相关性: ${correlationMatrix[i][j].toFixed(3)}`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 28) + "px");
+                    })
+                    .on("mouseout", function() {
+                        tooltip.transition().duration(500).style("opacity", 0);
+                    });
+                
+                // 添加数值标签
+                g.append("text")
+                    .attr("x", j * cellSize + cellSize / 2)
+                    .attr("y", i * cellSize + cellSize / 2)
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "middle")
+                    .style("font-size", `${Math.min(12, cellSize / 4)}px`)
+                    .style("fill", Math.abs(correlationMatrix[i][j]) > 0.5 ? "white" : "black")
+                    .text(correlationMatrix[i][j].toFixed(2));
+            }
+        }
+        
+        // 添加行标签
+        assets.forEach((asset, i) => {
+            g.append("text")
+                .attr("x", -10)
+                .attr("y", i * cellSize + cellSize / 2)
+                .attr("text-anchor", "end")
+                .attr("dominant-baseline", "middle")
+                .style("font-size", "12px")
+                .style("fill", "#333")
+                .text(asset.name);
+        });
+        
+        // 添加列标签
+        assets.forEach((asset, j) => {
+            g.append("text")
+                .attr("x", j * cellSize + cellSize / 2)
+                .attr("y", -10)
+                .attr("text-anchor", "middle")
+                .attr("dominant-baseline", "middle")
+                .style("font-size", "12px")
+                .style("fill", "#333")
+                .text(asset.name);
+        });
+    }
+    
+    // 风险分解分析
+    function updateRiskDecomposition() {
+        const marketBeta = parseFloat(document.getElementById('marketBeta').value);
+        const specificRisk = parseFloat(document.getElementById('specificRisk').value);
+        
+        document.getElementById('marketBetaNum').value = marketBeta;
+        document.getElementById('specificRiskNum').value = specificRisk;
+        
+        // 假设市场风险为15%
+        const marketRisk = 15;
+        const systematicRisk = marketBeta * marketRisk;
+        const totalRisk = Math.sqrt(systematicRisk * systematicRisk + specificRisk * specificRisk);
+        const diversificationBenefit = (systematicRisk + specificRisk) - totalRisk;
+        
+        // 更新指标显示
+        document.getElementById('systematicRisk').textContent = systematicRisk.toFixed(2);
+        document.getElementById('unsystematicRisk').textContent = specificRisk.toFixed(2);
+        document.getElementById('totalRisk').textContent = totalRisk.toFixed(2);
+        document.getElementById('diversificationBenefit').textContent = diversificationBenefit.toFixed(2);
+        
+        drawRiskDecomposition(systematicRisk, specificRisk, totalRisk);
+    }
+    
+    function drawRiskDecomposition(systematicRisk, specificRisk, totalRisk) {
+        const container = d3.select("#riskDecomposition");
+        container.selectAll("*").remove();
+        
+        const width = 600;
+        const height = 300;
+        const margin = {top: 20, right: 30, bottom: 50, left: 60};
+        
+        const svg = container.append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        const data = [
+            {label: '系统性风险', value: systematicRisk, color: '#ff6b6b'},
+            {label: '非系统性风险', value: specificRisk, color: '#4ecdc4'},
+            {label: '总风险', value: totalRisk, color: '#45b7d1'}
+        ];
+        
+        const xScale = d3.scaleBand()
+            .domain(data.map(d => d.label))
+            .range([0, width - margin.left - margin.right])
+            .padding(0.2);
+        
+        const yScale = d3.scaleLinear()
+            .domain([0, Math.max(...data.map(d => d.value)) * 1.1])
+            .range([height - margin.top - margin.bottom, 0]);
+        
+        // 绘制柱状图
+        g.selectAll(".risk-bar")
+            .data(data)
+            .enter().append("rect")
+            .attr("class", "risk-bar")
+            .attr("x", d => xScale(d.label))
+            .attr("y", d => yScale(d.value))
+            .attr("width", xScale.bandwidth())
+            .attr("height", d => yScale(0) - yScale(d.value))
+            .attr("fill", d => d.color)
+            .on("mouseover", function(event, d) {
+                tooltip.transition().duration(200).style("opacity", .9);
+                tooltip.html(`${d.label}: ${d.value.toFixed(2)}%`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
+        
+        // 添加数值标签
+        g.selectAll(".risk-label")
+            .data(data)
+            .enter().append("text")
+            .attr("class", "risk-label")
+            .attr("x", d => xScale(d.label) + xScale.bandwidth() / 2)
+            .attr("y", d => yScale(d.value) - 5)
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .style("fill", "#333")
+            .text(d => d.value.toFixed(1) + "%");
+        
+        // 添加坐标轴
+        g.append("g")
+            .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
+            .call(d3.axisBottom(xScale));
+        
+        g.append("g")
+            .call(d3.axisLeft(yScale))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -40)
+            .attr("x", -(height - margin.top - margin.bottom) / 2)
+            .style("text-anchor", "middle")
+            .style("fill", "#333")
+            .text("风险 (%)");
+    }
+    
+    // 同步滑块和输入框
+    function syncInputs() {
+        const inputs = [
+            ['assetCount', 'assetCountNum'],
+            ['portfolioCount', 'portfolioCountNum'],
+            ['riskFreeRate', 'riskFreeRateNum'],
+            ['correlationStrength', 'correlationStrengthNum'],
+            ['marketBeta', 'marketBetaNum'],
+            ['specificRisk', 'specificRiskNum']
+        ];
+        
+        inputs.forEach(([sliderId, numberId]) => {
+            const slider = document.getElementById(sliderId);
+            const number = document.getElementById(numberId);
+            
+            if (slider && number) {
+                slider.addEventListener('input', function() {
+                    number.value = this.value;
+                });
+                
+                number.addEventListener('input', function() {
+                    slider.value = this.value;
+                });
+            }
+        });
+    }
+    
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            updateAssetInputs();
+            calculatePortfolio();
+            drawCorrelationHeatmap();
+            updateRiskDecomposition();
+            syncInputs();
+        }, 100);
+    });
+    </script>
+</body>
+</html>
