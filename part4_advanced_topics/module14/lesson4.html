@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高频交易基础 - 算法交易与回测系统</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container lesson-content">
+        <section>
+            <h2>学习目标</h2>
+            <ul>
+                <li>理解高频交易的基本概念和特点</li>
+                <li>掌握高频交易策略的设计方法</li>
+                <li>学习高频数据处理技术</li>
+                <li>了解高频交易系统的架构</li>
+            </ul>
+        </section>
+        <section>
+            <h2>高频交易概述</h2>
+            <h3>特点与挑战</h3>
+            <ul>
+                <li>极短持仓时间</li>
+                <li>高度自动化</li>
+                <li>低延迟要求</li>
+                <li>大数据处理</li>
+                <li>技术门槛高</li>
+            </ul>
+        </section>
+        <section>
+            <h2>高频数据处理</h2>
+            <h3>1. 数据清洗</h3>
+            <pre><code class="python">
+import pandas as pd
+import numpy as np
+def clean_tick_data(df):
+    # 删除异常值
+    df = df[df['price'] > 0]
+    # 处理重复时间戳
+    df = df.groupby('timestamp').agg({
+        'price': 'mean',
+        'volume': 'sum'
+    }).reset_index()
+    # 计算收益率
+    df['returns'] = df['price'].pct_change()
+    # 删除异常收益率
+    std = df['returns'].std()
+    df = df[abs(df['returns']) < 3*std]
+    return df
+            </code></pre>
+            <h3>2. 高频特征提取</h3>
+            <pre><code class="python">
+def calculate_microstructure_features(df, window=100):
+    # 计算买卖价差
+    df['spread'] = df['ask'] - df['bid']
+    # 计算成交量加权平均价格(VWAP)
+    df['vwap'] = (df['price'] * df['volume']).rolling(window).sum() / \
+                  df['volume'].rolling(window).sum()
+    # 计算订单流量失衡
+    df['order_imbalance'] = (df['buy_volume'] - df['sell_volume']) / \
+                            (df['buy_volume'] + df['sell_volume'])
+    return df
+            </code></pre>
+        </section>
+        <section>
+            <h2>高频交易策略</h2>
+            <h3>1. 市场微观结构策略</h3>
+            <pre><code class="python">
+class MicrostructureStrategy:
+    def __init__(self, lookback_period=50):
+        self.lookback = lookback_period
+    def generate_signals(self, data):
+        # 计算订单簿压力
+        bid_pressure = data['bid_volume'].rolling(self.lookback).mean()
+        ask_pressure = data['ask_volume'].rolling(self.lookback).mean()
+        # 生成交易信号
+        signals = np.where(bid_pressure > 2*ask_pressure, 1,  # 买入信号
+                  np.where(ask_pressure > 2*bid_pressure, -1, # 卖出信号
+                  0))  # 持仓不变
+        return signals
+            </code></pre>
+            <h3>2. 统计套利策略</h3>
+            <pre><code class="python">
+class StatArbitrageStrategy:
+    def __init__(self, window=100, threshold=2):
+        self.window = window
+        self.threshold = threshold
+    def pairs_trading_signals(self, price1, price2):
+        # 计算价格比率
+        ratio = price1 / price2
+        # 计算z-score
+        mean = ratio.rolling(self.window).mean()
+        std = ratio.rolling(self.window).std()
+        zscore = (ratio - mean) / std
+        # 生成交易信号
+        signals = np.where(zscore > self.threshold, -1,  # 卖出价格1，买入价格2
+                  np.where(zscore < -self.threshold, 1,  # 买入价格1，卖出价格2
+                  0))  # 持仓不变
+        return signals
+            </code></pre>
+        </section>
+        <section>
+            <h2>实践练习</h2>
+            <div class="exercise">
+                <h3>练习1：高频数据处理</h3>
+                <p>使用提供的tick数据，实现数据清洗和特征提取功能。</p>
+            </div>
+            <div class="exercise">
+                <h3>练习2：策略实现</h3>
+                <p>实现一个简单的高频交易策略，并在历史数据上进行回测。</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

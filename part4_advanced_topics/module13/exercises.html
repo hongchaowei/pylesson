@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习题: 金融衍生品分析 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>基础概念题</h2>
+            <div class="exercise">
+                <h3>1. 期权定价基础</h3>
+                <p>请解释以下概念：</p>
+                <ol type="a">
+                    <li>内在价值与时间价值</li>
+                    <li>波动率微笑(Volatility Smile)</li>
+                    <li>Black-Scholes模型的假设条件</li>
+                    <li>希腊字母Delta和Gamma的关系</li>
+                    <li>美式期权与欧式期权的区别</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>2. 固定收益证券</h3>
+                <p>回答以下问题：</p>
+                <ol type="a">
+                    <li>什么是久期？修正久期与麦考利久期有何区别？</li>
+                    <li>解释凸度在债券价格分析中的作用</li>
+                    <li>收益率曲线的三种典型形态及其经济含义</li>
+                    <li>骑乘收益率曲线策略的原理</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercises-section">
+            <h2>代码实现题</h2>
+            <div class="exercise">
+                <h3>3. 实现障碍期权定价</h3>
+                <p>补全以下障碍期权定价的蒙特卡洛模拟代码：</p>
+                <pre><code class="language-python">def barrier_option_price(S, K, H, T, r, sigma, option_type='call', barrier_type='down-and-out', n_simulations=100000):
+    """
+    障碍期权定价
+    :param H: 障碍价格
+    :param barrier_type: 'down-and-out', 'up-and-out', 'down-and-in', 'up-and-in'
+    :return: 期权价格
+    """
+    z = np.random.normal(0, 1, n_simulations)
+    ST = S * np.exp((r - 0.5 * sigma**2) * T + sigma * np.sqrt(T) * z)
+    # 计算路径最小值/最大值(用于障碍检测)
+    # 提示: 使用几何布朗运动的极值分布
+    # 根据障碍类型确定有效路径
+    if barrier_type == 'down-and-out':
+        valid = np.where(____ > H, 1, 0)  # 价格始终高于障碍
+    elif barrier_type == 'up-and-out':
+        valid = np.where(____ < H, 1, 0)  # 价格始终低于障碍
+    # 其他障碍类型...
+    # 计算收益
+    if option_type == 'call':
+        payoff = np.maximum(ST - K, 0)
+    else:
+        payoff = np.maximum(K - ST, 0)
+    # 应用障碍条件
+    payoff = payoff * valid
+    price = np.exp(-r * T) * np.mean(payoff)
+    return price</code></pre>
+            </div>
+            <div class="exercise">
+                <h3>4. 实现债券组合免疫</h3>
+                <p>补全以下债券组合免疫策略的代码：</p>
+                <pre><code class="language-python">def immunize_portfolio(liabilities, bonds, yield_curve):
+    """
+    构建免疫组合
+    :param liabilities: 负债现金流 {时间:金额}
+    :param bonds: 可用债券列表 [{'maturity':, 'coupon':, 'ytm':}, ...]
+    :param yield_curve: 收益率曲线函数(接受期限返回收益率)
+    :return: 免疫组合 {债券索引:权重}
+    """
+    # 计算负债久期
+    pv_liab = 0
+    duration_liab = 0
+    for t, cf in liabilities.items():
+        ytm = yield_curve(t)
+        pv = cf / ((1 + ytm) ** t)
+        pv_liab += pv
+        duration_liab += t * pv
+    duration_liab /= pv_liab
+    # 计算各债券久期
+    bond_durations = []
+    for bond in bonds:
+        duration = ____  # 计算债券久期
+        bond_durations.append(duration)
+    # 选择两个债券构建组合
+    # 策略: 选择一个久期小于负债久期，一个大于负债久期
+    # 解方程组确定权重
+    # w1 * d1 + w2 * d2 = duration_liab
+    # w1 + w2 = 1
+    return {selected_bond1: w1, selected_bond2: w2}</code></pre>
+            </div>
+        </section>
+        <section class="exercises-section">
+            <h2>策略设计题</h2>
+            <div class="exercise">
+                <h3>5. 波动率交易策略</h3>
+                <p>设计一个基于波动率预测的期权交易策略：</p>
+                <ol>
+                    <li>如何利用历史波动率和隐含波动率的差异？</li>
+                    <li>如何构建Delta中性组合？</li>
+                    <li>如何动态调整组合以维持Delta中性？</li>
+                    <li>需要考虑哪些风险管理因素？</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>6. 债券组合优化</h3>
+                <p>针对以下情景设计债券组合策略：</p>
+                <ul>
+                    <li>情景：收益率曲线将变陡峭(长期利率上升，短期利率下降)</li>
+                    <li>可用债券：1年期、5年期、10年期国债</li>
+                </ul>
+                <p>要求：</p>
+                <ol type="a">
+                    <li>说明组合构建思路</li>
+                    <li>计算组合的预期久期</li>
+                    <li>评估利率变化对组合价值的影响</li>
+                </ol>
+            </div>
+        </section>
+        <section class="exercises-section">
+            <h2>案例分析题</h2>
+            <div class="exercise">
+                <h3>7. 期权定价异常分析</h3>
+                <p>分析以下期权市场数据，指出可能的套利机会：</p>
+                <table>
+                    <tr>
+                        <th>执行价</th>
+                        <th>看涨期权价格</th>
+                        <th>看跌期权价格</th>
+                        <th>隐含波动率</th>
+                    </tr>
+                    <tr>
+                        <td>100</td>
+                        <td>8.5</td>
+                        <td>5.0</td>
+                        <td>0.25</td>
+                    </tr>
+                    <tr>
+                        <td>105</td>
+                        <td>5.0</td>
+                        <td>7.5</td>
+                        <td>0.23</td>
+                    </tr>
+                </table>
+                <p>已知：标的资产价格102，无风险利率5%，到期时间0.5年</p>
+                <p>问题：</p>
+                <ol type="a">
+                    <li>检查看跌-看涨平价关系是否成立</li>
+                    <li>识别可能的套利机会</li>
+                    <li>设计套利策略并计算预期收益</li>
+                </ol>
+            </div>
+            <div class="exercise">
+                <h3>8. 债券组合绩效评估</h3>
+                <p>分析以下债券组合的绩效：</p>
+                <table>
+                    <tr>
+                        <th>债券</th>
+                        <th>配置比例</th>
+                        <th>久期</th>
+                        <th>凸度</th>
+                        <th>收益率</th>
+                    </tr>
+                    <tr>
+                        <td>A</td>
+                        <td>40%</td>
+                        <td>4.2</td>
+                        <td>25</td>
+                        <td>3.5%</td>
+                    </tr>
+                    <tr>
+                        <td>B</td>
+                        <td>30%</td>
+                        <td>6.8</td>
+                        <td>50</td>
+                        <td>4.2%</td>
+                    </tr>
+                    <tr>
+                        <td>C</td>
+                        <td>30%</td>
+                        <td>2.5</td>
+                        <td>15</td>
+                        <td>2.8%</td>
+                    </tr>
+                </table>
+                <p>问题：</p>
+                <ol type="a">
+                    <li>计算组合的加权平均久期和凸度</li>
+                    <li>如果收益率曲线平行上移50个基点，估计组合价值变化</li>
+                    <li>如何调整组合以提高对利率上升的防御能力</li>
+                </ol>
+            </div>
+        </section>
+        <div class="exercises-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+            <a href="../../index.html" class="btn">返回模块首页 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

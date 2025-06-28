@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第1课: 交易策略设计 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>技术分析策略</h2>
+            <p>技术分析策略基于历史价格和交易量数据，通过识别图表形态和技术指标信号进行交易决策。</p>
+            <div class="math-theory">
+                <h3>数学理论基础</h3>
+                <h4>1. 技术分析数学基础</h4>
+                <p><strong>价格变化率</strong>：</p>
+                <div class="formula">
+                    \[ROC_t = \frac{P_t - P_{t-n}}{P_{t-n}} \times 100\%\]
+                </div>
+                <p><strong>威廉指标(%R)</strong>：</p>
+                <div class="formula">
+                    \[\%R = \frac{H_n - C_t}{H_n - L_n} \times (-100)\]
+                </div>
+                <p>其中 \(H_n\) 为 \(n\) 期最高价，\(L_n\) 为 \(n\) 期最低价，\(C_t\) 为当前收盘价。</p>
+                <p><strong>随机指标(KD)</strong>：</p>
+                <div class="formula">
+                    \[RSV_t = \frac{C_t - L_n}{H_n - L_n} \times 100\]
+                </div>
+                <div class="formula">
+                    \[K_t = \frac{2}{3} K_{t-1} + \frac{1}{3} RSV_t\]
+                </div>
+                <div class="formula">
+                    \[D_t = \frac{2}{3} D_{t-1} + \frac{1}{3} K_t\]
+                </div>
+                <h4>2. 统计套利理论</h4>
+                <p><strong>协整关系</strong>：</p>
+                <p>如果两个时间序列 \(X_t\) 和 \(Y_t\) 都是 \(I(1)\) 过程，但存在线性组合：</p>
+                <div class="formula">
+                    \[Z_t = Y_t - \beta X_t - \alpha\]
+                </div>
+                <p>使得 \(Z_t \sim I(0)\)，则称 \(X_t\) 和 \(Y_t\) 协整。</p>
+                <p><strong>误差修正模型(ECM)</strong>：</p>
+                <div class="formula">
+                    \[\Delta Y_t = \gamma Z_{t-1} + \sum_{i=1}^{p} \phi_i \Delta Y_{t-i} + \sum_{j=1}^{q} \psi_j \Delta X_{t-j} + \epsilon_t\]
+                </div>
+                <p><strong>半衰期</strong>：</p>
+                <div class="formula">
+                    \[半衰期 = \frac{\ln(2)}{|\gamma|}\]
+                </div>
+                <p>其中 \(\gamma\) 为误差修正系数。</p>
+                <h4>3. 配对交易策略</h4>
+                <p><strong>价差序列</strong>：</p>
+                <div class="formula">
+                    \[Spread_t = P_{1,t} - \beta P_{2,t}\]
+                </div>
+                <p><strong>标准化价差</strong>：</p>
+                <div class="formula">
+                    \[Z_{score} = \frac{Spread_t - \mu_{spread}}{\sigma_{spread}}\]
+                </div>
+                <p><strong>交易信号</strong>：</p>
+                <div class="formula">
+                    \[Signal_t = \begin{cases}
+                    1 & \text{if } Z_{score} < -\theta \\
+                    -1 & \text{if } Z_{score} > \theta \\
+                    0 & \text{otherwise}
+                    \end{cases}\]
+                </div>
+                <p>其中 \(\theta\) 为交易阈值（通常取1.5-2.0）。</p>
+                <h4>4. 动量策略数学模型</h4>
+                <p><strong>价格动量因子</strong>：</p>
+                <div class="formula">
+                    \[MOM_{t,k} = \frac{P_t}{P_{t-k}} - 1\]
+                </div>
+                <p><strong>收益率动量</strong>：</p>
+                <div class="formula">
+                    \[MOM_{ret} = \sum_{i=1}^{k} r_{t-i}\]
+                </div>
+                <p><strong>风险调整动量</strong>：</p>
+                <div class="formula">
+                    \[MOM_{adj} = \frac{MOM_{ret}}{\sigma_{ret}}\]
+                </div>
+                <h4>5. 均值回归策略</h4>
+                <p><strong>奥恩斯坦-乌伦贝克过程</strong>：</p>
+                <div class="formula">
+                    \[dX_t = \theta(\mu - X_t)dt + \sigma dW_t\]
+                </div>
+                <p>其中 \(\theta\) 为回归速度，\(\mu\) 为长期均值。</p>
+                <p><strong>离散形式</strong>：</p>
+                <div class="formula">
+                    \[X_{t+1} = X_t e^{-\theta \Delta t} + \mu(1 - e^{-\theta \Delta t}) + \sigma \sqrt{\frac{1-e^{-2\theta \Delta t}}{2\theta}} \epsilon_{t+1}\]
+                </div>
+                <h4>6. 波动率策略</h4>
+                <p><strong>已实现波动率</strong>：</p>
+                <div class="formula">
+                    \[RV_t = \sqrt{\sum_{i=1}^{n} r_{t,i}^2}\]
+                </div>
+                <p><strong>GARCH(1,1)模型</strong>：</p>
+                <div class="formula">
+                    \[\sigma_t^2 = \omega + \alpha r_{t-1}^2 + \beta \sigma_{t-1}^2\]
+                </div>
+                <p><strong>波动率风险溢价</strong>：</p>
+                <div class="formula">
+                    \[VRP_t = IV_t - RV_t\]
+                </div>
+                <p>其中 \(IV_t\) 为隐含波动率，\(RV_t\) 为已实现波动率。</p>
+            </div>
+            <h3>1. 移动平均线策略</h3>
+            <pre><code class="language-python">import pandas as pd
+import numpy as np
+def moving_average_strategy(data, short_window=20, long_window=50):
+    """
+    双均线策略
+    :param data: 包含价格数据的DataFrame
+    :param short_window: 短期均线窗口
+    :param long_window: 长期均线窗口
+    :return: 交易信号(1:买入, -1:卖出, 0:持有)
+    """
+    signals = pd.DataFrame(index=data.index)
+    signals['price'] = data['close']
+    signals['short_mavg'] = data['close'].rolling(window=short_window, min_periods=1).mean()
+    signals['long_mavg'] = data['close'].rolling(window=long_window, min_periods=1).mean()
+    # 生成交易信号
+    signals['signal'] = 0.0
+    signals['signal'][short_window:] = np.where(
+        signals['short_mavg'][short_window:] > signals['long_mavg'][short_window:], 1.0, 0.0)
+    # 生成买卖信号
+    signals['positions'] = signals['signal'].diff()
+    return signals
+# 示例使用
+data = pd.read_csv('stock_data.csv', index_col='date', parse_dates=True)
+signals = moving_average_strategy(data)</code></pre>
+            <h3>2. RSI策略</h3>
+            <pre><code class="language-python">def rsi_strategy(data, window=14, overbought=70, oversold=30):
+    """
+    RSI策略
+    :param window: RSI计算窗口
+    :param overbought: 超买阈值
+    :param oversold: 超卖阈值
+    :return: 交易信号
+    """
+    delta = data['close'].diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=window).mean()
+    avg_loss = loss.rolling(window=window).mean()
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    signals = pd.DataFrame(index=data.index)
+    signals['price'] = data['close']
+    signals['rsi'] = rsi
+    # 生成交易信号
+    signals['signal'] = 0
+    signals['signal'] = np.where(rsi < oversold, 1, np.where(rsi > overbought, -1, 0))
+    signals['positions'] = signals['signal'].diff()
+    return signals
+# 示例使用
+rsi_signals = rsi_strategy(data)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>统计套利策略</h2>
+            <p>统计套利策略利用资产间的统计关系，通过配对交易或均值回归策略获利。</p>
+            <h3>1. 配对交易策略</h3>
+            <pre><code class="language-python">from statsmodels.tsa.stattools import coint
+def pairs_trading_strategy(stock_a, stock_b, window=30, z_score_threshold=2):
+    """
+    配对交易策略
+    :param stock_a: 股票A的价格序列
+    :param stock_b: 股票B的价格序列
+    :param window: 滚动窗口
+    :param z_score_threshold: 交易触发阈值
+    :return: 交易信号
+    """
+    # 协整检验
+    score, pvalue, _ = coint(stock_a, stock_b)
+    if pvalue > 0.05:
+        raise ValueError("股票对不协整")
+    # 计算价差
+    spread = stock_a - stock_b
+    signals = pd.DataFrame(index=stock_a.index)
+    signals['spread'] = spread
+    # 计算滚动Z-score
+    signals['mean'] = spread.rolling(window=window).mean()
+    signals['std'] = spread.rolling(window=window).std()
+    signals['z_score'] = (spread - signals['mean']) / signals['std']
+    # 生成交易信号
+    signals['signal'] = 0
+    signals['signal'] = np.where(signals['z_score'] > z_score_threshold, -1,
+                                np.where(signals['z_score'] < -z_score_threshold, 1, 0))
+    signals['positions'] = signals['signal'].diff()
+    return signals
+# 示例使用
+stock_a = data['stock_A']
+stock_b = data['stock_B']
+pairs_signals = pairs_trading_strategy(stock_a, stock_b)</code></pre>
+            <h3>2. 均值回归策略</h3>
+            <pre><code class="language-python">def mean_reversion_strategy(data, window=20, std_threshold=2):
+    """
+    均值回归策略
+    :param window: 滚动窗口
+    :param std_threshold: 标准差阈值
+    :return: 交易信号
+    """
+    signals = pd.DataFrame(index=data.index)
+    signals['price'] = data['close']
+    signals['mean'] = data['close'].rolling(window=window).mean()
+    signals['std'] = data['close'].rolling(window=window).std()
+    # 计算价格与均值的偏离
+    signals['distance'] = (data['close'] - signals['mean']) / signals['std']
+    # 生成交易信号
+    signals['signal'] = 0
+    signals['signal'] = np.where(signals['distance'] > std_threshold, -1,
+                               np.where(signals['distance'] < -std_threshold, 1, 0))
+    signals['positions'] = signals['signal'].diff()
+    return signals
+# 示例使用
+mr_signals = mean_reversion_strategy(data)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>事件驱动策略</h2>
+            <p>事件驱动策略基于特定事件(如财报发布、并购公告等)对资产价格的影响进行交易。</p>
+            <h3>1. 财报公告策略</h3>
+            <pre><code class="language-python">def earnings_announcement_strategy(data, earnings_dates, window=5):
+    """
+    财报公告策略
+    :param earnings_dates: 财报发布日期列表
+    :param window: 交易窗口(天)
+    :return: 交易信号
+    """
+    signals = pd.DataFrame(index=data.index)
+    signals['price'] = data['close']
+    signals['signal'] = 0
+    # 为每个财报日创建交易信号
+    for date in earnings_dates:
+        if date in data.index:
+            start_idx = data.index.get_loc(date)
+            end_idx = min(start_idx + window, len(data))
+            signals.iloc[start_idx:end_idx, signals.columns.get_loc('signal')] = 1
+    signals['positions'] = signals['signal'].diff()
+    return signals
+# 示例使用
+earnings_dates = pd.to_datetime(['2023-01-15', '2023-04-15', '2023-07-15', '2023-10-15'])
+earnings_signals = earnings_announcement_strategy(data, earnings_dates)</code></pre>
+            <h3>2. 新闻情绪策略</h3>
+            <pre><code class="language-python">from textblob import TextBlob
+def news_sentiment_strategy(news_data, price_data, threshold=0.3):
+    """
+    新闻情绪策略
+    :param news_data: 包含新闻文本和日期的DataFrame
+    :param threshold: 情绪得分阈值
+    :return: 交易信号
+    """
+    # 计算新闻情绪得分
+    news_data['sentiment'] = news_data['text'].apply(lambda x: TextBlob(x).sentiment.polarity)
+    # 按日期聚合情绪得分
+    daily_sentiment = news_data.groupby('date')['sentiment'].mean()
+    # 合并价格数据
+    signals = pd.DataFrame(index=price_data.index)
+    signals['price'] = price_data['close']
+    signals['sentiment'] = daily_sentiment
+    # 生成交易信号
+    signals['signal'] = 0
+    signals['signal'] = np.where(signals['sentiment'] > threshold, 1,
+                               np.where(signals['sentiment'] < -threshold, -1, 0))
+    signals['positions'] = signals['signal'].diff()
+    return signals
+# 示例使用
+news_data = pd.read_csv('news_data.csv', parse_dates=['date'])
+sentiment_signals = news_sentiment_strategy(news_data, data)</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="../../index.html" class="btn">« 返回模块首页</a>
+            <a href="lesson2.html" class="btn">下一课: 回测系统与框架 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

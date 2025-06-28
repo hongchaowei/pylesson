@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机器学习在金融中的应用 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .hero-section p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2 i {
+            margin-right: 1rem;
+            color: var(--secondary-color);
+        }
+        
+        h3 {
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        h3 i {
+            margin-right: 0.5rem;
+        }
+        
+        .lesson-card {
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary-color);
+        }
+        
+        .lesson-card h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .lesson-card a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .lesson-card a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        
+        .lesson-card ul {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        
+        .lesson-card li {
+            margin-bottom: 5px;
+            position: relative;
+        }
+        
+        .lesson-card li:before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: -20px;
+            color: var(--success-color);
+        }
+        
+        .project-card {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .project-card h3 {
+            margin-top: 0;
+            color: var(--success-color);
+        }
+        
+        .module-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 15px;
+            }
+            
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .module-navigation {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+    <main class="container">
+        <div class="hero-section">
+            <h1><i class="fas fa-brain"></i> 模块15：机器学习在金融中的应用</h1>
+            <p>掌握机器学习技术在金融领域的实际应用，构建智能化金融分析系统</p>
+        </div>
+        
+        <section class="module-description">
+            <h2><i class="fas fa-info-circle"></i> 模块简介</h2>
+            <p>本模块将介绍机器学习在金融领域的应用，包括监督学习、无监督学习和深度学习方法。通过实际案例学习如何构建预测模型、分析市场结构和解释模型决策。</p>
+        </section>
+        <section class="lessons-overview">
+            <h2><i class="fas fa-book-open"></i> 课程内容</h2>
+            <div class="lesson-card">
+                <h3><i class="fas fa-chart-line"></i> <a href="lesson1.html">第1课: 监督学习在金融预测中的应用</a></h3>
+                <p>学习如何使用监督学习算法预测金融时间序列和分类金融事件。</p>
+                <ul>
+                    <li>特征工程与选择</li>
+                    <li>回归与分类模型</li>
+                    <li>模型评估与验证</li>
+                    <li>金融预测案例</li>
+                </ul>
+            </div>
+            <div class="lesson-card">
+                <h3><i class="fas fa-project-diagram"></i> <a href="lesson2.html">第2课: 无监督学习在金融中的应用</a></h3>
+                <p>掌握无监督学习方法在金融数据分析中的应用。</p>
+                <ul>
+                    <li>聚类分析与市场细分</li>
+                    <li>降维与可视化</li>
+                    <li>异常检测</li>
+                    <li>投资组合构建</li>
+                </ul>
+            </div>
+            <div class="lesson-card">
+                <h3><i class="fas fa-network-wired"></i> <a href="lesson3.html">第3课: 深度学习与金融时间序列</a></h3>
+                <p>了解深度学习模型在金融时间序列分析中的应用。</p>
+                <ul>
+                    <li>循环神经网络(RNN/LSTM)</li>
+                    <li>卷积神经网络(CNN)</li>
+                    <li>注意力机制</li>
+                    <li>多模态金融数据</li>
+                </ul>
+            </div>
+            <div class="lesson-card">
+                <h3><i class="fas fa-search"></i> <a href="lesson4.html">第4课: 模型解释与可解释性</a></h3>
+                <p>学习如何解释机器学习模型的预测结果。</p>
+                <ul>
+                    <li>特征重要性分析</li>
+                    <li>SHAP值与LIME</li>
+                    <li>模型透明度</li>
+                    <li>监管合规要求</li>
+                </ul>
+            </div>
+        </section>
+        <section class="project-overview">
+            <h2><i class="fas fa-project-diagram"></i> 项目实践</h2>
+            <div class="project-card">
+                <h3><i class="fas fa-cogs"></i> <a href="project.html">金融预测系统开发</a></h3>
+                <p>开发一个完整的金融预测系统，整合本模块学到的监督学习、无监督学习和深度学习方法，构建端到端的预测流程。</p>
+            </div>
+        </section>
+        <div class="module-navigation">
+            <a href="../module14/index.html" class="btn"><i class="fas fa-arrow-left"></i> 上一模块：算法交易系统</a>
+            <a href="lesson1.html" class="btn">第1课: 监督学习在金融预测中的应用 <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

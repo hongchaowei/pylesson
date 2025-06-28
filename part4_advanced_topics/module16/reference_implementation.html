@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面标题</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+    <main class="container">
+        <section class="project-structure">
+            <h2>项目结构</h2>
+            <pre><code class="language-bash">financial-analysis-system/
+├── config/                  # 配置文件
+│   ├── config.yaml          # 主配置文件
+│   └── logging.conf         # 日志配置
+├── data/                    # 数据文件
+│   ├── raw/                 # 原始数据
+│   └── processed/           # 处理后的数据
+├── docs/                    # 文档
+├── models/                  # 训练好的模型
+├── src/                     # 源代码
+│   ├── data/                # 数据处理
+│   │   ├── __init__.py
+│   │   ├── collector.py     # 数据收集
+│   │   ├── cleaner.py       # 数据清洗
+│   │   └── transformer.py   # 特征工程
+│   ├── analysis/            # 分析模块
+│   │   ├── __init__.py
+│   │   ├── predictor.py     # 预测模型
+│   │   ├── risk.py          # 风险评估
+│   │   └── portfolio.py     # 投资组合
+│   ├── api/                 # API服务
+│   │   ├── __init__.py
+│   │   ├── app.py           # Flask应用
+│   │   └── routes.py        # API路由
+│   ├── visualization/        # 可视化
+│   │   ├── __init__.py
+│   │   ├── charts.py         # 图表生成
+│   │   └── reporter.py      # 报告生成
+│   ├── system/              # 系统核心
+│   │   ├── __init__.py
+│   │   └── core.py          # 系统主类
+│   └── utils/               # 工具函数
+│       ├── __init__.py
+│       ├── logger.py         # 日志工具
+│       └── helpers.py       # 辅助函数
+├── tests/                   # 测试代码
+├── requirements.txt          # Python依赖
+├── Dockerfile               # Docker配置
+└── README.md                # 项目说明</code></pre>
+        </section>
+        <section class="key-components">
+            <h2>关键组件实现</h2>
+            <div class="component">
+                <h3>1. 数据收集器 (collector.py)</h3>
+                <pre><code class="language-python">import yfinance as yf
+from alpha_vantage.timeseries import TimeSeries
+import pandas as pd
+from typing import Dict, Union
+from pathlib import Path
+import time
+class DataCollector:
+    """从多个数据源收集金融数据"""
+    def __init__(self, config: Dict):
+        self.config = config
+        self.cache_dir = Path(config['cache_dir'])
+        self.cache_dir.mkdir(exist_ok=True)
+    def get_stock_data(self, ticker: str, start: str, end: str) -> pd.DataFrame:
+        """从Yahoo Finance获取股票数据"""
+        cache_file = self.cache_dir / f"yfinance_{ticker}_{start}_{end}.csv"
+        if cache_file.exists():
+            return pd.read_csv(cache_file, index_col='Date', parse_dates=True)
+        data = yf.download(ticker, start=start, end=end)
+        data.to_csv(cache_file)
+        return data
+    def get_index_data(self, symbol: str) -> pd.DataFrame:
+        """从Alpha Vantage获取指数数据"""
+        cache_file = self.cache_dir / f"alpha_vantage_{symbol}.csv"
+        if cache_file.exists():
+            return pd.read_csv(cache_file, index_col='date', parse_dates=True)
+        ts = TimeSeries(key=self.config['alpha_vantage_key'])
+        data, _ = ts.get_daily(symbol=symbol, outputsize='full')
+        data.to_csv(cache_file)
+        time.sleep(12)  # Alpha Vantage API限制
+        return data
+    def get_all_data(self, tickers: Dict) -> Dict[str, pd.DataFrame]:
+        """从所有配置的数据源获取数据"""
+        results = {}
+        for name, params in tickers.items():
+            if params['source'] == 'yfinance':
+                results[name] = self.get_stock_data(
+                    params['symbol'],
+                    params['start'],
+                    params['end']
+                )
+            elif params['source'] == 'alpha_vantage':
+                results[name] = self.get_index_data(params['symbol'])
+        return results</code></pre>
+            
+<div class="component">
+                <h3>2. 特征工程 (transformer.py)</h3>
+                <pre><code class="language-python">import pandas as pd
+import numpy as np
+from talib import abstract
+from typing import List, Dict
+class FeatureEngineer:
+    """金融特征工程"""
+    def __init__(self, config: Dict):
+        self.config = config
+        self.technical_indicators = config['technical_indicators']
+    def add_technical_indicators(self, data: pd.DataFrame) -> pd.DataFrame:
+        """添加技术指标特征"""
+        for indicator in self.technical_indicators:
+            if indicator['name'] == 'SMA':
+                data[f"SMA_{indicator['window']}"] = data['Close'].rolling(
+                    window=indicator['window']
+                ).mean()
+            elif indicator['name'] == 'RSI':
+                delta = data['Close'].diff()
+                gain = delta.where(delta > 0, 0)
+                loss = -delta.where(delta < 0, 0)
+                avg_gain = gain.rolling(window=indicator['window']).mean()
+                avg_loss = loss.rolling(window=indicator['window']).mean()
+                rs = avg_gain / avg_loss
+                data['RSI'] = 100 - (100 / (1 + rs))
+            elif indicator['name'] == 'MACD':
+                macd = abstract.MACD(
+                    data,
+                    fastperiod=12,
+                    slowperiod=26,
+                    signalperiod=9
+                )
+                data['MACD'] = macd.macd
+                data['MACD_Signal'] = macd.macdsignal
+                data['MACD_Hist'] = macd.macdhist
+        return data.dropna()
+    def add_fundamental_factors(self, data: pd.DataFrame,
+                              fundamental_data: pd.DataFrame) -> pd.DataFrame:
+        """添加基本面因子"""
+        merged = data.merge(
+            fundamental_data,
+            left_index=True,
+            right_index=True,
+            how='left'
+        )
+        # 计算基本面比率
+        merged['PE_Ratio'] = merged['Close'] / merged['EPS']
+        merged['PB_Ratio'] = merged['Market_Cap'] / merged['Book_Value']
+        return merged
+    def create_labels(self, data: pd.DataFrame, horizon: int = 5) -> pd.Series:
+        """创建预测目标标签"""
+        # 未来N天的价格变化
+        future_prices = data['Close'].shift(-horizon)
+        labels = ((future_prices - data['Close']) / data['Close']).dropna()
+        return labels
+    def prepare_features(self, data: pd.DataFrame) -> pd.DataFrame:
+        """准备最终特征矩阵"""
+        features = data.drop(['Open', 'High', 'Low', 'Volume'], axis=1)
+        return features</code></pre>
+            
+<div class="component">
+                <h3>3. 预测模型 (predictor.py)</h3>
+                <pre><code class="language-python">from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
+import numpy as np
+import joblib
+from pathlib import Path
+from typing import Tuple, Dict
+class StockPredictor:
+    """股票价格预测模型"""
+    def __init__(self, config: Dict):
+        self.config = config
+        self.model_dir = Path(config['model_dir'])
+        self.model_dir.mkdir(exist_ok=True)
+        self.models = {
+            'random_forest': RandomForestRegressor(random_state=42),
+            'gradient_boosting': GradientBoostingRegressor(random_state=42)
+        }
+    def train(self, features: pd.DataFrame, labels: pd.Series,
+              model_type: str = 'random_forest') -> Tuple[float, float]:
+        """训练预测模型"""
+        X_train, X_test, y_train, y_test = train_test_split(
+            features, labels, test_size=0.2, random_state=42
+        )
+        # 创建管道
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('model', self.models[model_type])
+        ])
+        # 超参数调优
+        param_grid = self.config['model_params'][model_type]
+        grid_search = GridSearchCV(
+            pipeline,
+            param_grid,
+            cv=5,
+            scoring='neg_mean_squared_error'
+        )
+        grid_search.fit(X_train, y_train)
+        # 评估
+        best_model = grid_search.best_estimator_
+        y_pred = best_model.predict(X_test)
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        # 保存模型
+        model_path = self.model_dir / f"{model_type}_predictor.pkl"
+        joblib.dump(best_model, model_path)
+        return mse, r2
+    def predict(self, features: pd.DataFrame, model_type: str) -> np.ndarray:
+        """使用训练好的模型进行预测"""
+        model_path = self.model_dir / f"{model_type}_predictor.pkl"
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model {model_type} not found")
+        model = joblib.load(model_path)
+        return model.predict(features)</code></pre>
+            </div>
+        </section>
+        <section class="system-integration">
+            <h2>系统集成</h2>
+            <div class="component">
+                <h3>1. 系统核心 (core.py)</h3>
+                <pre><code class="language-python">from typing import Dict, Any
+import pandas as pd
+from pathlib import Path
+import yaml
+from .data.collector import DataCollector
+from .data.transformer import FeatureEngineer
+from .analysis.predictor import StockPredictor
+from .analysis.risk import RiskAssessor
+from .visualization.reporter import ReportGenerator
+class FinancialAnalysisSystem:
+    """金融分析系统核心类"""
+    def __init__(self, config_path: str):
+        self.config = self._load_config(config_path)
+        self.data_collector = DataCollector(self.config['data'])
+        self.feature_engineer = FeatureEngineer(self.config['features'])
+        self.predictor = StockPredictor(self.config['models']['predictor'])
+        self.risk_assessor = RiskAssessor(self.config['models']['risk'])
+        self.reporter = ReportGenerator(self.config['visualization'])
+        self.data = None
+        self.features = None
+        self.labels = None
+    @staticmethod
+    def _load_config(config_path: str) -> Dict[str, Any]:
+        """加载配置文件"""
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    def initialize(self):
+        """初始化系统"""
+        # 收集数据
+        raw_data = self.data_collector.get_all_data(self.config['tickers'])
+        self.data = pd.concat(raw_data.values(), axis=1, keys=raw_data.keys())
+        # 特征工程
+        processed_data = self.feature_engineer.add_technical_indicators(self.data)
+        self.features = self.feature_engineer.prepare_features(processed_data)
+        self.labels = self.feature_engineer.create_labels(self.data)
+        # 训练模型
+        print("Training prediction model...")
+        mse, r2 = self.predictor.train(self.features, self.labels)
+        print(f"Prediction Model - MSE: {mse:.4f}, R2: {r2:.4f}")
+        print("Training risk assessment model...")
+        roc_auc = self.risk_assessor.train(self.features, self.labels)
+        print(f"Risk Model - ROC AUC: {roc_auc:.4f}")
+    def analyze(self, ticker: str, days: int = 30) -> Dict[str, Any]:
+        """执行分析"""
+        # 获取最新数据
+        latest_data = self.data_collector.get_stock_data(
+            ticker,
+            start=pd.Timestamp.now() - pd.Timedelta(days=days),
+            end=pd.Timestamp.now()
+        )
+        # 特征工程
+        processed = self.feature_engineer.add_technical_indicators(latest_data)
+        features = self.feature_engineer.prepare_features(processed)
+        # 预测
+        price_pred = self.predictor.predict(features, 'random_forest')
+        risk_pred = self.risk_assessor.predict(features)
+        # 生成报告
+        report = self.reporter.generate_report(
+            ticker,
+            latest_data,
+            price_pred[-1],
+            risk_pred[-1]
+        )
+        return report</code></pre>
+            
+<div class="component">
+                <h3>2. API服务 (app.py)</h3>
+                <pre><code class="language-python">from flask import Flask, request, jsonify
+from typing import Dict, Any
+from .system.core import FinancialAnalysisSystem
+import yaml
+from pathlib import Path
+def create_app(config_path: str) -> Flask:
+    """创建Flask应用"""
+    app = Flask(__name__)
+    # 加载配置
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    # 初始化系统
+    system = FinancialAnalysisSystem(config_path)
+    system.initialize()
+    @app.route('/analyze', methods=['POST'])
+    def analyze():
+        """分析端点"""
+        data = request.get_json()
+        if not data or 'ticker' not in data:
+            return jsonify({'error': 'Missing ticker parameter'}), 400
+        try:
+            days = int(data.get('days', 30))
+            report = system.analyze(data['ticker'], days)
+            return jsonify(report)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    @app.route('/health')
+    def health_check():
+        """健康检查端点"""
+        return jsonify({'status': 'healthy'})
+    return app
+if __name__ == '__main__':
+    # 默认配置路径
+    config_path = Path(__file__).parent.parent / 'config' / 'config.yaml'
+    app = create_app(config_path)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+</code></pre>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

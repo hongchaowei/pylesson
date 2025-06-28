@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2课: 固定收益证券分析 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>债券定价基础</h2>
+            <p>固定收益证券的价格是其未来现金流的现值，受利率变化影响显著。</p>
+            <h3>1. 债券定价公式</h3>
+            <pre><code class="language-python">def bond_price(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year=2):
+    """
+    计算债券价格
+    :param face_value: 面值
+    :param coupon_rate: 票面利率(年化)
+    :param years_to_maturity: 剩余期限(年)
+    :param ytm: 到期收益率(年化)
+    :param coupons_per_year: 每年付息次数
+    :return: 债券价格
+    """
+    coupon_payment = (coupon_rate * face_value) / coupons_per_year
+    total_payments = years_to_maturity * coupons_per_year
+    discount_rate = ytm / coupons_per_year
+    price = 0
+    for t in range(1, total_payments + 1):
+        price += coupon_payment / ((1 + discount_rate) ** t)
+    price += face_value / ((1 + discount_rate) ** total_payments)
+    return price
+# 示例计算
+price = bond_price(1000, 0.05, 10, 0.04)  # 面值1000，票面利率5%，10年到期，YTM 4%</code></pre>
+            <h3>2. 收益率计算</h3>
+            <pre><code class="language-python">from scipy.optimize import newton
+def bond_yield(price, face_value, coupon_rate, years_to_maturity, coupons_per_year=2):
+    """
+    计算债券的到期收益率(YTM)
+    :param price: 债券市场价格
+    :return: 到期收益率(年化)
+    """
+    def price_difference(ytm):
+        return bond_price(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year) - price
+    ytm = newton(price_difference, 0.05)  # 初始猜测5%
+    return ytm
+# 示例计算
+ytm = bond_yield(950, 1000, 0.05, 10)  # 价格950，面值1000，票面利率5%，10年到期</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>久期与凸度分析</h2>
+            <p>久期和凸度是衡量债券价格对利率变化敏感度的重要指标。</p>
+            <h3>1. 麦考利久期</h3>
+            <pre><code class="language-python">def macaulay_duration(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year=2):
+    """
+    计算麦考利久期
+    :return: 麦考利久期(年)
+    """
+    coupon_payment = (coupon_rate * face_value) / coupons_per_year
+    total_payments = years_to_maturity * coupons_per_year
+    discount_rate = ytm / coupons_per_year
+    duration = 0
+    price = 0
+    for t in range(1, total_payments + 1):
+        pv = coupon_payment / ((1 + discount_rate) ** t)
+        duration += t * pv
+        price += pv
+    pv_principal = face_value / ((1 + discount_rate) ** total_payments)
+    duration += total_payments * pv_principal
+    price += pv_principal
+    duration = duration / (price * coupons_per_year)
+    return duration
+# 示例计算
+duration = macaulay_duration(1000, 0.05, 10, 0.04)</code></pre>
+            <h3>2. 修正久期与凸度</h3>
+            <pre><code class="language-python">def modified_duration_and_convexity(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year=2):
+    """
+    计算修正久期和凸度
+    :return: (修正久期, 凸度)
+    """
+    price = bond_price(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year)
+    # 计算修正久期
+    mac_duration = macaulay_duration(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year)
+    modified_duration = mac_duration / (1 + ytm / coupons_per_year)
+    # 计算凸度
+    coupon_payment = (coupon_rate * face_value) / coupons_per_year
+    total_payments = years_to_maturity * coupons_per_year
+    discount_rate = ytm / coupons_per_year
+    convexity = 0
+    for t in range(1, total_payments + 1):
+        pv = coupon_payment / ((1 + discount_rate) ** t)
+        convexity += t * (t + 1) * pv
+    pv_principal = face_value / ((1 + discount_rate) ** total_payments)
+    convexity += total_payments * (total_payments + 1) * pv_principal
+    convexity = convexity / ((1 + discount_rate) ** 2 * price * (coupons_per_year ** 2))
+    return modified_duration, convexity
+# 示例计算
+mod_duration, convexity = modified_duration_and_convexity(1000, 0.05, 10, 0.04)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>利率期限结构</h2>
+            <p>利率期限结构描述了不同期限的利率之间的关系，是固定收益分析的核心。</p>
+            <h3>1. 收益率曲线拟合</h3>
+            <pre><code class="language-python">import numpy as np
+from scipy.optimize import curve_fit
+def nelson_siegel(t, beta0, beta1, beta2, tau):
+    """
+    Nelson-Siegel模型
+    :param t: 期限(年)
+    :return: 即期利率
+    """
+    return beta0 + beta1 * (1 - np.exp(-t/tau)) / (t/tau) + beta2 * ((1 - np.exp(-t/tau)) / (t/tau) - np.exp(-t/tau))
+def fit_yield_curve(maturities, yields):
+    """
+    拟合Nelson-Siegel收益率曲线
+    :param maturities: 期限数组(年)
+    :param yields: 对应收益率数组
+    :return: 拟合参数(beta0, beta1, beta2, tau)
+    """
+    params, _ = curve_fit(nelson_siegel, maturities, yields,
+                         p0=[0.05, -0.01, 0.01, 1.0],  # 初始参数猜测
+                         bounds=([0, -np.inf, -np.inf, 0.1], [0.2, np.inf, np.inf, 10]))
+    return params
+# 示例使用
+maturities = np.array([0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 30])
+yields = np.array([0.02, 0.022, 0.025, 0.028, 0.03, 0.032, 0.034, 0.035, 0.036, 0.037])
+beta0, beta1, beta2, tau = fit_yield_curve(maturities, yields)</code></pre>
+            <h3>2. 远期利率计算</h3>
+            <pre><code class="language-python">def forward_rates(spot_rates, maturities):
+    """
+    计算远期利率
+    :param spot_rates: 即期利率数组
+    :param maturities: 对应期限数组(年)
+    :return: 远期利率数组
+    """
+    forward = []
+    for i in range(1, len(spot_rates)):
+        t1, t2 = maturities[i-1], maturities[i]
+        r1, r2 = spot_rates[i-1], spot_rates[i]
+        f = (r2 * t2 - r1 * t1) / (t2 - t1)
+        forward.append(f)
+    return forward
+# 示例计算
+forward = forward_rates(yields, maturities)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>债券投资策略</h2>
+            <p>基于利率预期的主动债券管理策略和被动免疫策略。</p>
+            <h3>1. 骑乘收益率曲线</h3>
+            <pre><code class="language-python">def ride_yield_curve(initial_yield, target_yield, maturity, horizon, face_value=1000, coupon_rate=0.05):
+    """
+    骑乘收益率曲线策略收益计算
+    :param initial_yield: 初始收益率
+    :param target_yield: 目标收益率(预期未来收益率)
+    :param maturity: 债券期限(年)
+    :param horizon: 投资期限(年)
+    :return: 策略收益率
+    """
+    # 初始价格
+    initial_price = bond_price(face_value, coupon_rate, maturity, initial_yield)
+    # 预期未来价格
+    remaining_maturity = maturity - horizon
+    future_price = bond_price(face_value, coupon_rate, remaining_maturity, target_yield)
+    # 计算总收益
+    coupon_income = coupon_rate * face_value * horizon
+    capital_gain = future_price - initial_price
+    total_return = (coupon_income + capital_gain) / initial_price
+    return total_return
+# 示例计算
+strategy_return = ride_yield_curve(0.05, 0.04, 10, 1)  # 初始YTM 5%，预期1年后YTM 4%</code></pre>
+            <h3>2. 免疫策略</h3>
+            <pre><code class="language-python">def immunization_portfolio(liabilities, yield_curve, max_maturity=30):
+    """
+    构建免疫组合
+    :param liabilities: 负债现金流(字典: {时间:金额})
+    :param yield_curve: 收益率曲线函数(接受期限参数，返回收益率)
+    :return: 债券组合(字典: {期限:金额})
+    """
+    # 计算负债久期
+    pv_liabilities = 0
+    duration_liabilities = 0
+    for t, cf in liabilities.items():
+        ytm = yield_curve(t)
+        pv = cf / ((1 + ytm) ** t)
+        pv_liabilities += pv
+        duration_liabilities += t * pv
+    duration_liabilities /= pv_liabilities
+    # 寻找两个债券期限
+    short_maturity = max(1, int(duration_liabilities) - 2)
+    long_maturity = min(max_maturity, int(duration_liabilities) + 2)
+    # 计算组合权重
+    ytm_short = yield_curve(short_maturity)
+    ytm_long = yield_curve(long_maturity)
+    duration_short = macaulay_duration(1000, 0.05, short_maturity, ytm_short)
+    duration_long = macaulay_duration(1000, 0.05, long_maturity, ytm_long)
+    w_short = (duration_long - duration_liabilities) / (duration_long - duration_short)
+    w_long = 1 - w_short
+    portfolio = {
+        short_maturity: w_short * pv_liabilities,
+        long_maturity: w_long * pv_liabilities
+    }
+    return portfolio
+# 示例使用
+liabilities = {5: 500000, 10: 1000000}  # 5年后支付50万，10年后支付100万
+def sample_yield_curve(t):
+    return 0.02 + 0.005 * t  # 简单线性收益率曲线
+portfolio = immunization_portfolio(liabilities, sample_yield_curve)</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson1.html" class="btn">« 上一课: 期权定价与希腊字母</a>
+            <a href="project.html" class="btn">项目: 衍生品分析工具包 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

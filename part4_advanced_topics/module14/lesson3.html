@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第3课: 交易执行与实盘接口 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>交易API介绍</h2>
+            <p>实盘交易需要连接券商或交易所的API，以下是常用的交易API和Python库。</p>
+            <h3>1. CCXT库 - 加密货币交易所</h3>
+            <pre><code class="language-python">import ccxt
+# 初始化交易所连接
+exchange = ccxt.binance({
+    'apiKey': 'YOUR_API_KEY',
+    'secret': 'YOUR_SECRET',
+    'enableRateLimit': True
+})
+# 获取账户余额
+balance = exchange.fetch_balance()
+print(balance['total']['BTC'])
+# 创建限价单
+order = exchange.create_limit_buy_order('BTC/USDT', 0.01, 50000)
+print(order)
+# 获取订单状态
+order_status = exchange.fetch_order(order['id'], 'BTC/USDT')
+print(order_status)</code></pre>
+            <h3>2. Interactive Brokers - TWS API</h3>
+            <pre><code class="language-python">from ib_insync import *
+# 连接TWS
+ib = IB()
+ib.connect('127.0.0.1', 7497, clientId=1)
+# 获取合约信息
+contract = Stock('AAPL', 'SMART', 'USD')
+ib.qualifyContracts(contract)
+# 获取市场数据
+ticker = ib.reqMktData(contract, '', False, False)
+print(ticker.marketPrice())
+# 下市价单
+order = MarketOrder('BUY', 100)
+trade = ib.placeOrder(contract, order)
+print(trade)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>订单执行策略</h2>
+            <p>实盘交易需要考虑市场冲击成本、滑点和订单执行质量。</p>
+            <h3>1. TWAP策略</h3>
+            <pre><code class="language-python">import time
+def twap_order(exchange, symbol, side, quantity, duration_minutes=30, slices=10):
+    """
+    时间加权平均价格(TWAP)订单
+    :param exchange: 交易所实例
+    :param symbol: 交易对
+    :param side: 'buy'或'sell'
+    :param quantity: 总数量
+    :param duration_minutes: 执行持续时间(分钟)
+    :param slices: 分割次数
+    """
+    slice_qty = quantity / slices
+    interval = (duration_minutes * 60) / slices
+    for i in range(slices):
+        # 获取当前市场价
+        ticker = exchange.fetch_ticker(symbol)
+        price = ticker['last']
+        # 创建限价单
+        if side == 'buy':
+            order = exchange.create_limit_buy_order(symbol, slice_qty, price * 0.995)  # 低1%下单
+        else:
+            order = exchange.create_limit_sell_order(symbol, slice_qty, price * 1.005)  # 高1%下单
+        print(f"执行第{i+1}/{slices}单: {slice_qty}@{price}")
+        # 等待下一个时间片
+        time.sleep(interval)
+    print("TWAP订单执行完成")</code></pre>
+            <h3>2. VWAP策略</h3>
+            <pre><code class="language-python">def vwap_order(exchange, symbol, side, quantity, duration_minutes=30, slices=10):
+    """
+    成交量加权平均价格(VWAP)订单
+    :param exchange: 交易所实例
+    :param symbol: 交易对
+    :param side: 'buy'或'sell'
+    :param quantity: 总数量
+    :param duration_minutes: 执行持续时间(分钟)
+    :param slices: 分割次数
+    """
+    total_volume = 0
+    slice_qty = quantity / slices
+    interval = (duration_minutes * 60) / slices
+    # 获取历史成交量数据
+    ohlcv = exchange.fetch_ohlcv(symbol, '1m', limit=100)
+    avg_volume = sum([x[5] for x in ohlcv]) / len(ohlcv)
+    for i in range(slices):
+        # 获取当前市场数据
+        ticker = exchange.fetch_ticker(symbol)
+        price = ticker['last']
+        volume = ticker['baseVolume']
+        # 计算动态下单量(基于当前成交量占比)
+        volume_ratio = volume / avg_volume
+        dynamic_qty = slice_qty * min(volume_ratio, 1.5)  # 限制最大1.5倍
+        # 创建限价单
+        if side == 'buy':
+            order = exchange.create_limit_buy_order(symbol, dynamic_qty, price * 0.995)
+        else:
+            order = exchange.create_limit_sell_order(symbol, dynamic_qty, price * 1.005)
+        print(f"执行第{i+1}/{slices}单: {dynamic_qty}@{price} (成交量比例: {volume_ratio:.2f})")
+        # 更新总成交量
+        total_volume += dynamic_qty
+        # 等待下一个时间片
+        time.sleep(interval)
+    print(f"VWAP订单执行完成, 总成交量: {total_volume}/{quantity}")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>实盘与回测的差异</h2>
+            <p>实盘交易与回测存在显著差异，需要特别注意以下因素：</p>
+            <h3>1. 市场冲击与滑点</h3>
+            <pre><code class="language-python">def calculate_slippage(executed_price, intended_price, quantity):
+    """
+    计算滑点成本
+    :param executed_price: 实际成交价
+    :param intended_price: 预期成交价
+    :param quantity: 交易量
+    :return: 滑点成本(绝对值)
+    """
+    return abs(executed_price - intended_price) * quantity
+# 示例: 假设回测中订单以市价成交，而实盘中有滑点
+intended_price = 100.0
+executed_price = 100.5  # 实际成交价高0.5%
+quantity = 1000
+slippage_cost = calculate_slippage(executed_price, intended_price, quantity)
+print(f"滑点成本: ${slippage_cost:.2f}")</code></pre>
+            <h3>2. 订单执行延迟</h3>
+            <pre><code class="language-python">import time
+def measure_latency(exchange, symbol, trials=10):
+    """
+    测量订单执行延迟
+    :param exchange: 交易所实例
+    :param symbol: 交易对
+    :param trials: 测试次数
+    :return: 平均延迟(毫秒)
+    """
+    total_latency = 0
+    for _ in range(trials):
+        start_time = time.time()
+        # 下测试单(0数量)
+        try:
+            exchange.create_order(symbol, 'limit', 'buy', 0, 0.01)
+        except:
+            pass
+        end_time = time.time()
+        latency = (end_time - start_time) * 1000  # 转换为毫秒
+        total_latency += latency
+    avg_latency = total_latency / trials
+    return avg_latency
+# 示例
+latency = measure_latency(exchange, 'BTC/USDT')
+print(f"平均订单执行延迟: {latency:.2f}ms")</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>风险管理与监控</h2>
+            <p>实盘交易需要严格的风险控制和实时监控系统。</p>
+            <h3>1. 风险控制模块</h3>
+            <pre><code class="language-python">class RiskManager:
+    """风险管理器"""
+    def __init__(self, max_position_size=0.1, max_daily_loss=0.05):
+        """
+        :param max_position_size: 最大持仓比例
+        :param max_daily_loss: 最大单日亏损比例
+        """
+        self.max_position_size = max_position_size
+        self.max_daily_loss = max_daily_loss
+        self.initial_equity = None
+        self.current_equity = None
+        self.positions = {}
+    def check_position_size(self, symbol, quantity, price):
+        """检查持仓规模是否超过限制"""
+        position_value = quantity * price
+        if position_value > self.current_equity * self.max_position_size:
+            return False
+        return True
+    def check_daily_loss(self, portfolio_value):
+        """检查单日亏损是否超过限制"""
+        if self.initial_equity is None:
+            self.initial_equity = portfolio_value
+            return True
+        daily_return = (portfolio_value - self.initial_equity) / self.initial_equity
+        if daily_return < -self.max_daily_loss:
+            return False
+        return True
+    def update_equity(self, equity):
+        """更新账户权益"""
+        self.current_equity = equity
+    def liquidate_positions(self, exchange):
+        """平仓所有头寸"""
+        for symbol, position in self.positions.items():
+            if position['size'] > 0:
+                exchange.create_market_sell_order(symbol, position['size'])
+            elif position['size'] < 0:
+                exchange.create_market_buy_order(symbol, abs(position['size']))</code></pre>
+            <h3>2. 实时监控系统</h3>
+            <pre><code class="language-python">import threading
+from flask import Flask, jsonify
+app = Flask(__name__)
+class TradingMonitor:
+    """交易监控系统"""
+    def __init__(self, exchange, risk_manager):
+        self.exchange = exchange
+        self.risk_manager = risk_manager
+        self.positions = {}
+        self.performance = {}
+        self.running = False
+    def start(self):
+        """启动监控线程"""
+        self.running = True
+        monitor_thread = threading.Thread(target=self._monitor_loop)
+        monitor_thread.daemon = True
+        monitor_thread.start()
+    def _monitor_loop(self):
+        """监控循环"""
+        while self.running:
+            # 更新持仓
+            self.positions = self.exchange.fetch_balance()['info']['positions']
+            # 更新绩效
+            self.performance = self._calculate_performance()
+            # 检查风险
+            if not self.risk_manager.check_daily_loss(self.performance['equity']):
+                self.risk_manager.liquidate_positions(self.exchange)
+                self.running = False
+            time.sleep(5)  # 每5秒更新一次
+    def _calculate_performance(self):
+        """计算绩效指标"""
+        # 实现收益率、夏普比率等计算
+        pass
+@app.route('/positions')
+def get_positions():
+    return jsonify(monitor.positions)
+@app.route('/performance')
+def get_performance():
+    return jsonify(monitor.performance)
+# 启动监控系统
+monitor = TradingMonitor(exchange, risk_manager)
+monitor.start()
+# 启动Flask API
+app.run(port=5000)</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson2.html" class="btn">« 上一课: 回测系统与框架</a>
+            <a href="project.html" class="btn">项目: 算法交易系统开发 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

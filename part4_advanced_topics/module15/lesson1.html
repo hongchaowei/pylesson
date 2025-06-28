@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第1课: 监督学习在金融预测中的应用 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="../../../js/financial-charts.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <!-- 数据集下载区域 -->
+        <section class="lesson-content data-section">
+            <h2>📊 配套数据集</h2>
+            <div class="data-download-area">
+                <div class="data-info">
+                    <p>本课程需要使用以下数据文件进行机器学习模型训练和预测。您可以直接下载使用。</p>
+                </div>
+                
+                <div class="data-files-grid">
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">📈</span>
+                            <span class="file-name">stock_prices.csv</span>
+                        </div>
+                        <div class="file-description">
+                            股票价格历史数据，用于价格预测和技术分析特征构建
+                        </div>
+                        <div class="file-stats">
+                            <span>📊 8只股票</span>
+                            <span>📅 2年数据</span>
+                            <span>💾 ~274KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('stock_prices.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                    
+                    <div class="data-file-card">
+                        <div class="file-header">
+                            <span class="file-icon">💳</span>
+                            <span class="file-name">credit_data.csv</span>
+                        </div>
+                        <div class="file-description">
+                            信用评估数据，包含客户特征和信用评级，用于信用风险预测模型
+                        </div>
+                        <div class="file-stats">
+                            <span>📊 客户数据</span>
+                            <span>📝 多特征</span>
+                            <span>💾 ~50KB</span>
+                        </div>
+                        <button class="download-btn" onclick="downloadDataFile('credit_data.csv')">
+                            <span>⬇️</span> 下载数据文件
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="data-usage-tips">
+                    <h4>💡 使用说明</h4>
+                    <ul>
+                        <li>下载所有数据文件到您的工作目录</li>
+                        <li><code>stock_prices.csv</code> 用于股票价格预测和特征工程</li>
+                        <li><code>credit_data.csv</code> 用于信用风险分类模型训练</li>
+                        <li>数据为模拟数据，适合学习监督学习算法</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="theory-section">
+            <h2>📚 数学理论基础</h2>
+            <div class="theory-content">
+                <h3>1. 监督学习的数学框架</h3>
+                <div class="math-formula">
+                    <p><strong>监督学习问题：</strong></p>
+                    <p>给定训练集 \(\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^n\)，其中 \(\mathbf{x}_i \in \mathbb{R}^d\) 是特征向量，\(y_i\) 是目标变量。</p>
+                    <p><strong>目标：</strong>学习映射函数 \(f: \mathbb{R}^d \rightarrow \mathbb{R}\)，使得 \(f(\mathbf{x}) \approx y\)。</p>
+                </div>
+                <h3>2. 损失函数</h3>
+                <div class="math-formula">
+                    <p><strong>均方误差损失（回归）：</strong></p>
+                    <p>\[ L(y, \hat{y}) = \frac{1}{2}(y - \hat{y})^2 \]</p>
+                    <p><strong>交叉熵损失（分类）：</strong></p>
+                    <p>\[ L(y, \hat{y}) = -y\log(\hat{y}) - (1-y)\log(1-\hat{y}) \]</p>
+                </div>
+                <h3>3. 线性回归</h3>
+                <div class="math-formula">
+                    <p><strong>模型：</strong></p>
+                    <p>\[ \hat{y} = \mathbf{w}^T\mathbf{x} + b = \sum_{j=1}^d w_j x_j + b \]</p>
+                    <p><strong>最小二乘解：</strong></p>
+                    <p>\[ \mathbf{w}^* = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y} \]</p>
+                    <p>其中 \(\mathbf{X} \in \mathbb{R}^{n \times d}\) 是设计矩阵。</p>
+                </div>
+                <h3>4. 正则化</h3>
+                <div class="math-formula">
+                    <p><strong>Ridge回归（L2正则化）：</strong></p>
+                    <p>\[ J(\mathbf{w}) = \frac{1}{2n}\|\mathbf{X}\mathbf{w} - \mathbf{y}\|^2 + \lambda\|\mathbf{w}\|^2 \]</p>
+                    <p><strong>Lasso回归（L1正则化）：</strong></p>
+                    <p>\[ J(\mathbf{w}) = \frac{1}{2n}\|\mathbf{X}\mathbf{w} - \mathbf{y}\|^2 + \lambda\|\mathbf{w}\|_1 \]</p>
+                </div>
+                <h3>5. 逻辑回归</h3>
+                <div class="math-formula">
+                    <p><strong>Sigmoid函数：</strong></p>
+                    <p>\[ \sigma(z) = \frac{1}{1 + e^{-z}} \]</p>
+                    <p><strong>概率模型：</strong></p>
+                    <p>\[ P(y=1|\mathbf{x}) = \sigma(\mathbf{w}^T\mathbf{x} + b) \]</p>
+                    <p><strong>对数似然：</strong></p>
+                    <p>\[ \ell(\mathbf{w}) = \sum_{i=1}^n [y_i \log p_i + (1-y_i) \log(1-p_i)] \]</p>
+                </div>
+                <h3>6. 梯度下降</h3>
+                <div class="math-formula">
+                    <p><strong>梯度下降更新规则：</strong></p>
+                    <p>\[ \mathbf{w}_{t+1} = \mathbf{w}_t - \eta \nabla J(\mathbf{w}_t) \]</p>
+                    <p>其中 \(\eta\) 是学习率，\(\nabla J(\mathbf{w}_t)\) 是损失函数的梯度。</p>
+                </div>
+                <h3>7. 模型评估指标</h3>
+                <div class="math-formula">
+                    <p><strong>均方根误差（RMSE）：</strong></p>
+                    <p>\[ \text{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2} \]</p>
+                    <p><strong>决定系数（R²）：</strong></p>
+                    <p>\[ R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2} \]</p>
+                </div>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>特征工程与选择</h2>
+            <p>金融数据特征工程是将原始金融数据转换为适合机器学习模型输入的过程。</p>
+            <h3>1. 金融时间序列特征提取</h3>
+            <pre><code class="language-python">import pandas as pd
+import numpy as np
+from tsfresh import extract_features
+# 加载金融时间序列数据
+data = pd.read_csv('stock_prices.csv', parse_dates=['date'])
+data = data.sort_values('date')
+# 基本特征
+data['log_return'] = np.log(data['close'] / data['close'].shift(1))
+data['moving_avg_10'] = data['close'].rolling(window=10).mean()
+data['volatility'] = data['log_return'].rolling(window=10).std()
+# 使用tsfresh提取高级特征
+extracted_features = extract_features(
+    data.melt(id_vars='date'),
+    column_id='date',
+    column_sort='date',
+    column_value='value',
+    default_fc_parameters={
+        'mean': None,
+        'standard_deviation': None,
+        'autocorrelation': [{'lag': 1}, {'lag': 5}]
+    }
+)</code></pre>
+            <h3>2. 特征选择方法</h3>
+            <pre><code class="language-python">from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.ensemble import RandomForestRegressor
+# 准备特征矩阵X和目标变量y
+X = extracted_features.fillna(0)
+y = data['log_return'].values[10:]  # 对齐特征
+# 过滤式特征选择
+selector = SelectKBest(score_func=f_regression, k=10)
+X_new = selector.fit_transform(X, y)
+# 基于模型的特征重要性
+model = RandomForestRegressor()
+model.fit(X, y)
+importances = model.feature_importances_
+important_features = X.columns[np.argsort(importances)[-10:]]</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>回归与分类模型</h2>
+            <p>监督学习模型可分为回归模型(预测连续值)和分类模型(预测离散类别)。</p>
+            <h3>1. 金融时间序列回归</h3>
+            <pre><code class="language-python">from sklearn.linear_model import Lasso
+from sklearn.svm import SVR
+from sklearn.model_selection import TimeSeriesSplit
+# 准备数据
+X_train, X_test = X[:800], X[800:]
+y_train, y_test = y[:800], y[800:]
+# Lasso回归
+lasso = Lasso(alpha=0.1)
+lasso.fit(X_train, y_train)
+# 支持向量回归
+svr = SVR(kernel='rbf', C=1.0, epsilon=0.1)
+svr.fit(X_train, y_train)
+# 时间序列交叉验证
+tscv = TimeSeriesSplit(n_splits=5)
+for train_index, test_index in tscv.split(X):
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+    # 训练和评估模型</code></pre>
+            <h3>2. 金融事件分类</h3>
+            <pre><code class="language-python">from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import classification_report
+# 创建分类标签(例如: 涨跌分类)
+y_class = np.where(y > 0, 1, 0)
+# 梯度提升树分类器
+clf = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1)
+clf.fit(X_train, y_train[:800])
+# 预测与评估
+y_pred = clf.predict(X_test)
+print(classification_report(y_test[800:], y_pred))</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>模型评估与验证</h2>
+            <p>金融机器学习模型需要特殊的评估方法和验证策略。</p>
+            <h3>1. 金融模型评估指标</h3>
+            <pre><code class="language-python">def sharpe_ratio(returns, risk_free_rate=0.0):
+    """计算夏普比率"""
+    excess_returns = returns - risk_free_rate
+    return np.mean(excess_returns) / np.std(excess_returns)
+def maximum_drawdown(returns):
+    """计算最大回撤"""
+    cumulative = np.cumsum(returns)
+    peak = np.maximum.accumulate(cumulative)
+    drawdown = (peak - cumulative) / peak
+    return np.max(drawdown)
+# 模型预测收益评估
+model_returns = y_test * y_pred  # 假设y_pred是交易信号
+print(f"夏普比率: {sharpe_ratio(model_returns):.2f}")
+print(f"最大回撤: {maximum_drawdown(model_returns):.2%}")</code></pre>
+            <h3>2. 交叉验证策略</h3>
+            <pre><code class="language-python">from sklearn.model_selection import TimeSeriesSplit
+from sklearn.metrics import make_scorer
+# 时间序列交叉验证
+tscv = TimeSeriesSplit(n_splits=5)
+# 自定义评分函数
+def financial_score(y_true, y_pred):
+    returns = y_true * y_pred
+    return sharpe_ratio(returns)
+financial_scorer = make_scorer(financial_score, greater_is_better=True)
+# 模型选择与评估
+from sklearn.model_selection import GridSearchCV
+param_grid = {'alpha': [0.1, 0.5, 1.0]}
+grid_search = GridSearchCV(Lasso(), param_grid, cv=tscv, scoring=financial_scorer)
+grid_search.fit(X, y)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>算法复杂度分析</h2>
+            <p>了解不同机器学习算法的时间和空间复杂度对于金融应用至关重要。</p>
+            <div id="algorithm-complexity-demo"></div>
+            <h3>1. 线性回归复杂度</h3>
+            <pre><code class="language-python"># 线性回归算法复杂度分析
+# 时间复杂度: O(n*d^2 + d^3) - 其中n是样本数，d是特征数
+# 空间复杂度: O(n*d + d^2)
+from sklearn.linear_model import LinearRegression
+import time
+def analyze_linear_regression_complexity(n_samples, n_features):
+    """分析线性回归的复杂度"""
+    X = np.random.randn(n_samples, n_features)
+    y = np.random.randn(n_samples)
+    start_time = time.time()
+    model = LinearRegression()
+    model.fit(X, y)
+    training_time = time.time() - start_time
+    print(f"样本数: {n_samples}, 特征数: {n_features}")
+    print(f"训练时间: {training_time:.4f}秒")
+    print(f"理论复杂度: O({n_samples}*{n_features}^2 + {n_features}^3)")
+    return training_time</code></pre>
+            <h3>2. 随机森林复杂度</h3>
+            <pre><code class="language-python"># 随机森林算法复杂度分析
+# 时间复杂度: O(n*log(n)*d*k) - 其中k是树的数量
+# 空间复杂度: O(k*n)
+from sklearn.ensemble import RandomForestRegressor
+def analyze_random_forest_complexity(n_samples, n_features, n_estimators=100):
+    """分析随机森林的复杂度"""
+    X = np.random.randn(n_samples, n_features)
+    y = np.random.randn(n_samples)
+    start_time = time.time()
+    model = RandomForestRegressor(n_estimators=n_estimators)
+    model.fit(X, y)
+    training_time = time.time() - start_time
+    print(f"随机森林 - 样本数: {n_samples}, 特征数: {n_features}, 树数量: {n_estimators}")
+    print(f"训练时间: {training_time:.4f}秒")
+    print(f"理论复杂度: O({n_samples}*log({n_samples})*{n_features}*{n_estimators})")
+    return training_time</code></pre>
+            <h3>3. 参数敏感性分析</h3>
+            <div id="parameter-sensitivity-demo"></div>
+            <h2>深度学习扩展</h2>
+            <p>对于更复杂的金融预测任务，深度学习提供了强大的解决方案。</p>
+            <div class="feature-highlight">
+                <h3>🧠 探索深度学习在金融中的应用</h3>
+                <p>学习神经网络、LSTM、CNN等深度学习模型在金融预测、风险管理和算法交易中的应用。</p>
+                <a href="../../../deep_learning_finance.html" class="btn btn-large">进入深度学习模块 →</a>
+            </div>
+            <h2>金融预测案例</h2>
+            <p>实际金融预测案例展示完整的机器学习工作流程。</p>
+            <h3>1. 股票收益预测</h3>
+            <pre><code class="language-python"># 完整工作流程示例
+import yfinance as yf
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+# 获取数据
+ticker = yf.Ticker("AAPL")
+data = ticker.history(period="5y")
+# 特征工程
+data['Return'] = data['Close'].pct_change()
+features = data[['Open', 'High', 'Low', 'Close', 'Volume']].shift(1)
+target = data['Return']
+# 构建管道
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('model', Lasso())
+])
+# 训练与预测
+pipeline.fit(features.dropna(), target.dropna())
+predictions = pipeline.predict(features)</code></pre>
+            <h3>2. 信用风险评估</h3>
+            <pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score
+# 加载信用数据
+credit_data = pd.read_csv('credit_data.csv')
+# 预处理
+X = credit_data.drop('default', axis=1)
+y = credit_data['default']
+# 模型训练
+model = RandomForestClassifier()
+model.fit(X, y)
+# 评估
+probabilities = model.predict_proba(X)[:, 1]
+print(f"AUC分数: {roc_auc_score(y, probabilities):.2f}")</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="../../index.html" class="btn">« 返回模块首页</a>
+            <a href="lesson2.html" class="btn">下一课: 无监督学习在金融中的应用 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+
+<style>
+/* 数据集下载区域样式 */
+.data-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.data-section h2 {
+    color: white;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2em;
+}
+
+.data-download-area {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.data-info {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.data-files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.data-file-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.data-file-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.file-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.file-icon {
+    font-size: 2em;
+    margin-right: 15px;
+}
+
+.file-name {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.file-description {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+.file-stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.file-stats span {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.download-btn {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.download-btn:hover {
+    background: linear-gradient(45deg, #45a049, #4CAF50);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.download-btn:active {
+    transform: translateY(0);
+}
+
+.data-usage-tips {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.data-usage-tips h4 {
+    margin-bottom: 15px;
+    color: #fff;
+    font-size: 1.2em;
+}
+
+.data-usage-tips ul {
+    list-style: none;
+    padding: 0;
+}
+
+.data-usage-tips li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.6;
+}
+
+.data-usage-tips li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.data-usage-tips code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+}
+
+/* 下载通知样式 */
+.download-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.download-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .data-files-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .file-stats {
+        justify-content: center;
+    }
+    
+    .data-section {
+        padding: 20px;
+        margin: 15px;
+        border-radius: 10px;
+    }
+}
+</style>
+
+<script>
+function downloadDataFile(filename) {
+    let csvContent = '';
+    
+    if (filename === 'stock_prices.csv') {
+        // 生成股票价格数据
+        const headers = ['Date', 'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX'];
+        csvContent = headers.join(',') + '\n';
+        
+        const startDate = new Date('2022-01-01');
+        const endDate = new Date('2023-12-31');
+        const prices = {
+            'AAPL': 150, 'GOOGL': 2800, 'MSFT': 330, 'AMZN': 3300,
+            'TSLA': 1000, 'META': 350, 'NVDA': 220, 'NFLX': 500
+        };
+        
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+            if (d.getDay() !== 0 && d.getDay() !== 6) { // 跳过周末
+                const dateStr = d.toISOString().split('T')[0];
+                const row = [dateStr];
+                
+                for (let i = 1; i < headers.length; i++) {
+                    const symbol = headers[i];
+                    const change = (Math.random() - 0.5) * 0.05; // ±2.5%的随机变化
+                    prices[symbol] *= (1 + change);
+                    row.push(prices[symbol].toFixed(2));
+                }
+                
+                csvContent += row.join(',') + '\n';
+            }
+        }
+    } else if (filename === 'credit_data.csv') {
+        // 生成信用数据
+        const headers = ['customer_id', 'age', 'income', 'credit_score', 'debt_ratio', 'employment_years', 'loan_amount', 'credit_rating'];
+        csvContent = headers.join(',') + '\n';
+        
+        for (let i = 1; i <= 1000; i++) {
+            const age = Math.floor(Math.random() * 50) + 25;
+            const income = Math.floor(Math.random() * 80000) + 30000;
+            const creditScore = Math.floor(Math.random() * 300) + 500;
+            const debtRatio = (Math.random() * 0.6).toFixed(2);
+            const employmentYears = Math.floor(Math.random() * 20) + 1;
+            const loanAmount = Math.floor(Math.random() * 50000) + 5000;
+            
+            // 基于其他特征生成信用评级
+            let rating;
+            const score = (creditScore - 500) / 300 * 0.4 + 
+                         (income - 30000) / 80000 * 0.3 + 
+                         (1 - parseFloat(debtRatio)) * 0.3;
+            
+            if (score > 0.7) rating = 'A';
+            else if (score > 0.5) rating = 'B';
+            else if (score > 0.3) rating = 'C';
+            else rating = 'D';
+            
+            const row = [i, age, income, creditScore, debtRatio, employmentYears, loanAmount, rating];
+            csvContent += row.join(',') + '\n';
+        }
+    }
+    
+    // 创建下载链接
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // 显示下载通知
+    showDownloadNotification(filename);
+}
+
+function showDownloadNotification(filename) {
+    // 移除现有通知
+    const existingNotification = document.querySelector('.download-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // 创建新通知
+    const notification = document.createElement('div');
+    notification.className = 'download-notification';
+    notification.innerHTML = `✅ ${filename} 下载完成！`;
+    document.body.appendChild(notification);
+    
+    // 显示通知
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+    
+    // 3秒后隐藏通知
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+</script>
+
+</body>
+</html>

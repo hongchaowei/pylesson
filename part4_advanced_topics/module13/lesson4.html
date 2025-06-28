@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>希腊字母计算 - 金融衍生品分析</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container lesson-content">
+        <section>
+            <h2>学习目标</h2>
+            <ul>
+                <li>理解各个希腊字母的经济含义</li>
+                <li>掌握希腊字母的计算方法</li>
+                <li>学习如何使用Python实现希腊字母计算</li>
+                <li>应用希腊字母进行风险管理</li>
+            </ul>
+        </section>
+        <section>
+            <h2>主要希腊字母介绍</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>希腊字母</th>
+                        <th>含义</th>
+                        <th>计算公式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Delta (δ)</td>
+                        <td>期权价格对标的资产价格的一阶导数</td>
+                        <td>∂V/∂S</td>
+                    </tr>
+                    <tr>
+                        <td>Gamma (γ)</td>
+                        <td>Delta对标的资产价格的一阶导数</td>
+                        <td>∂²V/∂S²</td>
+                    </tr>
+                    <tr>
+                        <td>Theta (θ)</td>
+                        <td>期权价格对时间的一阶导数</td>
+                        <td>-∂V/∂t</td>
+                    </tr>
+                    <tr>
+                        <td>Vega (ν)</td>
+                        <td>期权价格对波动率的一阶导数</td>
+                        <td>∂V/∂σ</td>
+                    </tr>
+                    <tr>
+                        <td>Rho (ρ)</td>
+                        <td>期权价格对无风险利率的一阶导数</td>
+                        <td>∂V/∂r</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section>
+            <h2>Python实现</h2>
+            <h3>1. Black-Scholes模型下的希腊字母计算</h3>
+            <pre><code class="python">
+import numpy as np
+from scipy.stats import norm
+def calculate_greeks(S, K, T, r, sigma):
+    d1 = (np.log(S/K) + (r + sigma**2/2)*T) / (sigma*np.sqrt(T))
+    d2 = d1 - sigma*np.sqrt(T)
+    # Delta
+    delta = norm.cdf(d1)
+    # Gamma
+    gamma = norm.pdf(d1)/(S*sigma*np.sqrt(T))
+    # Theta
+    theta = -S*norm.pdf(d1)*sigma/(2*np.sqrt(T)) - r*K*np.exp(-r*T)*norm.cdf(d2)
+    # Vega
+    vega = S*np.sqrt(T)*norm.pdf(d1)
+    # Rho
+    rho = K*T*np.exp(-r*T)*norm.cdf(d2)
+    return {'delta': delta, 'gamma': gamma, 'theta': theta, 'vega': vega, 'rho': rho}
+            </code></pre>
+        </section>
+        <section>
+            <h2>实际应用</h2>
+            <h3>风险管理示例</h3>
+            <pre><code class="python">
+# 计算期权组合的总体风险敞口
+def portfolio_exposure(options, spot_price):
+    total_delta = 0
+    total_gamma = 0
+    for option in options:
+        greeks = calculate_greeks(
+            spot_price,
+            option['strike'],
+            option['time_to_expiry'],
+            option['risk_free_rate'],
+            option['volatility']
+        )
+        total_delta += greeks['delta'] * option['position']
+        total_gamma += greeks['gamma'] * option['position']
+    return {'total_delta': total_delta, 'total_gamma': total_gamma}
+            </code></pre>
+        </section>
+        <section>
+            <h2>实践练习</h2>
+            <div class="exercise">
+                <h3>练习1：计算不同参数下的希腊字母</h3>
+                <p>使用提供的函数计算不同市场条件下期权的希腊字母值，并分析结果。</p>
+            </div>
+            <div class="exercise">
+                <h3>练习2：构建Delta中性组合</h3>
+                <p>设计一个期权组合，使其总Delta接近于零，并计算其他风险指标。</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

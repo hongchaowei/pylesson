@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第4课: 模型解释与可解释性 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>特征重要性分析</h2>
+            <p>理解哪些特征对模型预测影响最大。</p>
+            <h3>1. 树模型特征重要性</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+# 训练随机森林模型
+model = RandomForestClassifier(n_estimators=100)
+model.fit(X_train, y_train)
+# 获取特征重要性
+importances = model.feature_importances_
+indices = np.argsort(importances)[::-1]
+# 可视化
+plt.figure(figsize=(10, 6))
+plt.title("特征重要性")
+plt.bar(range(X_train.shape[1]), importances[indices], align="center")
+plt.xticks(range(X_train.shape[1]), X_train.columns[indices], rotation=90)
+plt.show()</code></pre>
+            <h3>2. 排列特征重要性</h3>
+            <pre><code class="language-python">from sklearn.inspection import permutation_importance
+# 计算排列重要性
+result = permutation_importance(
+    model, X_test, y_test, n_repeats=10, random_state=42
+)
+# 可视化
+sorted_idx = result.importances_mean.argsort()
+plt.figure(figsize=(10, 6))
+plt.boxplot(
+    result.importances[sorted_idx].T,
+    vert=False, labels=X_test.columns[sorted_idx]
+)
+plt.title("排列特征重要性")
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>SHAP值与LIME</h2>
+            <p>解释单个预测的局部解释方法。</p>
+            <h3>1. SHAP值解释</h3>
+            <pre><code class="language-python">import shap
+# 创建SHAP解释器
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_test)
+# 可视化单个预测
+shap.initjs()
+shap.force_plot(explainer.expected_value[1], shap_values[1][0,:], X_test.iloc[0,:])
+# 特征重要性摘要图
+shap.summary_plot(shap_values, X_test)</code></pre>
+            <h3>2. LIME解释</h3>
+            <pre><code class="language-python">from lime import lime_tabular
+# 创建LIME解释器
+explainer = lime_tabular.LimeTabularExplainer(
+    X_train.values,
+    feature_names=X_train.columns,
+    class_names=['Down', 'Up'],
+    mode='classification'
+)
+# 解释单个预测
+exp = explainer.explain_instance(
+    X_test.values[0],
+    model.predict_proba,
+    num_features=10
+)
+exp.show_in_notebook()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>模型透明度</h2>
+            <p>提高模型透明度的技术和方法。</p>
+            <h3>1. 决策树可视化</h3>
+            <pre><code class="language-python">from sklearn.tree import export_graphviz
+import graphviz
+# 导出决策树
+dot_data = export_graphviz(
+    model.estimators_[0],
+    out_file=None,
+    feature_names=X_train.columns,
+    class_names=['Down', 'Up'],
+    filled=True,
+    rounded=True
+)
+# 可视化
+graphviz.Source(dot_data)</code></pre>
+            <h3>2. 可解释性规则提取</h3>
+            <pre><code class="language-python">from sklearn.tree import _tree
+def tree_to_rules(tree, feature_names):
+    tree_ = tree.tree_
+    feature_name = [
+        feature_names[i] if i != _tree.TREE_UNDEFINED else "undefined!"
+        for i in tree_.feature
+    ]
+    rules = []
+    def recurse(node, rule):
+        if tree_.feature[node] != _tree.TREE_UNDEFINED:
+            name = feature_name[node]
+            threshold = tree_.threshold[node]
+            recurse(tree_.children_left[node], rule + [f"{name} <= {threshold}"])
+            recurse(tree_.children_right[node], rule + [f"{name} > {threshold}"])
+        else:
+            rules.append(" AND ".join(rule) + f" => {tree_.value[node]}")
+    recurse(0, [])
+    return rules
+# 提取规则
+rules = tree_to_rules(model.estimators_[0], X_train.columns)
+for rule in rules[:5]:  # 打印前5条规则
+    print(rule)</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>监管合规要求</h2>
+            <p>金融领域模型解释的合规要求。</p>
+            <h3>1. 模型文档要求</h3>
+            <pre><code class="language-python">def generate_model_documentation(model, X_train, y_train):
+    """生成模型文档"""
+    doc = {
+        "model_type": type(model).__name__,
+        "input_features": list(X_train.columns),
+        "target_variable": y_train.name if hasattr(y_train, 'name') else 'unknown',
+        "training_date": pd.Timestamp.now().strftime("%Y-%m-%d"),
+        "performance_metrics": {
+            "accuracy": model.score(X_test, y_test),
+            "precision": precision_score(y_test, model.predict(X_test)),
+            "recall": recall_score(y_test, model.predict(X_test))
+        },
+        "feature_importance": dict(zip(X_train.columns, model.feature_importances_))
+    }
+    return doc
+# 生成文档
+model_doc = generate_model_documentation(model, X_train, y_train)</code></pre>
+            <h3>2. 公平性评估</h3>
+            <pre><code class="language-python">from fairlearn.metrics import demographic_parity_difference
+# 评估模型公平性
+dp_diff = demographic_parity_difference(
+    y_test,
+    model.predict(X_test),
+    sensitive_features=X_test['gender']
+)
+print(f"人口统计均等差异: {dp_diff:.4f}")</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson3.html" class="btn">« 上一课: 深度学习与金融时间序列</a>
+            <a href="project.html" class="btn">项目: 金融预测系统开发 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

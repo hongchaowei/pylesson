@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2课: 无监督学习在金融中的应用 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>聚类分析与市场细分</h2>
+            <p>聚类分析可用于发现金融数据中的隐藏模式和结构。</p>
+            <h3>1. K-means聚类</h3>
+            <pre><code class="language-python">import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+# 加载股票收益数据
+stocks = pd.read_csv('stock_returns.csv', index_col='date')
+# 数据标准化
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(stocks)
+# 聚类分析
+kmeans = KMeans(n_clusters=5, random_state=42)
+clusters = kmeans.fit_predict(scaled_data)
+# 分析聚类结果
+stocks['cluster'] = clusters
+cluster_stats = stocks.groupby('cluster').mean()</code></pre>
+            <h3>2. 层次聚类</h3>
+            <pre><code class="language-python">from scipy.cluster.hierarchy import dendrogram, linkage
+import matplotlib.pyplot as plt
+# 层次聚类
+Z = linkage(scaled_data, method='ward')
+# 绘制树状图
+plt.figure(figsize=(10, 7))
+dendrogram(Z, labels=stocks.columns[:-1])
+plt.title('股票层次聚类')
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>降维与可视化</h2>
+            <p>降维技术可以帮助我们理解和可视化高维金融数据。</p>
+            <h3>1. 主成分分析(PCA)</h3>
+            <pre><code class="language-python">from sklearn.decomposition import PCA
+# PCA降维
+pca = PCA(n_components=2)
+principal_components = pca.fit_transform(scaled_data)
+# 可视化
+plt.scatter(principal_components[:, 0], principal_components[:, 1], c=clusters)
+plt.xlabel('主成分1')
+plt.ylabel('主成分2')
+plt.show()</code></pre>
+            <h3>2. t-SNE可视化</h3>
+            <pre><code class="language-python">from sklearn.manifold import TSNE
+# t-SNE降维
+tsne = TSNE(n_components=2, perplexity=30, random_state=42)
+tsne_results = tsne.fit_transform(scaled_data)
+# 可视化
+plt.scatter(tsne_results[:, 0], tsne_results[:, 1], c=clusters)
+plt.title('t-SNE可视化')
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>异常检测</h2>
+            <p>无监督学习可以识别金融数据中的异常值和潜在风险。</p>
+            <h3>1. 孤立森林</h3>
+            <pre><code class="language-python">from sklearn.ensemble import IsolationForest
+# 异常检测
+iso_forest = IsolationForest(contamination=0.05, random_state=42)
+outliers = iso_forest.fit_predict(scaled_data)
+# 标记异常点
+stocks['anomaly'] = np.where(outliers == -1, 1, 0)
+# 分析异常股票
+anomalies = stocks[stocks['anomaly'] == 1]</code></pre>
+            <h3>2. 局部离群因子(LOF)</h3>
+            <pre><code class="language-python">from sklearn.neighbors import LocalOutlierFactor
+# LOF异常检测
+lof = LocalOutlierFactor(n_neighbors=20, contamination=0.05)
+outliers = lof.fit_predict(scaled_data)
+# 可视化异常
+plt.scatter(principal_components[:, 0], principal_components[:, 1],
+            c=np.where(outliers == -1, 'red', 'blue'))
+plt.title('异常检测(LOF)')
+plt.show()</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>投资组合构建</h2>
+            <p>无监督学习可以辅助构建多样化的投资组合。</p>
+            <h3>1. 基于聚类的投资组合</h3>
+            <pre><code class="language-python"># 构建聚类投资组合
+portfolio = {}
+for cluster_id in range(5):
+    cluster_stocks = stocks[stocks['cluster'] == cluster_id].index
+    portfolio[f'Cluster_{cluster_id}'] = {
+        'stocks': cluster_stocks,
+        'weight': len(cluster_stocks) / len(stocks)
+    }</code></pre>
+            <h3>2. 主成分投资组合</h3>
+            <pre><code class="language-python"># 基于主成分的因子投资
+pca = PCA(n_components=3)
+factors = pca.fit_transform(scaled_data)
+# 因子暴露分析
+factor_exposure = pd.DataFrame(
+    pca.components_.T,
+    columns=['Factor1', 'Factor2', 'Factor3'],
+    index=stocks.columns[:-2]
+)
+# 构建因子投资组合
+factor_portfolio = {
+    'Momentum': factor_exposure['Factor1'].nlargest(10).index.tolist(),
+    'Volatility': factor_exposure['Factor2'].nsmallest(10).index.tolist()
+}</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson1.html" class="btn">« 上一课: 监督学习在金融预测中的应用</a>
+            <a href="lesson3.html" class="btn">下一课: 深度学习与金融时间序列 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

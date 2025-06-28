@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目实战</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+    <main class="container">
+        <section class="project-intro">
+            <h2>项目概述</h2>
+            <p>本项目将开发一个完整的衍生品分析工具包，整合本模块学到的期权定价和固定收益分析技术，提供专业级的金融衍生品分析功能。</p>
+            <div class="project-requirements">
+                <h3>项目要求</h3>
+                <ul>
+                    <li>实现Black-Scholes期权定价模型</li>
+                    <li>计算期权希腊字母</li>
+                    <li>支持蒙特卡洛模拟定价</li>
+                    <li>实现债券定价与收益率计算</li>
+                    <li>提供久期与凸度分析</li>
+                    <li>构建可视化界面展示分析结果</li>
+                </ul>
+            </div>
+        </section>
+        <section class="project-architecture">
+            <h2>系统架构设计</h2>
+            <h3>1. 整体架构</h3>
+            <pre><code class="language-python">project_structure = {
+    '核心模块': [
+        'options_pricing.py - 期权定价模型',
+        'bond_analysis.py - 债券分析工具',
+        'risk_metrics.py - 风险指标计算'
+    ],
+    '辅助模块': [
+        'data_loader.py - 市场数据加载',
+        'visualization.py - 结果可视化',
+        'utils.py - 工具函数'
+    ],
+    '接口层': [
+        'cli.py - 命令行界面',
+        'web_app.py - Web应用接口'
+    ]
+}</code></pre>
+            <h3>2. 类图设计</h3>
+            <pre><code class="language-python">class DerivativesToolkit:
+    """衍生品分析工具包主类"""
+    def __init__(self):
+        self.option_models = OptionPricingModels()
+        self.bond_tools = BondAnalysisTools()
+        self.visualizer = ResultVisualizer()
+    def price_option(self, S, K, T, r, sigma, option_type='call', model='black_scholes'):
+        """期权定价"""
+        if model == 'black_scholes':
+            return self.option_models.black_scholes(S, K, T, r, sigma, option_type)
+        elif model == 'monte_carlo':
+            return self.option_models.monte_carlo(S, K, T, r, sigma, option_type)
+    def analyze_bond(self, face_value, coupon_rate, years_to_maturity, ytm):
+        """债券分析"""
+        return self.bond_tools.full_analysis(face_value, coupon_rate, years_to_maturity, ytm)
+    def plot_results(self, data, plot_type):
+        """可视化结果"""
+        return self.visualizer.plot(data, plot_type)
+class OptionPricingModels:
+    """期权定价模型集合"""
+    def black_scholes(self, S, K, T, r, sigma, option_type):
+        """Black-Scholes模型"""
+        pass
+    def monte_carlo(self, S, K, T, r, sigma, option_type, n_simulations=100000):
+        """蒙特卡洛模拟"""
+        pass
+    def implied_volatility(self, S, K, T, r, option_price, option_type):
+        """隐含波动率计算"""
+        pass
+class BondAnalysisTools:
+    """债券分析工具集合"""
+    def price(self, face_value, coupon_rate, years_to_maturity, ytm):
+        """债券定价"""
+        pass
+    def yield_to_maturity(self, price, face_value, coupon_rate, years_to_maturity):
+        """到期收益率计算"""
+        pass
+    def duration_convexity(self, face_value, coupon_rate, years_to_maturity, ytm):
+        """久期与凸度分析"""
+        pass</code></pre>
+        </section>
+        <section class="project-implementation">
+            <h2>核心模块实现</h2>
+            <h3>1. 期权定价模块</h3>
+            <pre><code class="language-python">import numpy as np
+from scipy.stats import norm
+from scipy.optimize import brentq
+class OptionPricing:
+    """期权定价核心模块"""
+    @staticmethod
+    def black_scholes(S, K, T, r, sigma, option_type='call'):
+        """Black-Scholes期权定价"""
+        d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+        d2 = d1 - sigma * np.sqrt(T)
+        if option_type == 'call':
+            price = S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+        else:
+            price = K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+        return price
+    @staticmethod
+    def monte_carlo(S, K, T, r, sigma, option_type='call', n_simulations=100000):
+        """蒙特卡洛期权定价"""
+        z = np.random.normal(0, 1, n_simulations)
+        ST = S * np.exp((r - 0.5 * sigma**2) * T + sigma * np.sqrt(T) * z)
+        if option_type == 'call':
+            payoff = np.maximum(ST - K, 0)
+        else:
+            payoff = np.maximum(K - ST, 0)
+        price = np.exp(-r * T) * np.mean(payoff)
+        return price
+    @staticmethod
+    def implied_volatility(S, K, T, r, option_price, option_type='call'):
+        """计算隐含波动率"""
+        def price_difference(sigma):
+            return OptionPricing.black_scholes(S, K, T, r, sigma, option_type) - option_price
+        try:
+            iv = brentq(price_difference, 0.001, 5.0)
+            return iv
+        except ValueError:
+            return None
+    @staticmethod
+    def greeks(S, K, T, r, sigma, option_type='call'):
+        """计算期权希腊字母"""
+        d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+        d2 = d1 - sigma * np.sqrt(T)
+        # Delta
+        delta = norm.cdf(d1) if option_type == 'call' else norm.cdf(d1) - 1
+        # Gamma
+        gamma = norm.pdf(d1) / (S * sigma * np.sqrt(T))
+        # Theta (每日)
+        if option_type == 'call':
+            theta = - (S * norm.pdf(d1) * sigma) / (2 * np.sqrt(T)) - r * K * np.exp(-r * T) * norm.cdf(d2)
+        else:
+            theta = - (S * norm.pdf(d1) * sigma) / (2 * np.sqrt(T)) + r * K * np.exp(-r * T) * norm.cdf(-d2)
+        theta /= 365
+        # Vega (波动率变化1%)
+        vega = S * np.sqrt(T) * norm.pdf(d1) / 100
+        # Rho (利率变化1%)
+        rho = K * T * np.exp(-r * T) * (norm.cdf(d2) if option_type == 'call' else -norm.cdf(-d2)) / 100
+        return {
+            'delta': delta,
+            'gamma': gamma,
+            'theta': theta,
+            'vega': vega,
+            'rho': rho
+        }</code></pre>
+            <h3>2. 债券分析模块</h3>
+            <pre><code class="language-python">class BondAnalysis:
+    """债券分析核心模块"""
+    @staticmethod
+    def price(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year=2):
+        """债券定价"""
+        coupon_payment = (coupon_rate * face_value) / coupons_per_year
+        total_payments = years_to_maturity * coupons_per_year
+        discount_rate = ytm / coupons_per_year
+        price = 0
+        for t in range(1, total_payments + 1):
+            price += coupon_payment / ((1 + discount_rate) ** t)
+        price += face_value / ((1 + discount_rate) ** total_payments)
+        return price
+    @staticmethod
+    def yield_to_maturity(price, face_value, coupon_rate, years_to_maturity, coupons_per_year=2):
+        """计算到期收益率"""
+        def price_difference(ytm):
+            return BondAnalysis.price(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year) - price
+        try:
+            ytm = brentq(price_difference, 0.001, 1.0)
+            return ytm
+        except ValueError:
+            return None
+    @staticmethod
+    def duration_convexity(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year=2):
+        """计算久期与凸度"""
+        price = BondAnalysis.price(face_value, coupon_rate, years_to_maturity, ytm, coupons_per_year)
+        coupon_payment = (coupon_rate * face_value) / coupons_per_year
+        total_payments = years_to_maturity * coupons_per_year
+        discount_rate = ytm / coupons_per_year
+        # 麦考利久期
+        mac_duration = 0
+        for t in range(1, total_payments + 1):
+            pv = coupon_payment / ((1 + discount_rate) ** t)
+            mac_duration += t * pv
+        pv_principal = face_value / ((1 + discount_rate) ** total_payments)
+        mac_duration += total_payments * pv_principal
+        mac_duration /= price * coupons_per_year
+        # 修正久期
+        modified_duration = mac_duration / (1 + ytm / coupons_per_year)
+        # 凸度
+        convexity = 0
+        for t in range(1, total_payments + 1):
+            pv = coupon_payment / ((1 + discount_rate) ** t)
+            convexity += t * (t + 1) * pv
+        convexity += total_payments * (total_payments + 1) * pv_principal
+        convexity /= ((1 + discount_rate) ** 2 * price * (coupons_per_year ** 2))
+        return {
+            'macaulay_duration': mac_duration,
+            'modified_duration': modified_duration,
+            'convexity': convexity
+        }</code></pre>
+        </section>
+        <section class="project-complete">
+            <h2>完整系统实现</h2>
+            <h3>1. 命令行界面实现</h3>
+            <pre><code class="language-python">import argparse
+def main():
+    """命令行界面主函数"""
+    parser = argparse.ArgumentParser(description='衍生品分析工具包')
+    subparsers = parser.add_subparsers(dest='command', help='可用命令')
+    # 期权定价命令
+    option_parser = subparsers.add_parser('option', help='期权定价')
+    option_parser.add_argument('--type', choices=['call', 'put'], required=True, help='期权类型')
+    option_parser.add_argument('--model', choices=['black_scholes', 'monte_carlo'], default='black_scholes', help='定价模型')
+    option_parser.add_argument('--S', type=float, required=True, help='标的资产价格')
+    option_parser.add_argument('--K', type=float, required=True, help='执行价格')
+    option_parser.add_argument('--T', type=float, required=True, help='到期时间(年)')
+    option_parser.add_argument('--r', type=float, required=True, help='无风险利率')
+    option_parser.add_argument('--sigma', type=float, help='波动率(Black-Scholes需要)')
+    option_parser.add_argument('--price', type=float, help='期权价格(计算隐含波动率时使用)')
+    # 债券分析命令
+    bond_parser = subparsers.add_parser('bond', help='债券分析')
+    bond_parser.add_argument('--face', type=float, required=True, help='债券面值')
+    bond_parser.add_argument('--coupon', type=float, required=True, help='票面利率')
+    bond_parser.add_argument('--maturity', type=float, required=True, help='到期时间(年)')
+    bond_parser.add_argument('--ytm', type=float, help='到期收益率(定价时使用)')
+    bond_parser.add_argument('--price', type=float, help='债券价格(计算YTM时使用)')
+    args = parser.parse_args()
+    if args.command == 'option':
+        if args.price:
+            # 计算隐含波动率
+            iv = OptionPricing.implied_volatility(args.S, args.K, args.T, args.r, args.price, args.type)
+            print(f"隐含波动率: {iv:.4f}")
+        else:
+            # 期权定价
+            if args.model == 'black_scholes':
+                price = OptionPricing.black_scholes(args.S, args.K, args.T, args.r, args.sigma, args.type)
+                greeks = OptionPricing.greeks(args.S, args.K, args.T, args.r, args.sigma, args.type)
+                print(f"期权价格: {price:.4f}")
+                print("希腊字母:")
+                for name, value in greeks.items():
+                    print(f"{name}: {value:.6f}")
+            else:
+                price = OptionPricing.monte_carlo(args.S, args.K, args.T, args.r, args.sigma, args.type)
+                print(f"期权价格(蒙特卡洛): {price:.4f}")
+    elif args.command == 'bond':
+        if args.price:
+            # 计算YTM
+            ytm = BondAnalysis.yield_to_maturity(args.price, args.face, args.coupon, args.maturity)
+            print(f"到期收益率(YTM): {ytm:.4f}")
+        else:
+            # 债券定价与分析
+            price = BondAnalysis.price(args.face, args.coupon, args.maturity, args.ytm)
+            metrics = BondAnalysis.duration_convexity(args.
+</body>
+</html>

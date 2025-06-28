@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目实战</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+    <main class="container">
+        <section class="project-description">
+            <h2>项目概述</h2>
+            <p>本项目将开发一个完整的金融预测系统，整合监督学习、无监督学习和深度学习方法，构建端到端的金融预测流程。系统将包含以下核心组件：</p>
+            <ol>
+                <li><strong>数据预处理模块</strong>：金融数据清洗、特征工程和特征选择</li>
+                <li><strong>模型训练模块</strong>：支持多种机器学习算法的训练和调优</li>
+                <li><strong>预测服务模块</strong>：提供实时预测API服务</li>
+                <li><strong>解释性模块</strong>：模型预测结果的解释和可视化</li>
+                <li><strong>监控系统</strong>：模型性能监控和预警</li>
+            </ol>
+        </section>
+        <section class="project-architecture">
+            <h2>系统架构设计</h2>
+            <pre><code class="language-python">class FinancialPredictionSystem:
+    """金融预测系统主类"""
+    def __init__(self, config):
+        """
+        :param config: 系统配置字典
+        """
+        self.config = config
+        self.data_processor = DataProcessor()
+        self.model_trainer = ModelTrainer()
+        self.prediction_service = PredictionService()
+        self.explainer = ModelExplainer()
+        self.monitor = PerformanceMonitor()
+        # 初始化各模块
+        self._initialize_components()
+    def _initialize_components(self):
+        """初始化系统组件"""
+        # 数据处理器
+        self.data_processor.setup(
+            feature_config=self.config['feature_config'],
+            preprocessing_steps=self.config['preprocessing']
+        )
+        # 模型训练器
+        self.model_trainer.setup(
+            model_types=self.config['model_types'],
+            hyperparams=self.config['hyperparams']
+        )
+        # 预测服务
+        self.prediction_service.setup(
+            api_config=self.config['api']
+        )
+    def train_models(self, data_path):
+        """训练所有模型"""
+        # 加载和预处理数据
+        processed_data = self.data_processor.process(data_path)
+        # 训练模型
+        models = self.model_trainer.train(processed_data)
+        # 评估模型
+        evaluation_results = self.model_trainer.evaluate(models)
+        return models, evaluation_results
+    def deploy_model(self, model, model_name):
+        """部署模型到预测服务"""
+        # 保存模型
+        model_path = f"models/{model_name}.pkl"
+        joblib.dump(model, model_path)
+        # 部署到预测服务
+        self.prediction_service.deploy_model(model_path, model_name)
+    def explain_prediction(self, input_data):
+        """解释预测结果"""
+        # 预处理输入数据
+        processed_input = self.data_processor.transform(input_data)
+        # 获取预测
+        prediction = self.prediction_service.predict(processed_input)
+        # 解释预测
+        explanation = self.explainer.explain(processed_input)
+        return {
+            'prediction': prediction,
+            'explanation': explanation
+        }</code></pre>
+        </section>
+        <section class="project-components">
+            <h2>核心组件实现</h2>
+            <h3>1. 数据预处理模块</h3>
+            <pre><code class="language-python">class DataProcessor:
+    """数据预处理模块"""
+    def __init__(self):
+        self.feature_config = None
+        self.preprocessing_pipeline = None
+    def setup(self, feature_config, preprocessing_steps):
+        """配置预处理流程"""
+        self.feature_config = feature_config
+        # 构建预处理管道
+        preprocessing_steps = [
+            ('imputer', SimpleImputer(strategy='mean')),
+            ('scaler', StandardScaler()),
+            ('feature_selector', SelectKBest(k=10))
+        ]
+        self.preprocessing_pipeline = Pipeline(preprocessing_steps)
+    def process(self, data_path):
+        """处理原始数据"""
+        # 加载数据
+        raw_data = pd.read_csv(data_path)
+        # 特征工程
+        features = self._extract_features(raw_data)
+        # 预处理
+        processed_data = self.preprocessing_pipeline.fit_transform(features)
+        return processed_data
+    def _extract_features(self, raw_data):
+        """提取特征"""
+        # 实现特征提取逻辑
+        features = pd.DataFrame()
+        # 技术指标
+        features['returns'] = raw_data['close'].pct_change()
+        features['volatility'] = features['returns'].rolling(10).std()
+        # 其他特征...
+        return features.dropna()</code></pre>
+            <h3>2. 模型训练模块</h3>
+            <pre><code class="language-python">class ModelTrainer:
+    """模型训练模块"""
+    def __init__(self):
+        self.model_types = []
+        self.hyperparams = {}
+    def setup(self, model_types, hyperparams):
+        """配置模型类型和超参数"""
+        self.model_types = model_types
+        self.hyperparams = hyperparams
+    def train(self, processed_data):
+        """训练多个模型"""
+        X = processed_data[:, :-1]
+        y = processed_data[:, -1]
+        models = {}
+        # 训练每个指定类型的模型
+        for model_type in self.model_types:
+            if model_type == 'random_forest':
+                model = RandomForestClassifier(**self.hyperparams['random_forest'])
+            elif model_type == 'xgboost':
+                model = XGBClassifier(**self.hyperparams['xgboost'])
+            elif model_type == 'lstm':
+                model = self._build_lstm_model(**self.hyperparams['lstm'])
+            model.fit(X, y)
+            models[model_type] = model
+        return models
+    def evaluate(self, models):
+        """评估模型性能"""
+        evaluation_results = {}
+        for name, model in models.items():
+            # 交叉验证评估
+            scores = cross_val_score(model, X_test, y_test, cv=5)
+            # 记录结果
+            evaluation_results[name] = {
+                'mean_accuracy': np.mean(scores),
+                'std_accuracy': np.std(scores)
+            }
+        return evaluation_results</code></pre>
+        </section>
+        <section class="project-components">
+            <h3>3. 预测服务模块</h3>
+            <pre><code class="language-python">class PredictionService:
+    """预测服务模块"""
+    def __init__(self):
+        self.loaded_models = {}
+        self.api_config = None
+    def setup(self, api_config):
+        """配置API服务"""
+        self.api_config = api_config
+        # 初始化Flask应用
+        self.app = Flask(__name__)
+        self._setup_routes()
+    def deploy_model(self, model_path, model_name):
+        """部署模型"""
+        # 加载模型
+        model = joblib.load(model_path)
+        self.loaded_models[model_name] = model
+    def predict(self, input_data, model_name='default'):
+        """执行预测"""
+        model = self.loaded_models.get(model_name)
+        if model is None:
+            raise ValueError(f"Model {model_name} not found")
+        return model.predict(input_data)
+    def _setup_routes(self):
+        """设置API路由"""
+        @self.app.route('/predict', methods=['POST'])
+        def predict_endpoint():
+            data = request.get_json()
+            input_data = np.array(data['input']).reshape(1, -1)
+            prediction = self.predict(input_data)
+            return jsonify({'prediction': prediction.tolist()})</code></pre>
+            <h3>4. 解释性模块</h3>
+            <pre><code class="language-python">class ModelExplainer:
+    """模型解释模块"""
+    def __init__(self):
+        self.explainer = None
+    def explain(self, input_data, model):
+        """解释模型预测"""
+        # SHAP解释
+        shap_explainer = shap.Explainer(model)
+        shap_values = shap_explainer.shap_values(input_data)
+        # LIME解释
+        lime_explainer = lime_tabular.LimeTabularExplainer(
+            training_data=np.zeros((1, input_data.shape[1])),  # 实际应用中应使用训练数据
+            feature_names=[f"feature_{i}" for i in range(input_data.shape[1])],
+            mode='classification'
+        )
+        lime_exp = lime_explainer.explain_instance(
+            input_data[0],
+            model.predict_proba,
+            num_features=5
+        )
+        return {
+            'shap_values': shap_values[0].tolist(),
+            'lime_explanation': lime_exp.as_list()
+        }</code></pre>
+        </section>
+        <section class="project-instructions">
+            <h2>项目实现步骤</h2>
+            <ol>
+                <li>
+                    <h3>1. 系统初始化</h3>
+                    <pre><code class="language-python"># 配置预测系统
+config = {
+    'feature_config': {
+        'technical_indicators': True,
+        'fundamental_features': False
+    },
+    'preprocessing': {
+        'imputer': 'mean',
+        'scaler': 'standard',
+        'feature_selection': 'k_best'
+    },
+    'model_types': ['random_forest', 'xgboost'],
+    'hyperparams': {
+        'random_forest': {'n_estimators': 100},
+        'xgboost': {'n_estimators': 50}
+    },
+    'api': {
+        'host': 'localhost',
+        'port': 5000
+    }
+}
+# 创建系统实例
+fps = FinancialPredictionSystem(config)</code></pre>
+                </li>
+                <li>
+                    <h3>2. 训练模型</h3>
+                    <pre><code class="language-python"># 训练所有配置的模型
+models, evaluation_results = fps.train_models('financial_data.csv')
+# 查看评估结果
+print("模型评估结果:")
+for model_name, metrics in evaluation_results.items():
+    print(f"{model_name}: 平均准确率={metrics['mean_accuracy']:.2f}")</code></pre>
+                </li>
+                <li>
+                    <h3>3. 部署模型</h3>
+                    <pre><code class="language-python"># 部署最佳模型
+best_model_name = max(evaluation_results, key=lambda k: evaluation_results[k]['mean_accuracy'])
+fps.deploy_model(models[best_model_name], 'production_model')
+# 启动API服务
+fps.prediction_service.app.run(
+    host=config['api']['host'],
+    port=config['api']['port']
+)</code></pre>
+                </li>
+                <li>
+                    <h3>4. 使用预测服务</h3>
+                    <pre><code class="language-python"># 准备输入数据
+sample_input = np.array([0.01, 0.5, -0.02, 0.8, 0.1, 0.3, 0.05, -0.1, 0.2, 0.15])
+# 获取预测和解释
+result = fps.explain_prediction(sample_input)
+print("预测结果:", result['prediction'])
+print("解释:", result['explanation'])</code></pre>
+                </li>
+            </ol>
+        </section>
+        <div class="module-navigation">
+            <a href="lesson4.html" class="btn">« 返回上一课</a>
+            <a href="exercises.html" class="btn">练习题 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

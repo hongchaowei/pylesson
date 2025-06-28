@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>衍生品风险管理 - 金融衍生品分析</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container lesson-content">
+        <section>
+            <h2>学习目标</h2>
+            <ul>
+                <li>理解衍生品风险的类型和特征</li>
+                <li>掌握衍生品风险度量方法</li>
+                <li>学习风险对冲策略</li>
+                <li>实践风险管理工具的应用</li>
+            </ul>
+        </section>
+        <section>
+            <h2>衍生品风险类型</h2>
+            <ul>
+                <li>市场风险</li>
+                <li>信用风险</li>
+                <li>流动性风险</li>
+                <li>操作风险</li>
+            </ul>
+            <p>在本课程中，我们将深入探讨这些风险类型，并学习如何使用Python工具进行风险评估和管理。</p>
+        </section>
+        <section>
+            <h2>风险度量方法</h2>
+            <h3>1. 敏感性分析</h3>
+            <pre><code class="python">
+# 计算期权Delta
+def calculate_delta(S, K, T, r, sigma):
+    d1 = (np.log(S/K) + (r + sigma**2/2)*T) / (sigma*np.sqrt(T))
+    return norm.cdf(d1)
+            </code></pre>
+            <h3>2. 情景分析</h3>
+            <pre><code class="python">
+# 多情景测试
+def scenario_analysis(option_portfolio, scenarios):
+    results = []
+    for scenario in scenarios:
+        value = calculate_portfolio_value(option_portfolio, scenario)
+        results.append(value)
+    return results
+            </code></pre>
+        </section>
+        <section>
+            <h2>风险对冲策略</h2>
+            <h3>Delta对冲</h3>
+            <pre><code class="python">
+# Delta对冲策略
+def delta_hedge(option_position, underlying_price, delta):
+    hedge_units = -delta * option_position
+    return hedge_units
+            </code></pre>
+            <h3>动态对冲</h3>
+            <p>讨论如何根据市场变化调整对冲头寸，以及实现动态对冲的Python代码示例。</p>
+        </section>
+        <section>
+            <h2>实践练习</h2>
+            <div class="exercise">
+                <h3>练习1：计算期权组合的风险指标</h3>
+                <p>使用提供的数据计算一个期权组合的Delta、Gamma和Vega。</p>
+            </div>
+            <div class="exercise">
+                <h3>练习2：设计对冲策略</h3>
+                <p>为给定的期权组合设计并实现一个Delta-Gamma对冲策略。</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

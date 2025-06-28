@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>评估标准: 金融分析系统 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="evaluation-overview">
+            <h2>评估概述</h2>
+            <p>本评估标准用于评价金融分析系统项目的完成质量。评估将从功能完整性、代码质量、系统性能和文档完整性四个方面进行。</p>
+            <div class="evaluation-grid">
+                <div class="criteria-card">
+                    <h3>功能完整性 (40%)</h3>
+                    <ul>
+                        <li>数据获取与处理功能</li>
+                        <li>特征工程实现</li>
+                        <li>模型开发与训练</li>
+                        <li>系统集成与API服务</li>
+                    </ul>
+                </div>
+                <div class="criteria-card">
+                    <h3>代码质量 (30%)</h3>
+                    <ul>
+                        <li>代码结构与组织</li>
+                        <li>编码规范与风格</li>
+                        <li>错误处理与日志</li>
+                        <li>测试覆盖率</li>
+                    </ul>
+                </div>
+                <div class="criteria-card">
+                    <h3>系统性能 (20%)</h3>
+                    <ul>
+                        <li>数据处理效率</li>
+                        <li>模型预测速度</li>
+                        <li>API响应时间</li>
+                        <li>并发处理能力</li>
+                    </ul>
+                </div>
+                <div class="criteria-card">
+                    <h3>文档完整性 (10%)</h3>
+                    <ul>
+                        <li>项目文档</li>
+                        <li>API文档</li>
+                        <li>代码注释</li>
+                        <li>部署指南</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section class="detailed-criteria">
+            <h2>详细评估标准</h2>
+            <div class="criteria-section">
+                <h3>1. 功能完整性</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>功能模块</th>
+                            <th>评估标准</th>
+                            <th>权重</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>数据获取</td>
+                            <td>
+                                <ul>
+                                    <li>支持至少2个数据源</li>
+                                    <li>实现数据缓存机制</li>
+                                    <li>处理API限制和错误</li>
+                                </ul>
+                            </td>
+                            <td>10%</td>
+                        </tr>
+                        <tr>
+                            <td>数据处理</td>
+                            <td>
+                                <ul>
+                                    <li>数据清洗与标准化</li>
+                                    <li>处理缺失值和异常值</li>
+                                    <li>数据合并与转换</li>
+                                </ul>
+                            </td>
+                            <td>10%</td>
+                        </tr>
+                        <tr>
+                            <td>特征工程</td>
+                            <td>
+                                <ul>
+                                    <li>实现技术指标计算</li>
+                                    <li>包含基本面因子</li>
+                                    <li>特征选择方法</li>
+                                </ul>
+                            </td>
+                            <td>10%</td>
+                        </tr>
+                        <tr>
+                            <td>模型开发</td>
+                            <td>
+                                <ul>
+                                    <li>至少2种预测模型</li>
+                                    <li>风险评估模型</li>
+                                    <li>模型评估指标</li>
+                                </ul>
+                            </td>
+                            <td>10%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="criteria-section">
+                <h3>2. 代码质量</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>评估维度</th>
+                            <th>标准说明</th>
+                            <th>权重</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>代码结构</td>
+                            <td>
+                                <ul>
+                                    <li>模块化设计</li>
+                                    <li>合理的目录结构</li>
+                                    <li>适当的抽象层次</li>
+                                </ul>
+                            </td>
+                            <td>8%</td>
+                        </tr>
+                        <tr>
+                            <td>编码规范</td>
+                            <td>
+                                <ul>
+                                    <li>遵循PEP 8</li>
+                                    <li>一致的命名约定</li>
+                                    <li>适当的函数长度</li>
+                                </ul>
+                            </td>
+                            <td>8%</td>
+                        </tr>
+                        <tr>
+                            <td>错误处理</td>
+                            <td>
+                                <ul>
+                                    <li>全面的异常处理</li>
+                                    <li>有意义的错误信息</li>
+                                    <li>日志记录机制</li>
+                                </ul>
+                            </td>
+                            <td>8%</td>
+                        </tr>
+                        <tr>
+                            <td>测试覆盖</td>
+                            <td>
+                                <ul>
+                                    <li>单元测试覆盖率</li>
+                                    <li>集成测试用例</li>
+                                    <li>性能测试</li>
+                                </ul>
+                            </td>
+                            <td>6%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="criteria-section">
+                <h3>3. 系统性能</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>性能指标</th>
+                            <th>目标值</th>
+                            <th>权重</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>数据处理时间</td>
+                            <td>100万行数据 &lt; 30秒</td>
+                            <td>5%</td>
+                        </tr>
+                        <tr>
+                            <td>模型预测时间</td>
+                            <td>单次预测 &lt; 1秒</td>
+                            <td>5%</td>
+                        </tr>
+                        <tr>
+                            <td>API响应时间</td>
+                            <td>平均 &lt; 500ms</td>
+                            <td>5%</td>
+                        </tr>
+                        <tr>
+                            <td>并发处理</td>
+                            <td>支持10+并发请求</td>
+                            <td>5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="criteria-section">
+                <h3>4. 文档完整性</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>文档类型</th>
+                            <th>内容要求</th>
+                            <th>权重</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>项目文档</td>
+                            <td>
+                                <ul>
+                                    <li>系统架构说明</li>
+                                    <li>功能模块描述</li>
+                                    <li>使用示例</li>
+                                </ul>
+                            </td>
+                            <td>3%</td>
+                        </tr>
+                        <tr>
+                            <td>API文档</td>
+                            <td>
+                                <ul>
+                                    <li>端点说明</li>
+                                    <li>请求/响应示例</li>
+                                    <li>错误代码</li>
+                                </ul>
+                            </td>
+                            <td>3%</td>
+                        </tr>
+                        <tr>
+                            <td>代码注释</td>
+                            <td>
+                                <ul>
+                                    <li>函数文档字符串</li>
+                                    <li>关键算法注释</li>
+                                    <li>复杂逻辑说明</li>
+                                </ul>
+                            </td>
+                            <td>2%</td>
+                        </tr>
+                        <tr>
+                            <td>部署指南</td>
+                            <td>
+                                <ul>
+                                    <li>环境要求</li>
+                                    <li>安装步骤</li>
+                                    <li>配置说明</li>
+                                </ul>
+                            </td>
+                            <td>2%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <section class="grading-scale">
+            <h2>评分等级</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>评分范围</th>
+                        <th>等级</th>
+                        <th>评价标准</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>90-100</td>
+                        <td>优秀</td>
+                        <td>超出所有要求，代码质量高，文档完整，性能优异</td>
+                    </tr>
+                    <tr>
+                        <td>80-89</td>
+                        <td>良好</td>
+                        <td>满足所有基本要求，部分方面表现突出</td>
+                    </tr>
+                    <tr>
+                        <td>70-79</td>
+                        <td>中等</td>
+                        <td>满足基本要求，但某些方面有待改进</td>
+                    </tr>
+                    <tr>
+                        <td>60-69</td>
+                        <td>及格</td>
+                        <td>基本功能实现，但存在明显不足</td>
+                    </tr>
+                    <tr>
+                        <td>0-59</td>
+                        <td>不及格</td>
+                        <td>未能满足基本要求或功能不完整</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <div class="module-navigation">
+            <a href="reference_implementation.html" class="btn">« 参考实现</a>
+            <a href="../../index.html" class="btn">返回模块首页 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

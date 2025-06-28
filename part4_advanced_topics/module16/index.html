@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块16: 综合项目实战 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            border-radius: 15px;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .project-card, .component-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .project-card:hover, .component-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .project-card h3, .component-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .project-card h3 i, .component-card h3 i {
+            margin-right: 0.5rem;
+            color: #667eea;
+        }
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .progress-indicator {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #28a745;
+        }
+        .resource-list {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .resource-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .resource-list li {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: background 0.3s ease;
+        }
+        .resource-list li:hover {
+            background: #e9ecef;
+        }
+        .resource-list li a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .resource-list li a i {
+            margin-right: 0.5rem;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+    
+    <main class="container">
+        <!-- 英雄区域 -->
+        <section class="hero">
+            <h1><i class="fas fa-rocket"></i> 模块16: 综合项目实战</h1>
+            <p>整合课程所学知识，开发完整的金融分析系统。从数据获取到系统部署，掌握金融科技项目的完整开发流程。</p>
+        </section>
+
+        <!-- 进度指示器 -->
+        <section class="progress-indicator">
+            <h3><i class="fas fa-chart-line"></i> 学习进度</h3>
+            <p><strong>最终模块</strong> - 综合应用前15个模块的所有知识和技能</p>
+            <div style="background: #28a745; height: 8px; border-radius: 4px; width: 100%; margin-top: 1rem;"></div>
+        </section>
+
+        <!-- 项目概述 -->
+        <section class="project-overview">
+            <h2><i class="fas fa-project-diagram"></i> 项目概述</h2>
+            <div class="project-card">
+                <h3><i class="fas fa-chart-area"></i> <a href="project_guide.html">智能金融分析系统</a></h3>
+                <p>构建一个企业级的金融分析系统，集成多种先进技术：</p>
+                <ul>
+                    <li><i class="fas fa-database"></i> 多源金融数据获取与实时更新</li>
+                    <li><i class="fas fa-cogs"></i> 智能数据清洗与特征工程</li>
+                    <li><i class="fas fa-brain"></i> 机器学习模型集成与预测</li>
+                    <li><i class="fas fa-chart-pie"></i> 交互式可视化分析仪表板</li>
+                    <li><i class="fas fa-cloud"></i> 云端部署与API服务</li>
+                    <li><i class="fas fa-shield-alt"></i> 风险管理与合规监控</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 项目组件 -->
+        <section class="project-components">
+            <h2><i class="fas fa-puzzle-piece"></i> 核心组件</h2>
+            <div class="component-grid">
+                <div class="component-card">
+                    <h3><i class="fas fa-download"></i> <a href="project_guide.html#data">数据获取引擎</a></h3>
+                    <p>集成多个金融数据源（股票、债券、外汇、加密货币），实现实时数据获取和历史数据回测。</p>
+                    <div style="margin-top: 1rem;">
+                        <span style="background: #e3f2fd; color: #1976d2; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">yfinance</span>
+                        <span style="background: #e8f5e8; color: #388e3c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">akshare</span>
+                        <span style="background: #fff3e0; color: #f57c00; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">tushare</span>
+                    </div>
+                </div>
+                
+                <div class="component-card">
+                    <h3><i class="fas fa-tools"></i> <a href="project_guide.html#features">特征工程模块</a></h3>
+                    <p>自动化特征生成，包括技术指标、基本面因子、市场情绪指标和宏观经济变量。</p>
+                    <div style="margin-top: 1rem;">
+                        <span style="background: #f3e5f5; color: #7b1fa2; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">TA-Lib</span>
+                        <span style="background: #e1f5fe; color: #0277bd; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">pandas</span>
+                        <span style="background: #e8eaf6; color: #3f51b5; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">numpy</span>
+                    </div>
+                </div>
+                
+                <div class="component-card">
+                    <h3><i class="fas fa-robot"></i> <a href="project_guide.html#models">AI预测引擎</a></h3>
+                    <p>集成多种机器学习模型，包括时间序列预测、分类模型和深度学习网络。</p>
+                    <div style="margin-top: 1rem;">
+                        <span style="background: #fff8e1; color: #f57f17; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">scikit-learn</span>
+                        <span style="background: #e0f2f1; color: #00695c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">tensorflow</span>
+                        <span style="background: #fce4ec; color: #c2185b; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">pytorch</span>
+                    </div>
+                </div>
+                
+                <div class="component-card">
+                    <h3><i class="fas fa-chart-line"></i> <a href="project_guide.html#visualization">可视化仪表板</a></h3>
+                    <p>构建交互式Web仪表板，提供实时数据监控、分析结果展示和用户交互功能。</p>
+                    <div style="margin-top: 1rem;">
+                        <span style="background: #e8f5e8; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">streamlit</span>
+                        <span style="background: #e3f2fd; color: #1565c0; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">plotly</span>
+                        <span style="background: #fff3e0; color: #ef6c00; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">dash</span>
+                    </div>
+                </div>
+                
+                <div class="component-card">
+                    <h3><i class="fas fa-server"></i> <a href="project_guide.html#api">API服务层</a></h3>
+                    <p>开发RESTful API，支持数据查询、模型预测和系统管理功能。</p>
+                    <div style="margin-top: 1rem;">
+                        <span style="background: #e8f5e8; color: #388e3c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">FastAPI</span>
+                        <span style="background: #f3e5f5; color: #7b1fa2; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">Flask</span>
+                        <span style="background: #e1f5fe; color: #0277bd; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">SQLAlchemy</span>
+                    </div>
+                </div>
+                
+                <div class="component-card">
+                    <h3><i class="fas fa-cloud-upload-alt"></i> <a href="project_guide.html#deployment">部署与运维</a></h3>
+                    <p>容器化部署，CI/CD流水线，监控告警和自动化运维。</p>
+                    <div style="margin-top: 1rem;">
+                        <span style="background: #e3f2fd; color: #1976d2; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">Docker</span>
+                        <span style="background: #e8f5e8; color: #388e3c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">Kubernetes</span>
+                        <span style="background: #fff8e1; color: #f57f17; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">AWS/Azure</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 项目资源 -->
+        <section class="resources">
+            <h2><i class="fas fa-book-open"></i> 学习资源</h2>
+            <div class="resource-list">
+                <ul>
+                    <li><a href="project_guide.html"><i class="fas fa-map"></i> 项目开发指南</a> - 详细的开发步骤和最佳实践</li>
+                    <li><a href="reference_implementation.html"><i class="fas fa-code"></i> 参考实现</a> - 完整的项目代码示例和架构设计</li>
+                    <li><a href="evaluation_criteria.html"><i class="fas fa-clipboard-check"></i> 评估标准</a> - 项目完成度和质量评价标准</li>
+                    <li><a href="lesson1.html"><i class="fas fa-play-circle"></i> 第1课: 项目规划与架构设计</a></li>
+                    <li><a href="lesson2.html"><i class="fas fa-play-circle"></i> 第2课: 数据层开发与集成</a></li>
+                    <li><a href="lesson3.html"><i class="fas fa-play-circle"></i> 第3课: 模型层开发与优化</a></li>
+                    <li><a href="lesson4.html"><i class="fas fa-play-circle"></i> 第4课: 前端开发与部署上线</a></li>
+                </ul>
+            </div>
+        </section>
+        <div class="module-navigation">
+            <a href="../../index.html" class="btn">« 上一模块: 机器学习在金融中的应用</a>
+            <a href="project_guide.html" class="btn">项目指南 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

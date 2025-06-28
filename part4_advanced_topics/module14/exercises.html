@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习题: 算法交易与回测系统 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>策略设计练习</h2>
+            <div class="exercise-card">
+                <h3>练习1: 双均线策略实现</h3>
+                <p>实现一个双均线交叉策略，当短期均线(20日)上穿长期均线(50日)时买入，下穿时卖出。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">def dual_moving_average_strategy(data, short_window=20, long_window=50):
+    """
+    双均线策略实现
+    :param data: 包含'close'列的DataFrame
+    :param short_window: 短期均线窗口
+    :param long_window: 长期均线窗口
+    :return: 包含'signal'列的DataFrame
+    """
+    # 你的代码在这里
+    pass</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 使用pandas的rolling方法计算移动平均，通过比较均线值生成信号。</p>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <h3>练习2: RSI策略优化</h3>
+                <p>修改基础RSI策略，加入以下优化:</p>
+                <ol>
+                    <li>当RSI低于30且价格高于20日均线时买入</li>
+                    <li>当RSI高于70且价格低于20日均线时卖出</li>
+                </ol>
+                <div class="code-block">
+                    <pre><code class="language-python">def enhanced_rsi_strategy(data, rsi_window=14, ma_window=20):
+    """
+    增强版RSI策略
+    :param data: 包含'close'列的DataFrame
+    :param rsi_window: RSI计算窗口
+                :param ma_window: 均线窗口
+                :return: 包含'signal'列的DataFrame
+                """
+                # 你的代码在这里
+                pass</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 先计算RSI和移动平均线，然后组合条件生成信号。</p>
+                </div>
+            </div>
+        </section>
+        <section class="exercises">
+            <h2>回测系统练习</h2>
+            <div class="exercise-card">
+                <h3>练习3: 回测引擎实现</h3>
+                <p>实现一个简易回测引擎，计算策略的累计收益率、最大回撤和夏普比率。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">class Backtester:
+    def __init__(self, initial_capital=100000, commission=0.001):
+        self.initial_capital = initial_capital
+        self.commission = commission
+    def run(self, data, signals):
+        """
+        运行回测
+        :param data: 包含价格数据的DataFrame
+        :param signals: 包含交易信号的DataFrame
+        :return: 回测结果字典
+        """
+        results = {
+            'equity': [self.initial_capital],
+            'returns': [],
+            'positions': [],
+            'metrics': {}
+        }
+        # 你的代码在这里
+        return results
+    def _calculate_metrics(self, equity_curve):
+        """计算绩效指标"""
+        metrics = {}
+        # 你的代码在这里
+        return metrics</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 按时间顺序处理信号，考虑交易成本和仓位管理。</p>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <h3>练习4: 回测可视化</h3>
+                <p>使用Matplotlib绘制回测结果的资产曲线和回撤曲线。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">import matplotlib.pyplot as plt
+def visualize_backtest(results):
+    """
+    可视化回测结果
+    :param results: 回测结果字典
+    """
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    # 你的代码在这里
+    plt.tight_layout()
+    plt.show()</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 使用双坐标轴分别显示资产曲线和回撤曲线。</p>
+                </div>
+            </div>
+        </section>
+        <section class="exercises">
+            <h2>交易执行练习</h2>
+            <div class="exercise-card">
+                <h3>练习5: TWAP订单实现</h3>
+                <p>实现一个时间加权平均价格(TWAP)订单执行算法。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">def twap_order(exchange, symbol, side, quantity, duration_minutes=30, slices=10):
+        """
+        TWAP订单执行
+        :param exchange: 交易所连接对象
+        :param symbol: 交易对
+        :param side: 'buy'或'sell'
+        :param quantity: 总数量
+        :param duration_minutes: 执行持续时间(分钟)
+        :param slices: 分割次数
+        """
+        # 你的代码在这里
+        pass</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 将总订单量均匀分割，按固定时间间隔执行。</p>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <h3>练习6: 风险管理模块</h3>
+                <p>实现一个风险管理类，包含以下功能:</p>
+                <ol>
+                    <li>检查单品种持仓不超过总资金的10%</li>
+                    <li>检查单日亏损不超过总资金的2%</li>
+                    <li>自动平仓功能</li>
+                </ol>
+                <div class="code-block">
+                    <pre><code class="language-python">class RiskManager:
+        def __init__(self, max_position_pct=0.1, max_daily_loss_pct=0.02):
+            self.max_position_pct = max_position_pct
+            self.max_daily_loss_pct = max_daily_loss_pct
+        def check_position(self, symbol, quantity, price, portfolio_value):
+            """检查持仓风险"""
+            # 你的代码在这里
+            pass
+        def check_daily_loss(self, initial_equity, current_equity):
+            """检查单日亏损"""
+            # 你的代码在这里
+            pass
+        def liquidate_position(self, exchange, symbol):
+            """平仓指定品种"""
+            # 你的代码在这里
+            pass</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 计算持仓价值和盈亏比例，执行相应的风险控制操作。</p>
+                </div>
+            </div>
+        </section>
+        <section class="exercise-solutions">
+            <h2>参考答案</h2>
+            <p>完成练习后，可以参考以下解决方案:</p>
+            <div class="solution-links">
+                <a href="#" class="btn" id="show-solution-1">练习1解答</a>
+                <a href="#" class="btn" id="show-solution-2">练习2解答</a>
+                <a href="#" class="btn" id="show-solution-3">练习3解答</a>
+                <a href="#" class="btn" id="show-solution-4">练习4解答</a>
+                <a href="#" class="btn" id="show-solution-5">练习5解答</a>
+                <a href="#" class="btn" id="show-solution-6">练习6解答</a>
+            </div>
+            <div id="solution-1" class="solution" style="display:none;">
+                <h3>练习1解答</h3>
+                <pre><code class="language-python">def dual_moving_average_strategy(data, short_window=20, long_window=50):
+    signals = pd.DataFrame(index=data.index)
+    signals['price'] = data['close']
+    signals['short_mavg'] = data['close'].rolling(window=short_window).mean()
+    signals['long_mavg'] = data['close'].rolling(window=long_window).mean()
+    # 生成信号
+    signals['signal'] = 0.0
+    signals['signal'][short_window:] = np.where(
+        signals['short_mavg'][short_window:] > signals['long_mavg'][short_window:], 1.0, 0.0)
+    # 生成交易信号
+    signals['positions'] = signals['signal'].diff()
+    return signals</code></pre>
+            </div>
+            <div id="solution-2" class="solution" style="display:none;">
+                <h3>练习2解答</h3>
+                <pre><code class="language-python">def enhanced_rsi_strategy(data, rsi_window=14, ma_window=20):
+    # 计算RSI
+    delta = data['close'].diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=rsi_window).mean()
+    avg_loss = loss.rolling(window=rsi_window).mean()
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    # 计算移动平均线
+    ma = data['close'].rolling(window=ma_window).mean()
+    # 生成信号
+    signals = pd.DataFrame(index=data.index)
+    signals['price'] = data['close']
+    signals['signal'] = 0
+    signals['signal'] = np.where((rsi < 30) & (data['close'] > ma), 1,
+                               np.where((rsi > 70) & (data['close'] < ma), -1, 0))
+    return signals</code></pre>
+            </div>
+        </section>
+        <div class="module-navigation">
+            <a href="project.html" class="btn">« 返回项目</a>
+            <a href="../../index.html" class="btn">下一模块: 机器学习在金融中的应用 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

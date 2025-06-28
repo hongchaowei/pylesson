@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习题: 机器学习在金融中的应用 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>监督学习练习</h2>
+            <div class="exercise-card">
+                <h3>练习1: 股票收益预测模型</h3>
+                <p>使用随机森林和XGBoost构建股票收益预测模型，并比较它们的性能。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+# 加载数据
+data = pd.read_csv('stock_returns.csv')
+# 准备特征和目标变量
+X = data.drop(['date', 'return_class'], axis=1)
+y = data['return_class']  # 1表示正收益，0表示负收益
+# 分割数据集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# 训练随机森林
+rf = RandomForestClassifier(n_estimators=100)
+rf.fit(X_train, y_train)
+# 训练XGBoost
+xgb = XGBClassifier(n_estimators=100)
+xgb.fit(X_train, y_train)
+# 评估模型
+rf_accuracy = accuracy_score(y_test, rf.predict(X_test))
+xgb_accuracy = accuracy_score(y_test, xgb.predict(X_test))
+print(f"随机森林准确率: {rf_accuracy:.2f}")
+print(f"XGBoost准确率: {xgb_accuracy:.2f}")</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 尝试调整模型超参数(如n_estimators, max_depth)以提高性能。</p>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <h3>练习2: 特征重要性分析</h3>
+                <p>分析哪些特征对股票收益预测影响最大，并可视化结果。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">import matplotlib.pyplot as plt
+# 获取特征重要性
+rf_importances = rf.feature_importances_
+xgb_importances = xgb.feature_importances_
+# 创建DataFrame便于可视化
+importance_df = pd.DataFrame({
+    'feature': X.columns,
+    'rf_importance': rf_importances,
+    'xgb_importance': xgb_importances
+})
+# 可视化
+plt.figure(figsize=(12, 6))
+importance_df.sort_values('rf_importance', ascending=False).plot(
+    x='feature', y='rf_importance', kind='bar', ax=plt.gca(), title='随机森林特征重要性'
+)
+plt.show()
+plt.figure(figsize=(12, 6))
+importance_df.sort_values('xgb_importance', ascending=False).plot(
+    x='feature', y='xgb_importance', kind='bar', ax=plt.gca(), title='XGBoost特征重要性'
+)
+plt.show()</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 使用SHAP值可以获得更细致的特征重要性分析。</p>
+                </div>
+            </div>
+        </section>
+        <section class="exercises">
+            <h2>无监督学习练习</h2>
+            <div class="exercise-card">
+                <h3>练习3: 股票聚类分析</h3>
+                <p>使用K-means和层次聚类方法对股票进行聚类分析。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.preprocessing import StandardScaler
+import seaborn as sns
+# 加载股票数据
+stocks = pd.read_csv('stock_features.csv', index_col='ticker')
+# 数据标准化
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(stocks)
+# K-means聚类
+kmeans = KMeans(n_clusters=5, random_state=42)
+kmeans_labels = kmeans.fit_predict(scaled_data)
+# 层次聚类
+agg = AgglomerativeClustering(n_clusters=5)
+agg_labels = agg.fit_predict(scaled_data)
+# 可视化聚类结果
+pca = PCA(n_components=2)
+reduced_data = pca.fit_transform(scaled_data)
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+sns.scatterplot(x=reduced_data[:, 0], y=reduced_data[:, 1], hue=kmeans_labels, palette='viridis')
+plt.title('K-means聚类')
+plt.subplot(1, 2, 2)
+sns.scatterplot(x=reduced_data[:, 0], y=reduced_data[:, 1], hue=agg_labels, palette='viridis')
+plt.title('层次聚类')
+plt.show()</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 尝试不同的聚类数量和距离度量方法。</p>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <h3>练习4: 异常交易检测</h3>
+                <p>使用孤立森林和LOF算法检测异常交易。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">from sklearn.ensemble import IsolationForest
+from sklearn.neighbors import LocalOutlierFactor
+# 加载交易数据
+transactions = pd.read_csv('transactions.csv')
+# 孤立森林
+iso = IsolationForest(contamination=0.01)
+iso_pred = iso.fit_predict(transactions)
+# LOF
+lof = LocalOutlierFactor(n_neighbors=20, contamination=0.01)
+lof_pred = lof.fit_predict(transactions)
+# 标记异常交易
+transactions['iso_anomaly'] = np.where(iso_pred == -1, 1, 0)
+transactions['lof_anomaly'] = np.where(lof_pred == -1, 1, 0)
+# 分析异常交易
+anomalies = transactions[(transactions['iso_anomaly'] == 1) | (transactions['lof_anomaly'] == 1)]</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 调整contamination参数控制异常检测的敏感度。</p>
+                </div>
+            </div>
+        </section>
+        <section class="exercises">
+            <h2>深度学习练习</h2>
+            <div class="exercise-card">
+                <h3>练习5: LSTM价格预测</h3>
+                <p>使用LSTM网络预测股票价格走势。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+from sklearn.preprocessing import MinMaxScaler
+# 准备数据
+data = pd.read_csv('stock_prices.csv', parse_dates=['date'])
+prices = data['close'].values.reshape(-1, 1)
+# 数据标准化
+scaler = MinMaxScaler()
+scaled_prices = scaler.fit_transform(prices)
+# 创建时间序列数据集
+def create_dataset(data, time_step=60):
+    X, y = [], []
+    for i in range(len(data)-time_step-1):
+        X.append(data[i:(i+time_step), 0])
+        y.append(data[i+time_step, 0])
+    return np.array(X), np.array(y)
+X, y = create_dataset(scaled_prices)
+X = X.reshape(X.shape[0], X.shape[1], 1)
+# 构建LSTM模型
+model = Sequential()
+model.add(LSTM(50, return_sequences=True, input_shape=(X.shape[1], 1)))
+model.add(LSTM(50))
+model.add(Dense(1))
+model.compile(optimizer='adam', loss='mean_squared_error')
+# 训练模型
+model.fit(X, y, epochs=20, batch_size=32, verbose=1)</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 尝试添加Dropout层防止过拟合，调整LSTM单元数量。</p>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <h3>练习6: 注意力机制模型</h3>
+                <p>构建带注意力机制的LSTM模型，提高预测可解释性。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">from tensorflow.keras.layers import Input, Dense, Multiply, Activation, RepeatVector, Permute
+from tensorflow.keras.models import Model
+# 注意力机制实现
+def attention_block(inputs):
+    attention = Dense(1, activation='tanh')(inputs)
+    attention = Activation('softmax')(attention)
+    attention = RepeatVector(inputs.shape[-1])(attention)
+    attention = Permute([2, 1])(attention)
+    return Multiply()([inputs, attention])
+# 构建模型
+inputs = Input(shape=(X.shape[1], 1))
+lstm_out = LSTM(50, return_sequences=True)(inputs)
+attention_out = attention_block(lstm_out)
+attention_out = LSTM(50)(attention_out)
+outputs = Dense(1)(attention_out)
+model = Model(inputs=inputs, outputs=outputs)
+model.compile(optimizer='adam', loss='mean_squared_error')
+model.fit(X, y, epochs=20, batch_size=32)</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 可视化注意力权重，了解模型关注的时间点。</p>
+                </div>
+            </div>
+        </section>
+        <section class="exercises">
+            <h2>模型解释练习</h2>
+            <div class="exercise-card">
+                <h3>练习7: SHAP值分析</h3>
+                <p>使用SHAP值解释随机森林模型的预测。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">import shap
+# 创建SHAP解释器
+explainer = shap.TreeExplainer(rf)
+shap_values = explainer.shap_values(X_test)
+# 可视化单个预测解释
+shap.initjs()
+shap.force_plot(explainer.expected_value[1], shap_values[1][0,:], X_test.iloc[0,:])
+# 特征重要性摘要图
+shap.summary_plot(shap_values, X_test)</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 尝试不同的可视化方法，如依赖图。</p>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <h3>练习8: LIME解释</h3>
+                <p>使用LIME解释XGBoost模型的单个预测。</p>
+                <div class="code-block">
+                    <pre><code class="language-python">from lime import lime_tabular
+# 创建LIME解释器
+explainer = lime_tabular.LimeTabularExplainer(
+    X_train.values,
+    feature_names=X_train.columns,
+    class_names=['Down', 'Up'],
+    mode='classification'
+)
+# 解释单个预测
+exp = explainer.explain_instance(
+    X_test.values[0],
+    xgb.predict_proba,
+    num_features=10
+)
+exp.show_in_notebook()</code></pre>
+                </div>
+                <div class="hint">
+                    <p>提示: 调整num_features参数控制显示的特征数量。</p>
+                </div>
+            </div>
+        </section>
+        <section class="exercise-solutions">
+            <h2>参考答案</h2>
+            <p>完成练习后，可以参考以下解决方案:</p>
+            <div class="solution-links">
+                <a href="#" class="btn" id="show-solution-1">练习1解答</a>
+                <a href="#" class="btn" id="show-solution-2">练习2解答</a>
+                <a href="#" class="btn" id="show-solution-3">练习3解答</a>
+                <a href="#" class="btn" id="show-solution-4">练习4解答</a>
+                <a href="#" class="btn" id="show-solution-5">练习5解答</a>
+                <a href="#" class="btn" id="show-solution-6">练习6解答</a>
+                <a href="#" class="btn" id="show-solution-7">练习7解答</a>
+                <a href="#" class="btn" id="show-solution-8">练习8解答</a>
+            </div>
+            <div id="solution-1" class="solution" style="display:none;">
+                <h3>练习1解答</h3>
+                <pre><code class="language-python"># 优化后的随机森林和XGBoost模型
+rf = RandomForestClassifier(n_estimators=200, max_depth=10, random_state=42)
+rf.fit(X_train, y_train)
+xgb = XGBClassifier(n_estimators=150, max_depth=5, learning_rate=0.1)
+xgb.fit(X_train, y_train)
+# 评估
+rf_accuracy = accuracy_score(y_test, rf.predict(X_test))
+xgb_accuracy = accuracy_score(y_test, xgb.predict(X_test))
+print(f"优化后随机森林准确率: {rf_accuracy:.2f}")
+print(f"优化后XGBoost准确率: {xgb_accuracy:.2f}")</code></pre>
+</body>
+</html>

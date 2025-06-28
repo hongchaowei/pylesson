@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2课: 回测系统与框架 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+    /* 确保代码块左对齐 */
+    .lesson-content pre {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        border-left: 4px solid #4299e1;
+    }
+    
+    .lesson-content code {
+        text-align: left !important;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #f5f7fa;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    
+    /* 确保pre标签内的内容左对齐 */
+    pre * {
+        text-align: left !important;
+    }
+    
+    /* 确保所有代码相关元素都左对齐 */
+    pre, code, .hljs {
+        text-align: left !important;
+    }
+    </style>
+    
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+<main class="container">
+        <section class="lesson-content">
+            <h2>回测框架介绍</h2>
+            <p>回测框架是量化交易的核心工具，用于验证交易策略在历史数据上的表现。</p>
+            <h3>1. Backtrader框架</h3>
+            <pre><code class="language-python">import backtrader as bt
+class SmaStrategy(bt.Strategy):
+    params = (('short_window', 20), ('long_window', 50))
+    def __init__(self):
+        self.sma_short = bt.indicators.SimpleMovingAverage(
+            self.data.close, period=self.p.short_window)
+        self.sma_long = bt.indicators.SimpleMovingAverage(
+            self.data.close, period=self.p.long_window)
+    def next(self):
+        if self.sma_short[0] > self.sma_long[0] and not self.position:
+            self.buy()
+        elif self.sma_short[0] < self.sma_long[0] and self.position:
+            self.close()
+# 创建回测引擎
+cerebro = bt.Cerebro()
+data = bt.feeds.PandasData(dataname=pd.read_csv('data.csv', index_col='date', parse_dates=True))
+cerebro.adddata(data)
+cerebro.addstrategy(SmaStrategy)
+cerebro.broker.setcash(100000.0)
+cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe')
+# 运行回测
+results = cerebro.run()
+sharpe_ratio = results[0].analyzers.sharpe.get_analysis()['sharperatio']</code></pre>
+            <h3>2. Zipline框架</h3>
+            <pre><code class="language-python">from zipline.api import order, record, symbol
+def initialize(context):
+    context.asset = symbol('AAPL')
+    context.short_window = 20
+    context.long_window = 50
+def handle_data(context, data):
+    short_mavg = data.history(context.asset, 'price', context.short_window, '1d').mean()
+    long_mavg = data.history(context.asset, 'price', context.long_window, '1d').mean()
+    if short_mavg > long_mavg and not context.portfolio.positions[context.asset].amount > 0:
+        order(context.asset, 100)
+    elif short_mavg < long_mavg and context.portfolio.positions[context.asset].amount > 0:
+        order(context.asset, -100)
+    record(AAPL=data.current(context.asset, 'price'),
+           short_mavg=short_mavg,
+           long_mavg=long_mavg)
+# 在命令行运行: zipline run -f dual_moving_average.py --start 2020-1-1 --end 2023-1-1</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>回测系统设计</h2>
+            <p>设计高效可靠的本地回测系统需要考虑数据管理、事件循环和性能优化等因素。</p>
+            <h3>1. 回测系统架构</h3>
+            <pre><code class="language-python">class BacktestEngine:
+    """简易回测引擎"""
+    def __init__(self, data_handler, strategy, portfolio, execution_handler):
+        """
+        :param data_handler: 数据管理模块
+        :param strategy: 策略模块
+        :param portfolio: 组合管理模块
+        :param execution_handler: 执行模块
+        """
+        self.data_handler = data_handler
+        self.strategy = strategy
+        self.portfolio = portfolio
+        self.execution_handler = execution_handler
+        self.signals = []
+    def run(self):
+        """运行回测"""
+        while True:
+            try:
+                # 获取最新市场数据
+                data = self.data_handler.get_latest_bars()
+                if data is None:
+                    break
+                # 生成交易信号
+                signals = self.strategy.generate_signals(data)
+                self.signals.append(signals)
+                # 更新组合
+                self.portfolio.update_portfolio(data, signals)
+                # 执行订单
+                self.execution_handler.execute_orders(data, signals)
+            except StopIteration:
+                break
+        # 计算绩效指标
+        performance = self._calculate_performance()
+        return performance
+    def _calculate_performance(self):
+        """计算回测绩效"""
+        # 实现夏普比率、最大回撤等计算
+        pass</code></pre>
+            <h3>2. 数据管理模块</h3>
+            <pre><code class="language-python">import pandas as pd
+class CSVDataHandler:
+    """CSV数据处理器"""
+    def __init__(self, csv_dir, symbol_list):
+        self.csv_dir = csv_dir
+        self.symbol_list = symbol_list
+        self.data = self._load_data()
+        self.current_idx = 0
+    def _load_data(self):
+        """加载CSV数据"""
+        data = {}
+        for symbol in self.symbol_list:
+            df = pd.read_csv(f"{self.csv_dir}/{symbol}.csv",
+                           index_col='date', parse_dates=True)
+            data[symbol] = df
+        return data
+    def get_latest_bars(self, N=1):
+        """获取最新N条数据"""
+        if self.current_idx + N > len(self.data[self.symbol_list[0]]):
+            raise StopIteration
+        bars = {}
+        for symbol in self.symbol_list:
+            bars[symbol] = self.data[symbol].iloc[self.current_idx:self.current_idx+N]
+        self.current_idx += N
+        return bars</code></pre>
+        </section>
+        <section class="lesson-content">
+            <h2>回测结果分析</h2>
+            <p>科学的回测结果分析需要关注绩效指标、风险控制和过拟合问题。</p>
+            <h3>1. 关键绩效指标</h3>
+            <pre><code class="language-python">def calculate_performance(returns, risk_free_rate=0.02):
+    """计算回测绩效指标"""
+    # 累计收益率
+    cumulative_return = (1 + returns).prod() - 1
+    # 年化收益率
+    annualized_return = (1 + cumulative_return) ** (252 / len(returns)) - 1
+    # 年化波动率
+    annualized_volatility = returns.std() * np.sqrt(252)
+    # 夏普比率
+    sharpe_ratio = (annualized_return - risk_free_rate) / annualized_volatility
+    # 最大回撤
+    cumulative = (1 + returns).cumprod()
+    peak = cumulative.expanding(min_periods=1).max()
+    drawdown = (cumulative - peak) / peak
+    max_drawdown = drawdown.min()
+    # 胜率
+    win_rate = len(returns[returns > 0]) / len(returns)
+    return {
+        'cumulative_return': cumulative_return,
+        'annualized_return': annualized_return,
+        'annualized_volatility': annualized_volatility,
+        'sharpe_ratio': sharpe_ratio,
+        'max_drawdown': max_drawdown,
+        'win_rate': win_rate
+    }</code></pre>
+            <h3>2. 回测可视化</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+def visualize_backtest(results):
+    """可视化回测结果"""
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    # 绘制资产曲线
+    ax1.plot(results['cumulative_return'], label='Strategy')
+    ax1.plot(results['benchmark_return'], label='Benchmark')
+    ax1.set_title('Cumulative Returns')
+    ax1.legend()
+    # 绘制回撤曲线
+    ax2.plot(results['drawdown'], label='Drawdown', color='red')
+    ax2.fill_between(results.index, results['drawdown'], color='red', alpha=0.3)
+    ax2.set_title('Drawdown')
+    plt.tight_layout()
+    plt.show()</code></pre>
+        </section>
+        <div class="lesson-navigation">
+            <a href="lesson1.html" class="btn">« 上一课: 交易策略设计</a>
+            <a href="lesson3.html" class="btn">下一课: 交易执行与实盘接口 »</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级主题 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            border-radius: 15px;
+        }
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .theory-overview {
+            margin-bottom: 3rem;
+        }
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .theory-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+        .theory-item:hover {
+            transform: translateY(-5px);
+        }
+        .theory-item h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        .theory-item h3 i {
+            margin-right: 0.5rem;
+        }
+        .formula {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        .part-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .part-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+        .part-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        .part-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        .part-header h3 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        .lesson-count {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .part-description {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        .module-details h4 {
+            color: #495057;
+            margin: 1.5rem 0 0.8rem 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        .module-details h4 i {
+            margin-right: 0.5rem;
+        }
+        .detailed-topics {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+        .detailed-topics li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #6c757d;
+        }
+        .detailed-topics li:before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .part-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+        }
+        .btn-accent {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .learning-path {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 3rem;
+            border-radius: 15px;
+            margin: 3rem 0;
+        }
+        .path-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .step-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+        .step-content p {
+            margin: 0;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        .special-features {
+            margin: 3rem 0;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        .navigation-section {
+            margin: 3rem 0;
+            text-align: center;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2rem;
+            }
+            .part-grid {
+                grid-template-columns: 1fr;
+            }
+            .part-actions {
+                flex-direction: column;
+            }
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .path-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="navigation-container"></div>
+<script>
+// 动态加载导航条
+function loadNavigation() {
+    fetch('../nav.html')
+        .then(response => response.text())
+        .then(html => {
+            // 更新导航中的链接路径
+            let updatedHtml = html;
+            
+            // 处理根目录文件链接（index.html, syllabus.html等）
+            updatedHtml = updatedHtml.replace(/href="index\.html"/g, 'href="../index.html"');
+            updatedHtml = updatedHtml.replace(/href="\.\/([^/]*\.html)"/g, 'href="../$1"');
+            
+            // 处理模块路径链接（已经是完整相对路径，只需要添加根路径前缀）
+            updatedHtml = updatedHtml.replace(/href="\.\/part([^"]*)"/g, 'href="../part$1"');
+            
+            document.getElementById('navigation-container').innerHTML = updatedHtml;
+            
+            // 添加移动端菜单切换功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+        })
+        .catch(error => console.error('导航加载失败:', error));
+}
+
+// 页面加载完成后加载导航
+document.addEventListener('DOMContentLoaded', loadNavigation);
+</script>
+
+
+
+    
+
+    <main class="container">
+        <section class="hero">
+            <h2>🚀 高级主题课程 (38课时)</h2>
+            <p>本部分将带您探索金融科技的前沿领域，深入学习算法交易系统、机器学习在金融中的应用、金融衍生品分析和综合项目实战。掌握量化金融的核心技术，成为金融科技领域的专业人才。</p>
+        </section>
+        <section class="theory-overview">
+            <h2>前沿技术理论</h2>
+            <div class="theory-grid">
+                <div class="theory-item">
+                    <h3><i class="fas fa-robot"></i> 算法交易理论</h3>
+                    <p>基于数学模型的交易策略优化：</p>
+                    <div class="formula">max E[R<sub>p</sub>] - λ × Var[R<sub>p</sub>], s.t. Σw<sub>i</sub> = 1</div>
+                    <p>学习回测框架设计、策略评估和风险控制</p>
+                </div>
+                <div class="theory-item">
+                    <h3><i class="fas fa-brain"></i> 机器学习理论</h3>
+                    <p>监督学习的损失函数优化：</p>
+                    <div class="formula">min J(θ) = 1/m Σ L(h<sub>θ</sub>(x<sup>(i)</sup>), y<sup>(i)</sup>) + λR(θ)</div>
+                    <p>掌握特征工程、模型选择和过拟合控制</p>
+                </div>
+                <div class="theory-item">
+                    <h3><i class="fas fa-chart-line"></i> 衍生品定价理论</h3>
+                    <p>期权定价的风险中性测度：</p>
+                    <div class="formula">V(S,t) = e<sup>-r(T-t)</sup>E<sup>Q</sup>[V(S<sub>T</sub>,T) | S<sub>t</sub> = S]</div>
+                    <p>理解蒙特卡洛模拟和有限差分方法</p>
+                </div>
+                <div class="theory-item">
+                    <h3><i class="fas fa-cogs"></i> 系统架构理论</h3>
+                    <p>高频交易系统的延迟优化：</p>
+                    <div class="formula">Latency = Network + Processing + Queue + I/O</div>
+                    <p>学习微服务架构、消息队列和分布式系统</p>
+                </div>
+            </div>
+        </section>
+        <section class="course-parts">
+            <h2>🚀 课程模块</h2>
+            <div class="part-grid">
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>📊 模块13: 金融衍生品分析</h3>
+                        <span class="lesson-count">8课时</span>
+                    </div>
+                    <p class="part-description">期权定价、希腊字母计算和衍生品策略</p>
+                    <div class="module-details">
+                        <h4>📚 理论基础</h4>
+                        <ul class="detailed-topics">
+                            <li>Black-Scholes偏微分方程</li>
+                            <li>风险中性定价理论</li>
+                            <li>二项式期权定价模型</li>
+                            <li>蒙特卡洛期权定价</li>
+                        </ul>
+                        <h4>💻 实践技能</h4>
+                        <ul class="detailed-topics">
+                            <li>期权希腊字母计算</li>
+                            <li>隐含波动率求解</li>
+                            <li>奇异期权定价</li>
+                            <li>期权组合策略分析</li>
+                        </ul>
+                    </div>
+                    <div class="part-actions">
+                        <a href="module13/lesson1.html" class="btn btn-primary"><i class="fas fa-play"></i> 开始学习</a>
+                        <a href="module13/exercises.html" class="btn btn-secondary"><i class="fas fa-tasks"></i> 练习题</a>
+                        <a href="module13/project.html" class="btn btn-accent"><i class="fas fa-rocket"></i> 项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>🤖 模块14: 算法交易与回测系统</h3>
+                        <span class="lesson-count">8课时</span>
+                    </div>
+                    <p class="part-description">交易策略开发、回测框架和实盘交易</p>
+                    <div class="module-details">
+                        <h4>📚 理论基础</h4>
+                        <ul class="detailed-topics">
+                            <li>量化交易策略分类</li>
+                            <li>回测偏差与数据挖掘</li>
+                            <li>交易成本建模</li>
+                            <li>策略容量与滑点分析</li>
+                        </ul>
+                        <h4>💻 实践技能</h4>
+                        <ul class="detailed-topics">
+                            <li>Backtrader框架应用</li>
+                            <li>策略信号生成</li>
+                            <li>风险管理模块</li>
+                            <li>实盘交易接口</li>
+                        </ul>
+                    </div>
+                    <div class="part-actions">
+                        <a href="module14/lesson1.html" class="btn btn-primary"><i class="fas fa-play"></i> 开始学习</a>
+                        <a href="module14/exercises.html" class="btn btn-secondary"><i class="fas fa-tasks"></i> 练习题</a>
+                        <a href="module14/project.html" class="btn btn-accent"><i class="fas fa-rocket"></i> 项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>🧠 模块15: 机器学习在金融中的应用</h3>
+                        <span class="lesson-count">14课时</span>
+                    </div>
+                    <p class="part-description">金融机器学习、特征工程和模型评估</p>
+                    <div class="module-details">
+                        <h4>📚 理论基础</h4>
+                        <ul class="detailed-topics">
+                            <li>金融时间序列特性</li>
+                            <li>标签泄露与前瞻偏差</li>
+                            <li>交叉验证方法改进</li>
+                            <li>模型解释性分析</li>
+                        </ul>
+                        <h4>💻 实践技能</h4>
+                        <ul class="detailed-topics">
+                            <li>金融特征工程</li>
+                            <li>集成学习方法</li>
+                            <li>深度学习应用</li>
+                            <li>模型部署与监控</li>
+                        </ul>
+                    </div>
+                    <div class="part-actions">
+                        <a href="module15/lesson1.html" class="btn btn-primary"><i class="fas fa-play"></i> 开始学习</a>
+                        <a href="module15/exercises.html" class="btn btn-secondary"><i class="fas fa-tasks"></i> 练习题</a>
+                        <a href="module15/project.html" class="btn btn-accent"><i class="fas fa-rocket"></i> 项目实战</a>
+                    </div>
+                </div>
+                <div class="part-card">
+                    <div class="part-header">
+                        <h3>🎯 模块16: 综合项目与实践</h3>
+                        <span class="lesson-count">8课时</span>
+                    </div>
+                    <p class="part-description">完整量化交易系统开发和部署</p>
+                    <div class="module-details">
+                        <h4>📚 理论基础</h4>
+                        <ul class="detailed-topics">
+                            <li>系统架构设计原则</li>
+                            <li>微服务架构模式</li>
+                            <li>数据库设计优化</li>
+                            <li>系统性能评估</li>
+                        </ul>
+                        <h4>💻 实践技能</h4>
+                        <ul class="detailed-topics">
+                            <li>完整系统开发</li>
+                            <li>Docker容器化部署</li>
+                            <li>监控与日志系统</li>
+                            <li>代码质量管理</li>
+                        </ul>
+                    </div>
+                    <div class="part-actions">
+                        <a href="module16/lesson1.html" class="btn btn-primary"><i class="fas fa-play"></i> 开始学习</a>
+                        <a href="module16/project_guide.html" class="btn btn-secondary"><i class="fas fa-book"></i> 项目指南</a>
+                        <a href="module16/evaluation_criteria.html" class="btn btn-accent"><i class="fas fa-star"></i> 评估标准</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="learning-path">
+            <h2>📈 学习路径建议</h2>
+            <div class="path-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>算法交易入门</h4>
+                        <p>从模块13开始，构建交易策略和回测系统</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>机器学习应用</h4>
+                        <p>学习模块14，将AI技术应用到金融预测</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>时间序列建模</h4>
+                        <p>掌握模块15，进行专业的时间序列分析</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>综合项目实战</h4>
+                        <p>完成模块16，整合所有技能构建完整系统</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="special-features">
+            <h2>🎯 特色内容</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>🔥 实时数据处理</h4>
+                    <p>学习处理实时金融数据流，构建高性能数据管道</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🤖 机器学习算法</h4>
+                    <p>深入学习监督学习、无监督学习和深度学习在金融中的应用</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🏗️ 系统架构</h4>
+                    <p>设计可扩展的金融系统架构，支持高并发和大数据</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 性能监控</h4>
+                    <p>建立完整的监控体系，确保系统稳定运行</p>
+                </div>
+            </div>
+        </section>
+        <section class="navigation-section">
+            <div class="nav-buttons">
+                <a href="../part3_finance_applications/index.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> 上一部分: 金融应用</a>
+                <a href="../syllabus.html" class="btn btn-primary">查看课程大纲 <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>
