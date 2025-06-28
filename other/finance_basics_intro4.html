@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人理财规划 - Python金融编程课程</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .concept-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 5px solid #007bff;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .life-example {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .planning-step {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .goal-card {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .budget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .budget-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .budget-card:hover {
+            transform: translateY(-5px);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+        .calculator {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #007bff;
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .result-display {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .age-timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        .age-timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, #28a745, #ffc107, #dc3545);
+            z-index: 1;
+        }
+        .age-milestone {
+            background: white;
+            border: 3px solid #007bff;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="hero" style="background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%); color: white; padding: 3rem 0; text-align: center; margin-bottom: 2rem; border-radius: 15px;">
+            <h1><i class="fas fa-piggy-bank"></i> 个人理财规划</h1>
+            <p style="font-size: 1.2rem; margin-top: 1rem;">制定属于你的财富增长计划</p>
+        </header>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-route"></i> 理财规划的步骤</h2>
+            
+            <div class="concept-card">
+                <h3><i class="fas fa-map"></i> 理财规划路线图</h3>
+                <p><strong>理财就像旅行：</strong>需要知道起点、终点和路线。</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #007bff, #0056b3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                            <span style="color: white; font-size: 24px; font-weight: bold;">1</span>
+                        </div>
+                        <h4>了解现状</h4>
+                        <p>收入、支出、资产、负债</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #28a745, #20c997); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                            <span style="color: white; font-size: 24px; font-weight: bold;">2</span>
+                        </div>
+                        <h4>设定目标</h4>
+                        <p>短期、中期、长期目标</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #ffc107, #ff8f00); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                            <span style="color: white; font-size: 24px; font-weight: bold;">3</span>
+                        </div>
+                        <h4>制定计划</h4>
+                        <p>预算、储蓄、投资策略</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                            <span style="color: white; font-size: 24px; font-weight: bold;">4</span>
+                        </div>
+                        <h4>执行监控</h4>
+                        <p>定期检查、调整优化</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-calculator"></i> 个人财务分析</h2>
+            
+            <div class="planning-step">
+                <h3><i class="fas fa-chart-pie"></i> 收支分析</h3>
+                
+                <div class="life-example">
+                    <h4>💰 月收入构成</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px;">
+                            <h5>💼 主要收入</h5>
+                            <ul>
+                                <li>工资收入</li>
+                                <li>奖金提成</li>
+                                <li>津贴补贴</li>
+                            </ul>
+                        </div>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                            <h5>💎 被动收入</h5>
+                            <ul>
+                                <li>投资收益</li>
+                                <li>租金收入</li>
+                                <li>利息分红</li>
+                            </ul>
+                        </div>
+                        <div style="background: #fff3e0; padding: 15px; border-radius: 8px;">
+                            <h5>🎯 其他收入</h5>
+                            <ul>
+                                <li>兼职收入</li>
+                                <li>副业收入</li>
+                                <li>临时收入</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="calculator">
+                    <h4>📊 收支计算器</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <h5>💰 收入项目</h5>
+                            <div class="input-group">
+                                <label>月工资收入：</label>
+                                <input type="number" id="salary" placeholder="请输入金额" value="8000">
+                            </div>
+                            <div class="input-group">
+                                <label>投资收益：</label>
+                                <input type="number" id="investment" placeholder="请输入金额" value="500">
+                            </div>
+                            <div class="input-group">
+                                <label>其他收入：</label>
+                                <input type="number" id="other-income" placeholder="请输入金额" value="300">
+                            </div>
+                        </div>
+                        <div>
+                            <h5>💸 支出项目</h5>
+                            <div class="input-group">
+                                <label>房租/房贷：</label>
+                                <input type="number" id="housing" placeholder="请输入金额" value="3000">
+                            </div>
+                            <div class="input-group">
+                                <label>生活费用：</label>
+                                <input type="number" id="living" placeholder="请输入金额" value="2000">
+                            </div>
+                            <div class="input-group">
+                                <label>其他支出：</label>
+                                <input type="number" id="other-expense" placeholder="请输入金额" value="1000">
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="calculateBudget()" style="width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; margin-top: 15px; cursor: pointer;">计算财务状况</button>
+                    
+                    <div id="budget-result" class="result-display" style="margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+                            <div>
+                                <h6>总收入</h6>
+                                <span id="total-income" style="color: #28a745; font-size: 1.5em; font-weight: bold;">8,800元</span>
+                            </div>
+                            <div>
+                                <h6>总支出</h6>
+                                <span id="total-expense" style="color: #dc3545; font-size: 1.5em; font-weight: bold;">6,000元</span>
+                            </div>
+                            <div>
+                                <h6>结余</h6>
+                                <span id="net-income" style="color: #007bff; font-size: 1.5em; font-weight: bold;">2,800元</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <strong>储蓄率: </strong><span id="saving-rate" style="color: #ffc107; font-size: 1.2em;">31.8%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-bullseye"></i> 理财目标设定</h2>
+            
+            <div class="goal-card">
+                <h3><i class="fas fa-calendar-alt"></i> 人生不同阶段的理财目标</h3>
+                
+                <div class="age-timeline">
+                    <div class="age-milestone">
+                        <div>20-30岁</div>
+                        <small>积累期</small>
+                    </div>
+                    <div class="age-milestone">
+                        <div>30-40岁</div>
+                        <small>成长期</small>
+                    </div>
+                    <div class="age-milestone">
+                        <div>40-50岁</div>
+                        <small>稳定期</small>
+                    </div>
+                    <div class="age-milestone">
+                        <div>50-60岁</div>
+                        <small>保守期</small>
+                    </div>
+                    <div class="age-milestone">
+                        <div>60岁+</div>
+                        <small>享受期</small>
+                    </div>
+                </div>
+                
+                <div class="budget-grid">
+                    <div class="budget-card">
+                        <h4>🎓 20-30岁：积累期</h4>
+                        <div style="text-align: left; margin: 15px 0;">
+                            <p><strong>主要目标：</strong></p>
+                            <ul>
+                                <li>建立应急基金</li>
+                                <li>还清学生贷款</li>
+                                <li>开始投资理财</li>
+                                <li>购买基础保险</li>
+                            </ul>
+                        </div>
+                        <p><strong>建议储蓄率：</strong>20-30%</p>
+                    </div>
+                    
+                    <div class="budget-card">
+                        <h4>🏠 30-40岁：成长期</h4>
+                        <div style="text-align: left; margin: 15px 0;">
+                            <p><strong>主要目标：</strong></p>
+                            <ul>
+                                <li>购房置业</li>
+                                <li>子女教育基金</li>
+                                <li>增加投资比例</li>
+                                <li>完善保险保障</li>
+                            </ul>
+                        </div>
+                        <p><strong>建议储蓄率：</strong>15-25%</p>
+                    </div>
+                    
+                    <div class="budget-card">
+                        <h4>💼 40-50岁：稳定期</h4>
+                        <div style="text-align: left; margin: 15px 0;">
+                            <p><strong>主要目标：</strong></p>
+                            <ul>
+                                <li>加速养老储备</li>
+                                <li>子女教育支出</li>
+                                <li>资产配置优化</li>
+                                <li>健康保障升级</li>
+                            </ul>
+                        </div>
+                        <p><strong>建议储蓄率：</strong>25-35%</p>
+                    </div>
+                    
+                    <div class="budget-card">
+                        <h4>🛡️ 50-60岁：保守期</h4>
+                        <div style="text-align: left; margin: 15px 0;">
+                            <p><strong>主要目标：</strong></p>
+                            <ul>
+                                <li>养老金准备</li>
+                                <li>降低投资风险</li>
+                                <li>医疗保障充足</li>
+                                <li>债务清零</li>
+                            </ul>
+                        </div>
+                        <p><strong>建议储蓄率：</strong>30-40%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-chart-line"></i> 理财工具选择</h2>
+            
+            <div class="concept-card">
+                <h3><i class="fas fa-toolbox"></i> 不同目标的理财工具</h3>
+                
+                <div class="budget-grid">
+                    <div class="budget-card" style="border-left: 5px solid #28a745;">
+                        <h4>🏦 应急基金</h4>
+                        <p><strong>目标：</strong>3-6个月生活费</p>
+                        <p><strong>工具：</strong></p>
+                        <ul style="text-align: left;">
+                            <li>活期存款</li>
+                            <li>货币基金</li>
+                            <li>短期理财</li>
+                        </ul>
+                        <p><strong>特点：</strong>流动性好，风险低</p>
+                    </div>
+                    
+                    <div class="budget-card" style="border-left: 5px solid #007bff;">
+                        <h4>🎯 短期目标</h4>
+                        <p><strong>目标：</strong>1-3年内实现</p>
+                        <p><strong>工具：</strong></p>
+                        <ul style="text-align: left;">
+                            <li>定期存款</li>
+                            <li>债券基金</li>
+                            <li>银行理财</li>
+                        </ul>
+                        <p><strong>特点：</strong>收益稳定，风险较低</p>
+                    </div>
+                    
+                    <div class="budget-card" style="border-left: 5px solid #ffc107;">
+                        <h4>🏠 中期目标</h4>
+                        <p><strong>目标：</strong>3-10年实现</p>
+                        <p><strong>工具：</strong></p>
+                        <ul style="text-align: left;">
+                            <li>混合基金</li>
+                            <li>指数基金</li>
+                            <li>股票基金</li>
+                        </ul>
+                        <p><strong>特点：</strong>平衡风险收益</p>
+                    </div>
+                    
+                    <div class="budget-card" style="border-left: 5px solid #dc3545;">
+                        <h4>👴 长期目标</h4>
+                        <p><strong>目标：</strong>10年以上</p>
+                        <p><strong>工具：</strong></p>
+                        <ul style="text-align: left;">
+                            <li>股票投资</li>
+                            <li>房地产</li>
+                            <li>养老保险</li>
+                        </ul>
+                        <p><strong>特点：</strong>高收益潜力，可承受波动</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-shield-alt"></i> 风险管理</h2>
+            
+            <div class="planning-step">
+                <h3><i class="fas fa-umbrella"></i> 保险规划</h3>
+                
+                <div class="life-example">
+                    <h4>🛡️ 保险配置优先级</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🏥</div>
+                            <h5>医疗保险</h5>
+                            <p><strong>优先级：★★★★★</strong></p>
+                            <p>基础保障，必须配置</p>
+                        </div>
+                        
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">💀</div>
+                            <h5>意外险</h5>
+                            <p><strong>优先级：★★★★☆</strong></p>
+                            <p>保费低，保障高</p>
+                        </div>
+                        
+                        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">💼</div>
+                            <h5>重疾险</h5>
+                            <p><strong>优先级：★★★★☆</strong></p>
+                            <p>年轻时配置更划算</p>
+                        </div>
+                        
+                        <div style="background: #fce4ec; padding: 15px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">👨‍👩‍👧‍👦</div>
+                            <h5>寿险</h5>
+                            <p><strong>优先级：★★★☆☆</strong></p>
+                            <p>有家庭责任时配置</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="calculator">
+                    <h4>💰 保险保额计算器</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <div class="input-group">
+                                <label>年收入：</label>
+                                <input type="number" id="annual-income" placeholder="请输入年收入" value="120000">
+                            </div>
+                            <div class="input-group">
+                                <label>家庭负债：</label>
+                                <input type="number" id="debt" placeholder="请输入负债总额" value="500000">
+                            </div>
+                            <div class="input-group">
+                                <label>子女年龄：</label>
+                                <input type="number" id="child-age" placeholder="最小子女年龄" value="5">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="input-group">
+                                <label>年支出：</label>
+                                <input type="number" id="annual-expense" placeholder="请输入年支出" value="80000">
+                            </div>
+                            <div class="input-group">
+                                <label>现有保额：</label>
+                                <input type="number" id="existing-coverage" placeholder="现有保险保额" value="100000">
+                            </div>
+                            <div class="input-group">
+                                <label>保障年限：</label>
+                                <input type="number" id="coverage-years" placeholder="需要保障的年数" value="20">
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="calculateInsurance()" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; margin-top: 15px; cursor: pointer;">计算保险需求</button>
+                    
+                    <div id="insurance-result" class="result-display" style="margin-top: 20px;">
+                        <h5>保险需求分析结果</h5>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center;">
+                            <div>
+                                <h6>建议寿险保额</h6>
+                                <span id="life-insurance" style="color: #007bff; font-size: 1.5em; font-weight: bold;">200万元</span>
+                            </div>
+                            <div>
+                                <h6>保额缺口</h6>
+                                <span id="coverage-gap" style="color: #dc3545; font-size: 1.5em; font-weight: bold;">100万元</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lesson-content">
+            <h2><i class="fas fa-lightbulb"></i> 理财实用技巧</h2>
+            
+            <div class="concept-card">
+                <h3><i class="fas fa-magic"></i> 理财小窍门</h3>
+                
+                <div class="budget-grid">
+                    <div class="budget-card" style="border-left: 5px solid #007bff;">
+                        <h4>💰 先付自己</h4>
+                        <p>收入到手后，先存储蓄，再安排支出</p>
+                        <p><strong>公式：</strong>收入 - 储蓄 = 支出</p>
+                    </div>
+                    
+                    <div class="budget-card" style="border-left: 5px solid #28a745;">
+                        <h4>🔄 自动化理财</h4>
+                        <p>设置自动转账，定期定额投资</p>
+                        <p><strong>好处：</strong>避免人性弱点，强制储蓄</p>
+                    </div>
+                    
+                    <div class="budget-card" style="border-left: 5px solid #ffc107;">
+                        <h4>📊 记账习惯</h4>
+                        <p>记录每一笔收支，了解钱的去向</p>
+                        <p><strong>工具：</strong>记账APP、Excel表格</p>
+                    </div>
+                    
+                    <div class="budget-card" style="border-left: 5px solid #dc3545;">
+                        <h4>🎯 目标导向</h4>
+                        <p>为每个目标设立专门账户</p>
+                        <p><strong>例如：</strong>旅游基金、购车基金</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="finance_basics_intro3.html" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #007bff, #0056b3); color: white; text-decoration: none; border-radius: 25px; margin: 0 10px; transition: transform 0.3s ease;">
+                <i class="fas fa-arrow-left"></i> 上一章：投资基础知识
+            </a>
+            <a href="finance_basics_intro5.html" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #28a745, #20c997); color: white; text-decoration: none; border-radius: 25px; margin: 0 10px; transition: transform 0.3s ease;">
+                下一章：金融科技与未来 <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <footer style="text-align: center; margin-top: 50px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <p>&copy; 2024 Python金融编程课程. 保留所有权利.</p>
+        </footer>
+    </div>
+
+    <script>
+        function calculateBudget() {
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const investment = parseFloat(document.getElementById('investment').value) || 0;
+            const otherIncome = parseFloat(document.getElementById('other-income').value) || 0;
+            const housing = parseFloat(document.getElementById('housing').value) || 0;
+            const living = parseFloat(document.getElementById('living').value) || 0;
+            const otherExpense = parseFloat(document.getElementById('other-expense').value) || 0;
+            
+            const totalIncome = salary + investment + otherIncome;
+            const totalExpense = housing + living + otherExpense;
+            const netIncome = totalIncome - totalExpense;
+            const savingRate = totalIncome > 0 ? (netIncome / totalIncome * 100) : 0;
+            
+            document.getElementById('total-income').textContent = totalIncome.toLocaleString() + '元';
+            document.getElementById('total-expense').textContent = totalExpense.toLocaleString() + '元';
+            document.getElementById('net-income').textContent = netIncome.toLocaleString() + '元';
+            document.getElementById('saving-rate').textContent = savingRate.toFixed(1) + '%';
+            
+            // 更新颜色
+            const netElement = document.getElementById('net-income');
+            netElement.style.color = netIncome >= 0 ? '#28a745' : '#dc3545';
+            
+            const rateElement = document.getElementById('saving-rate');
+            if (savingRate >= 30) {
+                rateElement.style.color = '#28a745';
+            } else if (savingRate >= 20) {
+                rateElement.style.color = '#ffc107';
+            } else {
+                rateElement.style.color = '#dc3545';
+            }
+        }
+        
+        function calculateInsurance() {
+            const annualIncome = parseFloat(document.getElementById('annual-income').value) || 0;
+            const debt = parseFloat(document.getElementById('debt').value) || 0;
+            const childAge = parseFloat(document.getElementById('child-age').value) || 0;
+            const annualExpense = parseFloat(document.getElementById('annual-expense').value) || 0;
+            const existingCoverage = parseFloat(document.getElementById('existing-coverage').value) || 0;
+            const coverageYears = parseFloat(document.getElementById('coverage-years').value) || 0;
+            
+            // 简化的保险需求计算公式
+            const incomeReplacement = annualIncome * coverageYears;
+            const childEducation = Math.max(0, (18 - childAge)) * 50000; // 假设每年教育费用5万
+            const totalNeed = incomeReplacement + debt + childEducation;
+            const coverageGap = Math.max(0, totalNeed - existingCoverage);
+            
+            document.getElementById('life-insurance').textContent = (totalNeed / 10000).toFixed(0) + '万元';
+            document.getElementById('coverage-gap').textContent = (coverageGap / 10000).toFixed(0) + '万元';
+        }
+        
+        // 页面加载时执行初始计算
+        window.onload = function() {
+            calculateBudget();
+            calculateInsurance();
+        };
+    </script>
+</body>
+</html>
