@@ -456,11 +456,14 @@ nav {
     display: none;
     position: absolute;
     background-color: white;
-    min-width: 250px;
+    min-width: 300px;
+    max-width: 400px;
     box-shadow: var(--box-shadow);
     z-index: 1;
     border-radius: var(--border-radius);
     overflow: hidden;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .dropdown-content a {
@@ -476,6 +479,59 @@ nav {
 
 .dropdown:hover .dropdown-content {
     display: block;
+}
+
+/* 下拉菜单分组样式 */
+.dropdown-group {
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 8px;
+}
+
+.dropdown-group:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.group-title {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-bottom: 2px solid var(--secondary-color);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.dropdown-group a {
+    padding: 8px 20px 8px 30px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.dropdown-group a:before {
+    content: '▸';
+    position: absolute;
+    left: 20px;
+    color: var(--secondary-color);
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.dropdown-group a:hover {
+    background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+    color: var(--primary-color);
+    padding-left: 35px;
+}
+
+.dropdown-group a:hover:before {
+    transform: rotate(90deg);
 }
 
 /* 移动菜单按钮 */
@@ -880,6 +936,8 @@ section h2 {
     padding-top: 20px;
     border-top: 1px solid var(--border-color);
 }
+
+.course-part ul li {
     position: relative;
     padding-left: 15px;
 }

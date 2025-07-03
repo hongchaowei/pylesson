@@ -301,5 +301,49 @@ print(f"合并后的投资组合: {combined}")</pre>
 apple = Stock("苹果公司", "AAPL", 150.25, 100)
 # 访问属性
 print(f"股票价格: ${apple.price:.2f}")
+print(f"股票总价值: ${apple.value:,.2f}")
+
+# 设置新价格
+apple.price = 155.50
+print(f"更新后的价格: ${apple.price:.2f}")
+print(f"更新后的总价值: ${apple.value:,.2f}")
+
+# 尝试设置负价格
+try:
+    apple.price = -10
+except ValueError as e:
+    print(f"错误: {e}")</pre>
+            </div>
+        </section>
+        <section class="lesson-content">
+            <h2>小结</h2>
+            <p>在本课中，我们学习了：</p>
+            <ul>
+                <li>特殊方法（魔术方法）的概念和使用</li>
+                <li>字符串表示方法<code>__str__</code>和<code>__repr__</code></li>
+                <li>运算符重载的实现方法</li>
+                <li>属性装饰器<code>@property</code>的使用</li>
+                <li>如何在金融应用中应用这些概念</li>
+            </ul>
+            <div class="get-started">
+                <h3>准备好继续学习了吗？</h3>
+                <p>在下一课中，我们将学习Python的异常处理，这是编写健壮程序的重要技能。</p>
+                <a href="lesson4.html" class="btn btn-large">下一课：异常处理 »</a>
+            </div>
+        </section>
+        <div class="lesson-navigation">
+            <div>
+                <a href="lesson2.html" class="btn">« 上一课：继承与多态</a>
+            </div>
+            <div>
+                <a href="lesson4.html" class="btn">下一课：异常处理 »</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Python金融编程课程. 保留所有权利.</p>
+        </div>
+    </footer>
 </body>
 </html>
